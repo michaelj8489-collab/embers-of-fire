@@ -1,65 +1,95 @@
+'use client';
+
+import { useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { useRouter } from 'next/navigation'; // <-- The digital usher!
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const router = useRouter(); // <-- Activating the usher
+  
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      // SUCCESS! Send them to the Sanctuary!
+      router.push('/dashboard');
+    }
+  };
+
   return (
-    <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden text-center bg-black">
-      
-      {/* 🎬 Consistent Video Background */}
-      <video autoPlay muted loop playsInline className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] object-cover object-top z-0 opacity-50">
-        <source src="/images/eol-moving-background.mp4" type="video/mp4" />
-      </video>
-      
-      {/* 🌑 Dark Overlay */}
-      <div className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] bg-black/70 z-10"></div>
-
-      {/* 🔝 Solid Navigation Header */}
+    <div className="min-h-screen bg-black text-gray-200 flex flex-col font-sans">
       <Header />
-
-      {/* 🔐 Login Box Wrapper */}
-      <div className="relative z-20 w-full max-w-md px-8 py-12 bg-black/80 backdrop-blur-md rounded-2xl border border-orange-900/50 shadow-[0_0_50px_rgba(255,100,0,0.15)] mt-12 mb-12">
-        
-        <h1 className="text-4xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-4 tracking-wider drop-shadow-md">
-          Sign In
-        </h1>
-        <p className="text-xl font-cormorant text-gray-300 mb-8 italic">
-          Welcome back to the sanctuary.
-        </p>
-
-        <form className="flex flex-col gap-6">
-          <div className="text-left">
-            <label className="block text-orange-400 font-cinzel font-bold tracking-widest text-sm mb-2">Email</label>
-            <input 
-              type="email" 
-              className="w-full bg-black/50 border border-orange-900/50 rounded-lg px-4 py-3 text-gray-100 font-cormorant text-lg focus:outline-none focus:border-orange-500 transition shadow-inner"
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="text-left">
-            <label className="block text-orange-400 font-cinzel font-bold tracking-widest text-sm mb-2">Password</label>
-            <input 
-              type="password" 
-              className="w-full bg-black/50 border border-orange-900/50 rounded-lg px-4 py-3 text-gray-100 font-cormorant text-lg focus:outline-none focus:border-orange-500 transition shadow-inner"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button type="button" className="w-full mt-4 py-4 bg-gradient-to-r from-orange-600 to-red-700 hover:from-orange-500 hover:to-red-600 text-white text-xl font-cinzel font-bold rounded-lg shadow-[0_0_20px_rgba(255,100,0,0.3)] transition transform hover:-translate-y-1">
+      
+      <main className="flex-grow flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-gray-900 border border-orange-900/50 rounded-xl p-8 shadow-[0_0_30px_rgba(234,88,12,0.1)]">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-6 text-center uppercase tracking-widest">
             Enter the Hub
-          </button>
-        </form>
+          </h1>
+          
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-gray-400 text-sm font-bold mb-2">Email</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-black border border-gray-700 text-white rounded px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-400 text-sm font-bold mb-2">Password</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black border border-gray-700 text-white rounded px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
+                required
+              />
+            </div>
 
-        <p className="mt-8 text-gray-400 font-cormorant text-lg">
-          Need access? 
-          <Link href="/" className="text-orange-500 hover:text-orange-400 font-cinzel font-bold ml-2 transition tracking-wider">
-            View Tiers
-          </Link>
-        </p>
-      </div>
+            {error && <p className="text-red-500 text-sm font-semibold">{error}</p>}
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-orange-600 to-red-700 hover:from-orange-500 hover:to-red-600 text-white font-bold py-3 px-4 rounded transition-all transform hover:scale-[1.02] shadow-lg shadow-orange-900/50 uppercase tracking-widest disabled:opacity-50"
+            >
+              {loading ? 'Authenticating...' : 'Enter the Hub'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center text-gray-400 text-sm">
+            Not a Seeker yet? <Link href="/signup" className="text-orange-500 hover:text-orange-400 font-semibold ml-1">Join the Frequency</Link>
+          </div>
+        </div>
+      </main>
 
       <Footer />
-
-    </main>
+    </div>
   );
 }
