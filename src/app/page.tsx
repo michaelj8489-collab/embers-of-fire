@@ -4,11 +4,19 @@ import Footer from '@/components/Footer';
 
 const subscriptionTiers = [
   {
+    name: "Seeker",
+    price: "0",
+    intro: "Entry into the Rise Radio ecosystem.",
+    description: "The starting point for those beginning their journey. Access the core frequency and join the growing community of awareness.",
+    perks: ["Access to all main live streams", "Basic community forum access", "Public show archives"],
+    color: "from-gray-500 to-gray-700"
+  },
+  {
     name: "Keepers of the Embers",
     price: "5",
     intro: "Believe in independent voices. Help fuel the RISE journey.",
     description: "This tier is pure support. Your commitment is the spark that keeps the signal blazing across radio and streaming platforms.",
-    perks: ["Access to community posts feed", "Digital supporter recognition", "Ember Keeper identity badge"],
+    perks: ["Everything in Seeker", "Access to community posts feed", "Digital supporter recognition", "Ember Keeper identity badge"],
     color: "from-orange-500 to-orange-700"
   },
   {
@@ -47,87 +55,75 @@ const subscriptionTiers = [
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen w-full flex flex-col items-center overflow-x-hidden text-center bg-black">
+    <main className="relative min-h-screen w-full flex flex-col items-center bg-black overflow-x-hidden">
       
-      {/* 🎬 FIXED Video Background */}
-      <video autoPlay muted loop playsInline className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] object-cover object-top z-0">
+      {/* Background Video Layer */}
+      <video 
+        autoPlay 
+        muted 
+        loop 
+        playsInline 
+        className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none"
+      >
         <source src="/images/eol-moving-background.mp4" type="video/mp4" />
       </video>
 
-      {/* 🌑 Dark Overlay */}
-      <div className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] bg-black/60 z-10"></div>
+      {/* Dark Overlay for Readability */}
+      <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-10 pointer-events-none"></div>
 
-      {/* 🔝 Solid Navigation Header */}
       <Header />
 
-      {/* 🛡️ Content Wrapper */}
-      <div className="relative z-20 flex flex-col items-center w-full max-w-7xl px-6 pt-48 pb-20">
-        
-        {/* 📦 Glowing Title Box */}
-        <div className="bg-black/50 backdrop-blur-sm px-20 py-10 rounded-3xl border border-orange-900/40 shadow-[0_0_80px_rgba(255,115,0,0.1)] mb-12">
-          <h1 className="text-5xl md:text-8xl font-cinzel-dec font-normal text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_25px_rgba(255,100,0,0.4)] tracking-tight">
-            Welcome to the Hub
-          </h1>
-        </div>
-
-        <p className="text-2xl md:text-3xl font-cormorant text-gray-200 mb-12 leading-relaxed max-w-3xl">
-          Your exclusive sanctuary for the <span className="text-orange-400 font-cinzel font-bold tracking-wider">Rise Radio Network</span>. 
+      {/* Main Content */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 pt-32 pb-20 text-center">
+        <h1 className="text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)]">
+          EMBERS OF LIGHT
+        </h1>
+        <p className="text-xl md:text-2xl font-cormorant text-gray-300 italic mb-16 tracking-widest uppercase">
+          Fuel the Journey • Enter the Sanctuary
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-32">
-          <Link href="/login" className="px-12 py-4 bg-orange-600 hover:bg-orange-700 text-white text-xl font-cinzel font-bold rounded-lg shadow-lg transition transform hover:-translate-y-1">
-            Donator Sign In
-          </Link>
-          <button className="px-12 py-4 bg-black/40 backdrop-blur-md border-2 border-orange-600 text-orange-500 hover:bg-orange-600 hover:text-white text-xl font-cinzel font-bold rounded-lg transition transform hover:-translate-y-1">
-            Become a Supporter
-          </button>
-        </div>
-
-        {/* 🔥 Tiers Section */}
-        <div className="w-full pt-10">
-          <h2 className="text-5xl md:text-7xl font-cinzel-dec font-bold text-white tracking-widest uppercase drop-shadow-[0_8px_15px_rgba(0,0,0,0.8)]">
-            Tiers of Light
-          </h2>
-          
-          <div className="w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-orange-600 to-transparent mx-auto mt-8 mb-20 shadow-[0_0_15px_rgba(255,100,0,0.6)]"></div>
-
-          <div className="flex flex-wrap justify-center gap-8">
-            {subscriptionTiers.map((tier) => (
-              <div key={tier.name} className="bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-900/30 flex flex-col w-full md:w-[350px] shadow-2xl transition hover:border-orange-500/50">
-                <h3 className={`text-2xl font-cinzel font-bold tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-r ${tier.color}`}>
-                  {tier.name}
-                </h3>
-                
-                <p className="text-orange-300 font-cinzel text-sm font-bold italic mb-4 uppercase tracking-widest drop-shadow-sm">{tier.intro}</p>
-                
-                <div className="flex items-baseline justify-center font-cormorant text-gray-100 mb-4">
-                  <span className="text-5xl font-extrabold font-cinzel">${tier.price}</span>
-                  <span className="text-xl ml-1 font-medium">/ mo</span>
+        {/* TIERS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+          {subscriptionTiers.map((tier) => (
+            <div 
+              key={tier.name}
+              className="flex flex-col bg-black/80 backdrop-blur-md rounded-2xl border border-orange-900/40 p-8 shadow-2xl transition-all duration-300 hover:border-orange-500/60 group hover:shadow-[0_0_40px_rgba(255,100,0,0.15)]"
+            >
+              <div className="mb-6">
+                <h3 className="text-2xl font-cinzel font-bold text-orange-500 mb-1 tracking-wider uppercase">{tier.name}</h3>
+                <div className="flex items-baseline justify-center gap-1 mb-2">
+                  <span className="text-4xl font-bold text-white">${tier.price}</span>
+                  <span className="text-gray-400 font-cormorant">/month</span>
                 </div>
-                
-                <p className="font-cormorant text-gray-200 text-lg font-medium italic mb-6 leading-relaxed">"{tier.description}"</p>
-                
-                <ul className="text-left font-cormorant text-gray-100 text-lg font-medium space-y-4 flex-grow mb-8 border-t border-orange-900/30 pt-6">
-                  {tier.perks.map((perk, index) => (
-                    <li key={index} className="flex items-start gap-3 leading-tight">
-                      <span className="text-orange-500 font-bold text-xl">•</span>
-                      <span>{perk}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <button className={`w-full py-4 text-white text-lg font-cinzel font-bold rounded-lg transition transform hover:-translate-y-1 bg-gradient-to-br ${tier.color}`}>
-                  Unlock {tier.name}
-                </button>
+                <p className="text-orange-300 font-cormorant italic text-sm border-t border-orange-900/30 pt-2">{tier.intro}</p>
               </div>
-            ))}
-          </div>
+
+              <p className="text-gray-300 font-cormorant text-lg mb-8 leading-relaxed italic">
+                "{tier.description}"
+              </p>
+
+              <ul className="flex-grow mb-8 border-t border-orange-900/30 pt-6 space-y-3">
+                {tier.perks.map((perk, index) => (
+                  <li key={index} className="flex items-start gap-3 leading-tight text-gray-300 font-cormorant text-lg">
+                    <span className="text-orange-500 font-bold">•</span>
+                    <span>{perk}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* FUNCTIONAL LINK BUTTON */}
+              <Link 
+                href="/signup" 
+                className={`block w-full py-4 text-center text-white text-lg font-cinzel font-bold rounded-lg transition-all transform hover:-translate-y-1 bg-gradient-to-br ${tier.color} shadow-lg hover:shadow-orange-500/20`}
+              >
+                Unlock {tier.name}
+              </Link>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 🦁 THE SIGNATURE FOOTER */}
       <Footer />
-
     </main>
   );
 }
