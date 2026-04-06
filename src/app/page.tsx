@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const subscriptionTiers = [
   {
@@ -82,13 +83,12 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* 🔥 Tiers Section with Upgraded Heading & Divider */}
+        {/* 🔥 Tiers Section */}
         <div className="w-full pt-10">
           <h2 className="text-5xl md:text-7xl font-cinzel-dec font-bold text-white tracking-widest uppercase drop-shadow-[0_8px_15px_rgba(0,0,0,0.8)]">
             Tiers of Light
           </h2>
           
-          {/* ➖ Glowing Divider Line */}
           <div className="w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-orange-600 to-transparent mx-auto mt-8 mb-20 shadow-[0_0_15px_rgba(255,100,0,0.6)]"></div>
 
           <div className="flex flex-wrap justify-center gap-8">
@@ -123,8 +123,11 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-
       </div>
+
+      {/* 🦁 THE SIGNATURE FOOTER */}
+      <Footer />
+
     </main>
   );
 }
