@@ -17,7 +17,7 @@ export default function Header() {
       </div>
 
       {/* Sign In Button - TOP RIGHT */}
-      <Link href="/login" className="px-6 py-2 border-2 border-orange-600 hover:bg-orange-600 text-orange-100 hover:text-white font-cinzel text-lg font-bold rounded-lg transition shadow-[0_0_15px_rgba(255,100,0,0.1)]">
+      <Link href="/login" className="px-6 py-2 border-2 border-orange-600 hover:bg-orange-600 text-orange-100 hover:text-white font-cinzel text-lg font-bold rounded-lg transition shadow-[0_0_15px_rgba(255,100,0,0.1)] whitespace-nowrap shrink-0">
         Sign In
       </Link>
 
