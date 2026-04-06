@@ -82,11 +82,14 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* 🔥 Tiers Section */}
-        <div className="w-full">
-          <h2 className="text-4xl md:text-6xl font-cinzel-dec font-normal mb-16 text-white tracking-widest uppercase drop-shadow-md">
+        {/* 🔥 Tiers Section with Upgraded Heading & Divider */}
+        <div className="w-full pt-10">
+          <h2 className="text-5xl md:text-7xl font-cinzel-dec font-bold text-white tracking-widest uppercase drop-shadow-[0_8px_15px_rgba(0,0,0,0.8)]">
             Tiers of Light
           </h2>
+          
+          {/* ➖ Glowing Divider Line */}
+          <div className="w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-orange-600 to-transparent mx-auto mt-8 mb-20 shadow-[0_0_15px_rgba(255,100,0,0.6)]"></div>
 
           <div className="flex flex-wrap justify-center gap-8">
             {subscriptionTiers.map((tier) => (
@@ -95,7 +98,6 @@ export default function HomePage() {
                   {tier.name}
                 </h3>
                 
-                {/* ⬆️ Upgraded Intro Text (Now with italics) */}
                 <p className="text-orange-300 font-cinzel text-sm font-bold italic mb-4 uppercase tracking-widest drop-shadow-sm">{tier.intro}</p>
                 
                 <div className="flex items-baseline justify-center font-cormorant text-gray-100 mb-4">
@@ -103,10 +105,8 @@ export default function HomePage() {
                   <span className="text-xl ml-1 font-medium">/ mo</span>
                 </div>
                 
-                {/* ⬆️ Upgraded Description Text (Now with italics) */}
                 <p className="font-cormorant text-gray-200 text-lg font-medium italic mb-6 leading-relaxed">"{tier.description}"</p>
                 
-                {/* ⬆️ Upgraded Perks List */}
                 <ul className="text-left font-cormorant text-gray-100 text-lg font-medium space-y-4 flex-grow mb-8 border-t border-orange-900/30 pt-6">
                   {tier.perks.map((perk, index) => (
                     <li key={index} className="flex items-start gap-3 leading-tight">
