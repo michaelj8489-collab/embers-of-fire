@@ -4,19 +4,21 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative z-20 w-full bg-black/95 border-t border-orange-900/60 py-6 mt-auto shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+    <footer className="relative z-20 w-full bg-black/95 border-t border-orange-900/60 py-8 mt-auto shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
       
-      {/* 🚀 FIXED: Changed max-w-7xl to max-w-full and added larger side padding (px-12) */}
-      <div className="w-full max-w-full px-12 flex flex-col md:flex-row justify-between items-center md:items-end gap-6 text-sm">
+      {/* 🚀 FIXED: Items-center ensures both sides are mathematically centered on the horizontal axis */}
+      <div className="w-full max-w-full px-12 flex flex-col md:flex-row justify-between items-center gap-8 text-sm">
         
-        {/* Network Info - FAR LEFT */}
-        <div className="text-gray-400 font-cormorant text-center md:text-left">
-          &copy; {currentYear} <span className="text-orange-500 font-cinzel font-bold tracking-wider">Rise Radio Network</span>.<br className="md:hidden" /> All rights reserved.
+        {/* Network Info - VERTICALLY CENTERED LEFT */}
+        <div className="text-gray-400 font-cormorant text-center md:text-left flex items-center">
+          <p className="leading-none">
+            &copy; {currentYear} <span className="text-orange-500 font-cinzel font-bold tracking-wider">Rise Radio Network</span>. All rights reserved.
+          </p>
         </div>
 
-        {/* Designer Signature - FAR RIGHT */}
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-3">
-          <span className="text-gray-400 font-cormorant italic pb-1">Proudly designed by</span>
+        {/* Designer Signature - VERTICALLY CENTERED RIGHT */}
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <span className="text-gray-400 font-cormorant italic">Proudly designed by</span>
           <div className="flex items-center gap-3 group cursor-default">
             {/* Logo Image */}
             <img 
