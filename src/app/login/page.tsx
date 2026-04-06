@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function LoginPage() {
   return (
@@ -17,9 +18,8 @@ export default function LoginPage() {
       <Header />
 
       {/* 🔐 Login Box Wrapper */}
-      <div className="relative z-20 w-full max-w-md px-8 py-12 bg-black/80 backdrop-blur-md rounded-2xl border border-orange-900/50 shadow-[0_0_50px_rgba(255,100,0,0.15)] mt-12">
+      <div className="relative z-20 w-full max-w-md px-8 py-12 bg-black/80 backdrop-blur-md rounded-2xl border border-orange-900/50 shadow-[0_0_50px_rgba(255,100,0,0.15)] mt-12 mb-12">
         
-        {/* Title */}
         <h1 className="text-4xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-4 tracking-wider drop-shadow-md">
           Sign In
         </h1>
@@ -27,7 +27,6 @@ export default function LoginPage() {
           Welcome back to the sanctuary.
         </p>
 
-        {/* Form Fields */}
         <form className="flex flex-col gap-6">
           <div className="text-left">
             <label className="block text-orange-400 font-cinzel font-bold tracking-widest text-sm mb-2">Email</label>
@@ -58,6 +57,9 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+
+      <Footer />
+
     </main>
   );
 }
