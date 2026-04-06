@@ -95,16 +95,16 @@ export default function HomePage() {
                   {tier.name}
                 </h3>
                 
-                {/* ⬆️ Upgraded Intro Text */}
-                <p className="text-orange-300 font-cinzel text-sm font-bold mb-4 uppercase tracking-widest drop-shadow-sm">{tier.intro}</p>
+                {/* ⬆️ Upgraded Intro Text (Now with italics) */}
+                <p className="text-orange-300 font-cinzel text-sm font-bold italic mb-4 uppercase tracking-widest drop-shadow-sm">{tier.intro}</p>
                 
                 <div className="flex items-baseline justify-center font-cormorant text-gray-100 mb-4">
                   <span className="text-5xl font-extrabold font-cinzel">${tier.price}</span>
                   <span className="text-xl ml-1 font-medium">/ mo</span>
                 </div>
                 
-                {/* ⬆️ Upgraded Description Text */}
-                <p className="font-cormorant text-gray-200 text-lg font-medium mb-6 leading-relaxed">"{tier.description}"</p>
+                {/* ⬆️ Upgraded Description Text (Now with italics) */}
+                <p className="font-cormorant text-gray-200 text-lg font-medium italic mb-6 leading-relaxed">"{tier.description}"</p>
                 
                 {/* ⬆️ Upgraded Perks List */}
                 <ul className="text-left font-cormorant text-gray-100 text-lg font-medium space-y-4 flex-grow mb-8 border-t border-orange-900/30 pt-6">
