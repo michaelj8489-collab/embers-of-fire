@@ -1,6 +1,5 @@
 import Link from 'next/link';
-// Import our new Header component!
-import Header from '../components/Header';
+import Header from '@/components/Header';
 
 const subscriptionTiers = [
   {
@@ -47,23 +46,23 @@ const subscriptionTiers = [
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen w-full flex flex-col items-center overflow-x-hidden text-center">
+    <main className="relative min-h-screen w-full flex flex-col items-center overflow-x-hidden text-center bg-black">
       
-      {/* 🎬 FIXED Video Background */}
-      <video autoPlay muted loop playsInline className="fixed inset-0 w-full h-full object-cover z-0">
+      {/* 🎬 FIXED Video Background - Shifted down by 6rem (96px) and anchored to the top edge */}
+      <video autoPlay muted loop playsInline className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] object-cover object-top z-0">
         <source src="/images/eol-moving-background.mp4" type="video/mp4" />
       </video>
 
-      {/* 🌑 Dark Overlay */}
-      <div className="fixed inset-0 bg-black/60 z-10"></div>
+      {/* 🌑 Dark Overlay - Shifted down to match the video perfectly */}
+      <div className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] bg-black/60 z-10"></div>
 
-      {/* 🔝 New Navigation Header (Turn 30 addition!) */}
+      {/* 🔝 Solid Navigation Header */}
       <Header />
 
-      {/* 🛡️ Content Wrapper - pt-48 adds the "breathing room" separation */}
+      {/* 🛡️ Content Wrapper */}
       <div className="relative z-20 flex flex-col items-center w-full max-w-7xl px-6 pt-48 pb-20">
         
-        {/* 📦 NEW: Glowing Title Box (Turn 30 addition!) */}
+        {/* 📦 Glowing Title Box */}
         <div className="bg-black/50 backdrop-blur-sm px-20 py-10 rounded-3xl border border-orange-900/40 shadow-[0_0_80px_rgba(255,115,0,0.1)] mb-12">
           <h1 className="text-5xl md:text-8xl font-cinzel-dec font-normal text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_25px_rgba(255,100,0,0.4)] tracking-tight">
             Welcome to the Hub
