@@ -19,8 +19,24 @@ const cormorant = Cormorant({
 });
 
 export const metadata: Metadata = {
-  title: "Embers of Light Hub",
-  description: "The exclusive sanctuary for the Rise Radio Network.",
+  title: 'Rise Radio Network | Embers of Light Hub',
+  description: 'The exclusive sanctuary and hub for the Rise Radio community. Join the awareness.',
+  openGraph: {
+    title: 'Rise Radio Network | Embers of Light Hub',
+    description: 'Join the sanctuary. Fuel the journey.',
+    url: 'https://embers-of-fire-d763.vercel.app',
+    siteName: 'Rise Radio Network',
+    images: [
+      {
+        url: '/opengraph-image.png', 
+        width: 1200,
+        height: 630,
+        alt: 'Embers of Light Phoenix Logo',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
