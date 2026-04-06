@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { createBrowserClient } from '@supabase/ssr';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -13,7 +13,7 @@ export default function SignupPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const supabase = createClientComponentClient();
+ const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
