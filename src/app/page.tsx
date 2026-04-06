@@ -38,7 +38,7 @@ const subscriptionTiers = [
     name: "Phoenix Ascended",
     price: "150",
     intro: "The Vanguard. Supporting the highest vision.",
-    description: "The absolute highest commitment. patrons of the arts ensuring long-term stability and full potential.",
+    description: "The absolute highest commitment. Patrons of the arts ensuring long-term stability and full potential.",
     perks: ["Everything above", "Annual 1-on-1 virtual call", "Private annual virtual gathering", "Executive-level recognition"],
     color: "from-yellow-200 via-orange-400 to-red-700"
   }
@@ -48,12 +48,12 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center overflow-x-hidden text-center bg-black">
       
-      {/* 🎬 FIXED Video Background - Shifted down by 6rem (96px) and anchored to the top edge */}
+      {/* 🎬 FIXED Video Background */}
       <video autoPlay muted loop playsInline className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] object-cover object-top z-0">
         <source src="/images/eol-moving-background.mp4" type="video/mp4" />
       </video>
 
-      {/* 🌑 Dark Overlay - Shifted down to match the video perfectly */}
+      {/* 🌑 Dark Overlay */}
       <div className="fixed top-24 left-0 w-full h-[calc(100vh-6rem)] bg-black/60 z-10"></div>
 
       {/* 🔝 Solid Navigation Header */}
@@ -94,20 +94,28 @@ export default function HomePage() {
                 <h3 className={`text-2xl font-cinzel font-bold tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-r ${tier.color}`}>
                   {tier.name}
                 </h3>
-                <p className="text-orange-200/80 font-cinzel text-xs italic mb-4 uppercase tracking-widest">{tier.intro}</p>
+                
+                {/* ⬆️ Upgraded Intro Text */}
+                <p className="text-orange-300 font-cinzel text-sm font-bold mb-4 uppercase tracking-widest drop-shadow-sm">{tier.intro}</p>
+                
                 <div className="flex items-baseline justify-center font-cormorant text-gray-100 mb-4">
                   <span className="text-5xl font-extrabold font-cinzel">${tier.price}</span>
-                  <span className="text-xl ml-1">/ mo</span>
+                  <span className="text-xl ml-1 font-medium">/ mo</span>
                 </div>
-                <p className="font-cormorant text-gray-400 text-sm mb-6 leading-snug italic">"{tier.description}"</p>
-                <ul className="text-left font-cormorant text-gray-300 text-base space-y-3 flex-grow mb-8 border-t border-orange-900/30 pt-6">
+                
+                {/* ⬆️ Upgraded Description Text */}
+                <p className="font-cormorant text-gray-200 text-lg font-medium mb-6 leading-relaxed">"{tier.description}"</p>
+                
+                {/* ⬆️ Upgraded Perks List */}
+                <ul className="text-left font-cormorant text-gray-100 text-lg font-medium space-y-4 flex-grow mb-8 border-t border-orange-900/30 pt-6">
                   {tier.perks.map((perk, index) => (
-                    <li key={index} className="flex items-start gap-2 leading-tight">
-                      <span className="text-orange-500">•</span>
-                      {perk}
+                    <li key={index} className="flex items-start gap-3 leading-tight">
+                      <span className="text-orange-500 font-bold text-xl">•</span>
+                      <span>{perk}</span>
                     </li>
                   ))}
                 </ul>
+                
                 <button className={`w-full py-4 text-white text-lg font-cinzel font-bold rounded-lg transition transform hover:-translate-y-1 bg-gradient-to-br ${tier.color}`}>
                   Unlock {tier.name}
                 </button>
