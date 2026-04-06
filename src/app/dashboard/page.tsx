@@ -4,13 +4,13 @@ import Footer from '@/components/Footer';
 export default function DashboardPage() {
   return (
     <div 
-      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
+      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant pb-32" // Added pb-32 so the sticky player doesn't cover content
       style={{ backgroundImage: "url('/images/jmc-edits-palettes/Phoenix%20Ascended.png')" }}
     >
       {/* Dark overlay to make sure the text is still easy to read over the fire */}
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
 
-      {/* Main Content Wrapper - Keeps everything above the background and overlay */}
+      {/* Main Content Wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
@@ -41,7 +41,7 @@ export default function DashboardPage() {
                   Feeling called to build something of their own, they stepped away to create <strong className="font-cinzel text-orange-400 font-bold text-2xl tracking-wide">RISE Radio</strong>, a community built on independence, authenticity, and the belief that radio could still inspire growth, connection, and thought-provoking discussion.
                 </p>
                 
-                {/* Added Flourish / Call to Action */}
+                {/* Flourish / Call to Action */}
                 <div className="mt-8 p-6 border-l-4 border-red-600 bg-black/60 rounded-r-lg">
                   <p className="text-orange-200 font-semibold italic text-2xl">
                     By standing here within the Embers, you are doing more than just tuning in—you are fueling the fire. Your presence and support help sustain this independent platform, allowing this legacy of healing, awareness, and connection to reach those who need it most.
@@ -77,7 +77,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Transmission Schedule */}
-            <div className="mb-16">
+            <div className="mb-8">
               <h2 className="font-cinzel-decorative text-4xl font-bold text-center text-orange-500 mb-10 uppercase tracking-wider">Live Transmission Schedule</h2>
               
               <div className="max-w-3xl mx-auto bg-black/60 backdrop-blur-sm border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.2)]">
@@ -158,6 +158,24 @@ export default function DashboardPage() {
         </main>
 
         <Footer />
+      </div>
+
+      {/* 📻 THE STICKY RADIO BAR */}
+      <div className="fixed bottom-0 left-0 w-full z-50 bg-black/90 backdrop-blur-md border-t border-orange-900/80 shadow-[0_-10px_30px_rgba(234,88,12,0.15)] flex justify-center py-2 px-4 transition-all duration-300">
+        <div className="w-full max-w-4xl relative flex items-center justify-center">
+          {/* Subtle glowing effect behind the player */}
+          <div className="absolute inset-0 bg-orange-600/10 blur-xl rounded-full pointer-events-none"></div>
+          
+          {/* The Zeno Player Embed */}
+          <iframe 
+            src="https://zeno.fm/player/rise-radio-woqo" 
+            width="100%" 
+            height="120" 
+            frameBorder="0" 
+            scrolling="no"
+            className="rounded-lg relative z-10 shadow-lg shadow-black/50"
+          ></iframe>
+        </div>
       </div>
     </div>
   );
