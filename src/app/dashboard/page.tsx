@@ -124,8 +124,14 @@ export default function DashboardPage() {
                   </div>
                   <div className="p-6 sm:w-2/3">
                     <div className="flex justify-between items-center">
-                     <Link href="/dashboard/brindles-vision" className="font-cormorant text-2xl font-semibold text-gray-200 hover:text-orange-400 transition-colors cursor-pointer block">Brindle&apos;s Vision
-                     </Link>
+                    <Link href="/dashboard/brindles-vision" className="hover:text-orange-400 transition-colors cursor-pointer block group">
+                     <span className="font-cormorant text-2xl font-semibold text-gray-200 group-hover:text-orange-400 transition-colors">
+                      Brindle&apos;s Vision
+                     </span>
+                     <span className="font-sans text-sm text-orange-600/70 italic ml-2 group-hover:text-orange-500 transition-colors">
+                      (CLICK HERE)
+                     </span>
+                    </Link>
                       <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">12:00 PM EST</span>
                     </div>
                   </div>

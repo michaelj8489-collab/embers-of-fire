@@ -33,18 +33,23 @@ export default function BrindlesVisionPage() {
               </p>
             </div>
 
-            {/* Twitch Live Player */}
-            <div className="mb-16">
-              <h2 className="font-cinzel-decorative text-3xl font-bold text-center text-orange-500 mb-8 uppercase tracking-wider">
+            {/* Twitch Live Player with Placeholder Background */}
+            <div className="mb-16 relative">
+              <h2 className="font-cinzel-decorative text-3xl font-bold text-center text-orange-500 mb-8 uppercase tracking-wider relative z-10">
                 Live Broadcast
               </h2>
-              <div className="w-full aspect-video bg-black/80 border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] relative">
+              
+              <div 
+                className="w-full aspect-video bg-black border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-cover bg-center flex items-center justify-center relative z-20"
+                style={{ backgroundImage: "url('/images/jmc-edits-palettes/show-offline-placeholder.png')" }}
+              >
                 <iframe
-                  src="https://player.twitch.tv/?channel=brindlyzer&parent=localhost"
-                  className="absolute top-0 left-0 w-full h-full"
+                  src="https://player.twitch.tv/?channel=brindlyzer&parent=localhost&muted=true&autoplay=false"
+                  className="absolute top-0 left-0 w-full h-full z-30"
                   frameBorder="0"
                   allowFullScreen={true}
                   scrolling="no"
+                  style={{ background: 'transparent' }}
                 ></iframe>
               </div>
             </div>
