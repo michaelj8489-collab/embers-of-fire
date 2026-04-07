@@ -5,7 +5,8 @@ export default function DashboardPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" 
-style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }}    >
+      style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }}
+    >
       {/* Dark overlay to make sure the text is still easy to read over the fire */}
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
 
@@ -92,25 +93,6 @@ style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }} 
               </div>
             </div>
 
-            {/* STATIC RADIO PLAYER MOVED HERE */}
-            <div className="mb-16 w-full max-w-4xl mx-auto">
-              <h2 className="font-cinzel-decorative text-3xl font-bold text-center text-orange-500 mb-6 uppercase tracking-wider">Tune In To The Loop</h2>
-              <div className="relative flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm border border-orange-900/50 rounded-xl shadow-[0_0_30px_rgba(234,88,12,0.15)] transition-all hover:border-orange-500/50">
-                {/* Subtle glowing effect behind the player */}
-                <div className="absolute inset-0 bg-orange-600/5 blur-xl rounded-xl pointer-events-none"></div>
-                
-                {/* The Zeno Player Embed */}
-                <iframe 
-                  src="https://zeno.fm/player/rise-radio-woqo" 
-                  width="100%" 
-                  height="120" 
-                  frameBorder="0" 
-                  scrolling="no"
-                  className="rounded-lg relative z-10 shadow-lg shadow-black/50"
-                ></iframe>
-              </div>
-            </div>
-
             {/* Transmission Schedule */}
             <div className="mb-16">
               <h2 className="font-cinzel-decorative text-4xl font-bold text-center text-orange-500 mb-10 uppercase tracking-wider">Live Transmission Schedule</h2>
@@ -141,7 +123,7 @@ style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }} 
                   </div>
                   <div className="p-6 sm:w-2/3">
                     <div className="flex justify-between items-center">
-                      <span className="font-cormorant text-2xl font-semibold text-gray-200">Brindle&apos Vision</span>
+                      <span className="font-cormorant text-2xl font-semibold text-gray-200">Brindle&apos;s Vision</span>
                       <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">12:00 PM EST</span>
                     </div>
                   </div>
@@ -187,6 +169,51 @@ style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }} 
                 </div>
 
               </div>
+            </div>
+
+            {/* RISE Radio Network Community Section */}
+            <div className="w-full max-w-5xl mx-auto mt-16 mb-12 bg-black/60 backdrop-blur-sm border border-orange-900/50 rounded-2xl p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.15)] flex flex-col items-center">
+              
+              {/* Logo & Title */}
+              <img 
+                src="/images/rise-radio-logo.png" 
+                alt="Rise Radio Logo" 
+                className="w-32 h-32 md:w-40 md:h-40 rounded-full border border-orange-500/50 shadow-[0_0_20px_rgba(234,88,12,0.3)] mb-6 object-cover"
+              />
+              <h2 className="font-cinzel-decorative text-3xl md:text-4xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-10">
+                Rise Radio Network
+              </h2>
+
+              {/* Zeno Player Container */}
+              <div className="w-full max-w-md mx-auto mb-10 relative z-20">
+                <iframe 
+                  src="https://zeno.fm/player/rise-radio-woqo" 
+                  width="100%" 
+                  height="120" 
+                  frameBorder="0" 
+                  scrolling="no"
+                  className="rounded-lg relative z-10 shadow-lg shadow-black/50"
+                ></iframe>
+              </div>
+
+              {/* Community Description */}
+              <div className="max-w-3xl text-center space-y-6 text-gray-300 text-base md:text-lg mb-10 font-sans leading-relaxed">
+                <p>
+                  RISE Radio isn’t just a station. It’s a community where Smule singers come to be heard, feel something, and connect through music. It’s not about perfection, but passion—whether you’re experienced or just singing for joy, there’s a place for you with no pressure or judgment.
+                </p>
+                <p>
+                  At RISE, singing isn’t about perfection—it’s about passion. It’s about that note that gives you chills, or pouring your heart into a song that says everything you can’t put into words. Whether you’re a seasoned vocalist, someone who just sings because it makes you happy ...there’s a place for you here.
+                </p>
+                <p>
+                  Our team of DJs and staff help create a space that feels less like a cold brickhouse station with a bunch of microphones and machinery and more like a warm, welcoming home. Rise Radio is where voices rise, hearts connect, and music brings people together. No pressure, no judgment—just real people sharing real moments through music.
+                </p>
+              </div>
+
+              {/* Closing Quote */}
+              <p className="font-cinzel text-xl md:text-2xl text-orange-400/90 italic text-center tracking-wider font-semibold">
+                'When words fail, music speaks'
+              </p>
+
             </div>
 
           </div>
