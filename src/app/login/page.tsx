@@ -40,8 +40,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-public\images\jmc-edits-palettes\phoenix-ascended.png text-gray-200 flex flex-col font-sans">
-      <Header />
+    <div className="min-h-screen bg-black text-gray-200 flex flex-col font-sans">
       
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-gray-900 border border-orange-900/50 rounded-xl p-8 shadow-[0_0_30px_rgba(234,88,12,0.1)]">
