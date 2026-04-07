@@ -1,26 +1,77 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 export default function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    // 1. Check if they are already logged in when the page loads
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+
+    checkUser();
+
+    // 2. Listen for any login/logout events in real-time
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setIsLoggedIn(!!session);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login'); // Boot them back to the login page
+  };
+
   return (
-    <nav className="fixed top-0 left-0 w-full h-24 bg-black border-b border-orange-900/60 shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-50 px-8 flex items-center justify-between">
+    <header className="w-full border-b border-orange-900/50 bg-black/80 backdrop-blur-md p-4 flex items-center justify-between sticky top-0 z-50">
       
-      {/* Founders & Network Name - TOP LEFT */}
+      {/* Left Side: Logo & Title */}
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full border-2 border-orange-500 overflow-hidden shadow-[0_0_15px_rgba(255,100,0,0.3)] bg-black">
-          <video autoPlay muted loop playsInline className="w-full h-full object-cover">
-            <source src="/images/eol-moving-background.mp4" type="video/mp4" />
-          </video>
-        </div>
-        <span className="font-cinzel text-3xl font-bold text-orange-400 tracking-wider drop-shadow-md">
-          Rise Radio Network
-        </span>
+        <Link href="/" className="flex items-center gap-4 group">
+          <img 
+            src="/images/rise-radio-logo.png" 
+            alt="Rise Radio Logo" 
+            className="h-12 w-12 rounded-full object-cover border border-orange-900/50 group-hover:border-orange-500 transition-colors" 
+          />
+          <span className="font-cinzel text-xl md:text-2xl font-bold text-orange-500 tracking-wider group-hover:text-orange-400 transition-colors">
+            RISE RADIO NETWORK
+          </span>
+        </Link>
       </div>
 
-      {/* Sign In Button - TOP RIGHT */}
-      <Link href="/login" className="px-6 py-2 border-2 border-orange-600 hover:bg-orange-600 text-orange-100 hover:text-white font-cinzel text-lg font-bold rounded-lg transition shadow-[0_0_15px_rgba(255,100,0,0.1)] whitespace-nowrap shrink-0">
-        Sign In
-      </Link>
-
-    </nav>
+      {/* Right Side: Dynamic Auth Button */}
+      <div>
+        {isLoggedIn ? (
+          <button 
+            onClick={handleSignOut}
+            className="border border-orange-600 text-orange-500 hover:bg-orange-600 hover:text-white px-6 py-2 rounded transition-all font-cinzel font-bold tracking-widest"
+          >
+            SIGN OUT
+          </button>
+        ) : (
+          <Link 
+            href="/login"
+            className="border border-orange-600 text-orange-500 hover:bg-orange-600 hover:text-white px-6 py-2 rounded transition-all font-cinzel font-bold tracking-widest inline-block"
+          >
+            SIGN IN
+          </Link>
+        )}
+      </div>
+      
+    </header>
   );
 }

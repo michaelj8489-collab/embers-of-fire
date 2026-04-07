@@ -13,14 +13,31 @@ style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }} 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
-        <main className="flex-grow flex flex-col items-center p-4 sm:p-6 mt-16 md:mt-24 w-full">
+        <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-5xl">
 
-            {/* Welcome Banner */}
+            {/* Welcome Banner & Video */}
             <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
-              <h1 className="font-cinzel-decorative text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-4">
-                Welcome to the Embers
+              
+              {/* The Looping Video */}
+              <div className="w-full max-w-2xl mx-auto mb-10 shadow-[0_0_30px_rgba(234,88,12,0.3)] rounded-xl overflow-hidden border border-orange-900/50">
+                <video 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline 
+                  className="w-full h-auto object-cover pointer-events-none"
+                >
+                  <source src="/images/eol-come-alive.mp4" type="video/mp4" />
+                </video>
+              </div>
+
+              {/* The Stacked Title */}
+              <h1 className="font-cinzel-decorative font-bold text-center flex flex-col items-center gap-2 mb-6 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
+                <span className="text-4xl md:text-5xl">Welcome</span>
+                <span className="text-5xl md:text-7xl">To The Embers</span>
               </h1>
+
               <p className="font-cinzel text-xl text-orange-200/80 italic">
                 You have stepped into the Sanctuary. The signal is strong here.
               </p>
