@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   return (
@@ -123,7 +124,8 @@ export default function DashboardPage() {
                   </div>
                   <div className="p-6 sm:w-2/3">
                     <div className="flex justify-between items-center">
-                      <span className="font-cormorant text-2xl font-semibold text-gray-200">Brindle&apos;s Vision</span>
+                     <Link href="/dashboard/brindles-vision" className="font-cormorant text-2xl font-semibold text-gray-200 hover:text-orange-400 transition-colors cursor-pointer block">Brindle&apos;s Vision
+                     </Link>
                       <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">12:00 PM EST</span>
                     </div>
                   </div>
