@@ -5,7 +5,7 @@ export default function DashboardPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" 
-      style={{ backgroundImage: "url('/images/jmc-edits-palettes/Phoenix%20Ascended.png')" }}
+      style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-ascended.png')" }}
     >
       {/* Dark overlay to make sure the text is still easy to read over the fire */}
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="p-6 sm:w-2/3">
                     <div className="flex justify-between items-center">
-                      <span className="font-cormorant text-2xl font-semibold text-gray-200">Brindle's Vision</span>
+                      <span className="font-cormorant text-2xl font-semibold text-gray-200">Brindle&apos Vision</span>
                       <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">12:00 PM EST</span>
                     </div>
                   </div>
