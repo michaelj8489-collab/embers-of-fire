@@ -5,8 +5,7 @@ export default function DashboardPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" 
-      style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-ascended.png')" }}
-    >
+style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }}    >
       {/* Dark overlay to make sure the text is still easy to read over the fire */}
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
 
