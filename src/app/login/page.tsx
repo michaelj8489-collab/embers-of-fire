@@ -1,29 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
-import { useRouter } from 'next/navigation'; // <-- The digital usher!
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const router = useRouter(); // <-- Activating the usher
-  
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!, 
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -34,7 +26,6 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // SUCCESS! Send them to the Sanctuary!
       router.push('/dashboard');
     }
   };
@@ -44,11 +35,9 @@ export default function LoginPage() {
       className="min-h-screen text-gray-200 flex flex-col font-cormorant relative bg-cover bg-center bg-fixed"
       style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }}
     >
-      {/* Dark overlay so the form is readable against the fire */}
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        
         <main className="flex-grow flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-black/60 backdrop-blur-sm border border-orange-900/50 rounded-xl p-8 shadow-[0_0_30px_rgba(234,88,12,0.15)]">
             
@@ -83,7 +72,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Error Message Display */}
               {error && (
                 <div className="text-red-500 text-sm font-sans text-center bg-red-900/20 border border-red-900/50 rounded p-2">
                   {error}
@@ -105,7 +93,6 @@ export default function LoginPage() {
                 </a>
               </div>
             </form>
-
           </div>
         </main>
       </div>
