@@ -99,7 +99,7 @@ export default function HomePage() {
               </div>
 
               <p className="text-gray-300 font-cormorant text-lg mb-8 leading-relaxed italic">
-                "{tier.description}"
+                {tier.description}
               </p>
 
               <ul className="flex-grow mb-8 border-t border-orange-900/30 pt-6 space-y-3">
