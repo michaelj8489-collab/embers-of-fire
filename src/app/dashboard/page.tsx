@@ -1,3 +1,5 @@
+'use client';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -138,23 +140,23 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Wednesday */}
-                <div className="flex flex-col sm:flex-row border-b border-orange-900/30 hover:bg-black/80 transition-colors">
-                  <div className="bg-black/70 p-6 sm:w-1/3 flex items-center border-b sm:border-b-0 sm:border-r border-orange-900/30">
-                    <h3 className="font-cinzel text-2xl font-bold text-orange-400 uppercase tracking-widest">Wednesdays</h3>
-                  </div>
-                  <div className="p-6 sm:w-2/3">
-                    <div className="flex justify-between items-center group">
-                     <Link href="/dashboard/phoenix-talks" className="flex items-center">
-                        <span className="font-cormorant text-2xl font-semibold text-gray-200">Phoenix Talks</span>
-                        <span className="font-sans text-sm text-orange-600/70 italic ml-2 group-hover:text-orange-500 transition-colors"> (CLICK HERE)
-                        </span>
-                     </Link>
-                     <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">6:00 PM EST</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+               {/* Wednesday */}
+      <div className="flex flex-col sm:flex-row border-b border-orange-900/30 hover:bg-black/80 transition-colors">
+        <div className="bg-black/70 p-6 sm:w-1/3 flex items-center border-b sm:border-b-0 sm:border-r border-orange-900/30">
+          <h3 className="font-cinzel text-2xl font-bold text-orange-400 uppercase tracking-widest">Wednesdays</h3>
+        </div>
+        <div className="p-6 sm:w-2/3">
+          <div className="flex justify-between items-center group">
+            <Link href="/dashboard/phoenix-talks" className="flex items-center">
+              <span className="font-cormorant text-2xl font-semibold text-gray-200">Phoenix Talks</span>
+              <span className="font-sans text-sm text-orange-600/70 italic ml-2 group-hover:text-orange-500 transition-colors">
+                (CLICK HERE)
+              </span>
+            </Link>
+            <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">6:00 PM EST</span>
+          </div>
+        </div>
+      </div>
 
                 {/* Thursday */}
                 <div className="flex flex-col sm:flex-row border-b border-orange-900/30 hover:bg-black/80 transition-colors">
