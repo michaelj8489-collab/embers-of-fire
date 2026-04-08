@@ -12,8 +12,8 @@ export default function BrindlesVisionPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/Brindle\'s Vision.jpg')" }}
-    >
+      style={{ backgroundImage: "url('/images/main-images/Cover Art/brindles-vision-bg.png')" }}
+>
       <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
