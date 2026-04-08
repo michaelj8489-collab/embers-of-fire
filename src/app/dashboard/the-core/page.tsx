@@ -112,9 +112,9 @@ export default function TheCorePage() {
                 {/* Host 2: Karrie */}
                 <div className="flex flex-col items-center">
                   <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
-                    <img src="/images/misc/karrie-fix.jpg" alt="Karrie Northrup" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                    <img src="/images/misc/karrie-fix.jpg" alt="Karrie Lynne (Lunaria)" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
-                  <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Northrup</h3>
+                  <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Lynne (Lunaria)</h3>
                   <p className="font-cormorant text-gray-300 italic leading-relaxed px-4">
                     As a co-founder of RISE, Karrie is dedicated to stripping away the layers of the ego to find the authentic core of the artistic journey.
                   </p>

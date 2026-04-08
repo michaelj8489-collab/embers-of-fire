@@ -92,30 +92,38 @@ export default function IlluminatePage() {
 
             {/* --- MEET THE HOST SECTION --- */}
             <section className="w-full mt-20 mb-24 flex flex-col items-center text-center">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
+              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase  tracking-widest mb-6">
                 Meet Your Guide
               </h2>
-              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
+            <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
-              <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-12 text-left">
-                <div className="relative w-full max-w-[300px] aspect-[4/5] rounded-xl border border-orange-900/40 overflow-hidden shadow-2xl group flex-shrink-0">
-                  <img 
-                    src="/images/misc/karrie-bio-illuminate.png" 
-                    alt="Karrie Northrup (Lunaria)" 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
-                  />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-4">Karrie Northrup (Lunaria)</h3>
-                  <p className="font-cormorant text-xl text-gray-300 italic leading-relaxed mb-6">
-                    Founder of Rise Radio Network and host of Illuminate, Karrie (Lunaria) leads deep-dive explorations into the soul through full Celtic Cross tarot readings and shadow work.
-                  </p>
-                  <p className="font-cormorant text-gray-400 text-lg leading-relaxed">
-                    Illuminate is a space where advice meets action. By examining the symbols, trauma aspects, and spiritual truths revealed in the cards, Lunaria helps her audience navigate their evolution with clarity and compassionate discernment.
-                  </p>
-                </div>
-              </div>
-            </section>
+            <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-12 text-left">
+            <div className="relative w-full max-w-[300px] aspect-[4/5] rounded-xl border border-orange-900/40 overflow-hidden shadow-2xl group flex-shrink-0">
+            <img 
+              src="/images/misc/karrie-bio-illuminate.png" 
+             alt="Karrie Lynne (Lunaria)" 
+             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+             />
+           </div>
+    <div className="flex-grow">
+      <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Lynne (Lunaria)</h3>
+      <p className="font-cormorant text-xl text-orange-200/70 italic mb-6">
+        Co-Founder of Rise Radio & Lead Host
+      </p>
+      <div className="font-cormorant text-gray-300 text-lg leading-relaxed space-y-4">
+        <p>
+          Lunaria is the co-founder of Rise Radio and a seasoned talk show host with over four years of experience inspiring and uplifting listeners. Her shows focus on healing, self-discovery, and learning to rise above life's traumas to create stronger, more meaningful relationships.
+        </p>
+        <p>
+          Known for her intuitive insight and compassionate nature, Lunaria is a listener, healer, reader, teacher, and guide—a gentle, caring soul who helps others find a little more love and light in their lives. 
+        </p>
+        <p>
+          With her signature blend of wit, sass, and sincerity, she brings laughter and wisdom to every broadcast, guiding audiences toward peace, purpose, and personal empowerment.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
           </div>
         </main>

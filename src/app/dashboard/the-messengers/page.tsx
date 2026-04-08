@@ -102,12 +102,12 @@ export default function TheMessengersPage() {
                 <div className="relative w-full max-w-[350px] aspect-[4/3] rounded-xl border border-orange-900/40 overflow-hidden shadow-2xl group flex-shrink-0">
                   <img 
                     src="/images/main-images/Cover Art/eol-lnk.jpg" 
-                    alt="Michka Grant and Karrie Northrup" 
+                    alt="Michka Grant and Karrie Lynne (Lunaria)" 
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
                   />
                 </div>
                 <div className="flex-grow">
-                  <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-4">Michka Grant & Karrie Northrup</h3>
+                  <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-4">Michka Grant & Karrie Lynne (Lunaria)</h3>
                   <p className="font-cormorant text-xl text-gray-300 italic leading-relaxed mb-6">
                     Co-Founders of Rise Radio Network
                   </p>
