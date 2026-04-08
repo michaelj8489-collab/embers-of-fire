@@ -12,7 +12,7 @@ export default function Footer() {
         {/* Network Info - VERTICALLY CENTERED LEFT */}
         <div className="text-gray-400 font-cormorant text-center md:text-left flex items-center">
           <p className="leading-none">
-            &copy; {currentYear} <span className="text-orange-500 font-cinzel font-bold tracking-wider">Rise Radio Network</span>. All rights reserved.
+            &copy; {currentYear} <span className="text-orange-500 font-cinzel font-bold tracking-wider">EMBERS OF LIGHT</span>. All rights reserved.
           </p>
         </div>
 

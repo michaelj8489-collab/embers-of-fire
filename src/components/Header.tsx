@@ -48,7 +48,7 @@ export default function Header() {
             className="h-12 w-12 rounded-full object-cover border border-orange-900/50 group-hover:border-orange-500 transition-colors" 
           />
           <span className="font-cinzel text-xl md:text-2xl font-bold text-orange-500 tracking-wider group-hover:text-orange-400 transition-colors">
-            RISE RADIO NETWORK
+            EMBERS OF LIGHT
           </span>
         </Link>
       </div>
