@@ -180,7 +180,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* RISE Radio Network Community Section */}
+            {/* RISE Radio Community Section */}
             <div className="w-full max-w-5xl mx-auto mt-16 mb-12 bg-black/60 backdrop-blur-sm border border-orange-900/50 rounded-2xl p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.15)] flex flex-col items-center">
               
               {/* Logo & Title */}
@@ -190,7 +190,7 @@ export default function DashboardPage() {
                 className="w-32 h-32 md:w-40 md:h-40 rounded-full border border-orange-500/50 shadow-[0_0_20px_rgba(234,88,12,0.3)] mb-6 object-cover"
               />
               <h2 className="font-cinzel-decorative text-3xl md:text-4xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-10">
-                Rise Radio Network
+                Rise Radio: A Sanctuary for Singers and Listeners Alike
               </h2>
 
               {/* Zeno Player Container */}
