@@ -11,7 +11,7 @@ const subscriptionTiers = [
     perks: ["Access to all main live streams", "Basic community forum access", "Public show archives"],
     color: "from-gray-500 to-gray-700",
     // NOTE: Make sure forward slashes are used for public folder access
-    image: "/images/misc/Misc/wolf and raven.jpg" 
+    image: "/images/misc/wolf-and-raven.jpg" 
   },
   {
     name: "Keepers of the Embers",
