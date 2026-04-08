@@ -10,7 +10,7 @@ export default function DashboardPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" 
-      style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }}
+      style={{ backgroundImage: "url('/images/phoenix-revised.png')" }}
     >
       {/* Dark overlay to make sure the text is still easy to read over the fire */}
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
@@ -110,14 +110,28 @@ export default function DashboardPage() {
                     <h3 className="font-cinzel text-2xl font-bold text-orange-400 uppercase tracking-widest">Mondays</h3>
                   </div>
                   <div className="p-6 sm:w-2/3 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="font-cormorant text-2xl font-semibold text-gray-200">The Bloom</span>
-                      <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">11:00 AM EST</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="font-cormorant text-2xl font-semibold text-gray-200">The Messengers</span>
-                      <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">6:00 PM EST</span>
-                    </div>
+                   <div className="flex justify-between items-center group">
+                   <Link href="/dashboard/the-bloom" className="flex items-center">
+                    <span className="font-cormorant text-2xl font-semibold text-gray-200">The Bloom</span>
+                    <span className="font-sans text-sm text-orange-600/70 italic ml-2 group-hover:text-orange-500 transition-colors">
+                      (CLICK HERE)
+                    </span>
+                   </Link>
+                    <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">
+                      11:00 AM EST
+                    </span>
+                </div>
+                   <div className="flex justify-between items-center group">
+  <Link href="/dashboard/the-messengers" className="flex items-center">
+    <span className="font-cormorant text-2xl font-semibold text-gray-200">The Messengers</span>
+    <span className="font-sans text-sm text-orange-600/70 italic ml-2 group-hover:text-orange-500 transition-colors">
+      (CLICK HERE)
+    </span>
+  </Link>
+  <span className="text-orange-400 font-mono text-sm bg-black/60 px-2 py-1 rounded border border-orange-900/30">
+    6:00 PM EST
+  </span>
+</div>
                   </div>
                 </div>
 
