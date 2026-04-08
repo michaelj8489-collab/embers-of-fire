@@ -45,7 +45,7 @@ export default function BrindlesVisionPage() {
                 style={{ backgroundImage: "url('/images/jmc-edits-palettes/show-offline-placeholder.png')" }}
               >
                 <iframe
-                  src="https://player.twitch.tv/?channel=brindlyzer&parent=localhost&muted=true&autoplay=false"
+                 src="https://player.twitch.tv/?channel=brindlyzer&parent=localhost&parent=embers-of-fire.vercel.app&muted=true&autoplay=false"
                   className="absolute top-0 left-0 w-full h-full z-30"
                   frameBorder="0"
                   allowFullScreen={true}
