@@ -105,7 +105,7 @@ export default function PhoenixTalksPage() {
                 <div className="bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-8">
                   <div className="relative w-[200px] h-[250px] flex-shrink-0 rounded-lg border border-orange-900/40 overflow-hidden">
                     <img
-                      src="/images/misc/Misc/brindle.png" 
+                      src="/images/misc/brindle.png" 
                       alt="Michka Grant"
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                     />
@@ -122,7 +122,7 @@ export default function PhoenixTalksPage() {
                 <div className="bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-8">
                   <div className="relative w-[200px] h-[250px] flex-shrink-0 rounded-lg border border-orange-900/40 overflow-hidden">
                     <img
-                      src="/images/misc/Misc/rev-d.jpg" 
+                      src="/images/misc/rev-d.jpg" 
                       alt="Rev. Diane R DeBiasi"
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                     />
