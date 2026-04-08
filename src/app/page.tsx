@@ -50,13 +50,13 @@ const subscriptionTiers = [
     image: "/images/jmc-edits-palettes/wings-of-the-phoenix.png"
   },
   {
-    name: "Phoenix Ascended",
+    name: "Phoenix Ascending",
     price: "150",
     intro: "The Vanguard. Supporting the highest vision.",
     description: "The absolute highest commitment. Patrons of the arts ensuring long-term stability and full potential.",
     perks: ["Everything above", "Annual 1-on-1 virtual call", "Private annual virtual gathering", "Executive-level recognition"],
     color: "from-yellow-200 via-orange-400 to-red-700",
-    image: "/images/jmc-edits-palettes/phoenix-ascended.png"
+    image: "/images/jmc-edits-palettes/phoenix-ascending.png"
   }
 ];
 
