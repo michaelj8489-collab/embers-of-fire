@@ -189,9 +189,12 @@ export default function DashboardPage() {
                 alt="Rise Radio Logo" 
                 className="w-32 h-32 md:w-40 md:h-40 rounded-full border border-orange-500/50 shadow-[0_0_20px_rgba(234,88,12,0.3)] mb-6 object-cover"
               />
-              <h2 className="font-cinzel-decorative text-3xl md:text-4xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-10"> RISE Radio: <br /> 
-              A Sanctuary for Singers and Listeners Alike
+              <h2 className="font-cinzel-decorative text-3xl md:text-4xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-2">
+                RISE Radio
               </h2>
+              <p className="font-cormorant text-xl md:text-2xl text-center text-orange-200/80 italic tracking-widest mb-10">
+                A Sanctuary for Singers and Listeners Alike
+              </p>
 
               {/* Zeno Player Container */}
               <div className="w-full max-w-md mx-auto mb-10 relative z-20">
