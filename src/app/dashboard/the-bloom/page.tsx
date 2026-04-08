@@ -75,14 +75,22 @@ export default function TheBloomPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full aspect-video">
-                    <iframe
-                      src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njT-1QD5R76W1Mv-eD-eijIE"
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allowFullScreen
-                    ></iframe>
+                 <div className="w-full h-full relative flex items-center justify-center bg-black/40">
+                  {/* Placeholder Image */}
+                  <img 
+                    src="/images/main-images/Cover Art/bloom-bg.jpg" 
+                    alt="The Bloom Archives Coming Soon" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale"
+                  />
+                  <div className="relative z-10 text-center px-6">
+                    <h3 className="font-cinzel text-2xl md:text-3xl text-orange-500 mb-2 uppercase tracking-widest">
+                      Archives Refreshing
+                    </h3>
+                    <p className="font-cormorant text-xl text-gray-300 italic">
+                      The signal is being recalibrated. Check back shortly.
+                    </p>
                   </div>
+                </div>
                 )}
               </div>
               <p className="text-center font-cormorant italic text-gray-500 mt-4">
