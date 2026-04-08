@@ -1,4 +1,4 @@
-'use client'; // This tells Next.js this is an interactive page
+'use client'; 
 
 import React, { useState } from 'react';
 import Header from '@/components/Header';
@@ -13,7 +13,7 @@ export default function BrindlesVisionPage() {
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
       style={{ backgroundImage: "url('/images/main-images/Cover Art/brindles-vision-bg.png')" }}
->
+    >
       <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
@@ -22,12 +22,14 @@ export default function BrindlesVisionPage() {
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl">
             
+            {/* Back Button */}
             <div className="mb-8">
               <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
                 <span>←</span> BACK TO SANCTUARY
               </Link>
             </div>
 
+            {/* Show Title */}
             <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
                 Brindle's Vision
@@ -60,7 +62,7 @@ export default function BrindlesVisionPage() {
                   <div className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
                       <iframe
-                       src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&muted=true&autoplay=false`}
+                        src="https://player.twitch.tv/?channel=riseradionetworks&parent=localhost&parent=embers-of-fire-4lgo.vercel.app&muted=true&autoplay=false"
                         className="w-full h-full"
                         frameBorder="0"
                         allowFullScreen={true}
@@ -68,7 +70,7 @@ export default function BrindlesVisionPage() {
                     </div>
                     <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       <iframe
-                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&darkpopout`}
+                        src="https://www.twitch.tv/embed/riseradionetworks/chat?parent=localhost&parent=embers-of-fire-4lgo.vercel.app&darkpopout"
                         className="w-full h-full"
                         frameBorder="0"
                       ></iframe>

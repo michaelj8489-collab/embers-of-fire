@@ -60,14 +60,15 @@ export default function IlluminatePage() {
                   <div className="flex flex-col md:flex-row w-full md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
                       <iframe
-                        src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&muted=true&autoplay=false`}
+                        src="https://player.twitch.tv/?channel=riseradionetworks&parent=localhost&parent=embers-of-fire-4lgo.vercel.app&muted=true&autoplay=false"
+                        className="w-full h-full"
                         frameBorder="0"
                         allowFullScreen={true}
                       ></iframe>
                     </div>
                     <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       <iframe
-                        src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&darkpopout`}
+                        src="https://www.twitch.tv/embed/riseradionetworks/chat?parent=localhost&parent=embers-of-fire-4lgo.vercel.app&darkpopout"
                         className="w-full h-full"
                         frameBorder="0"
                       ></iframe>
@@ -91,38 +92,38 @@ export default function IlluminatePage() {
 
             {/* --- MEET THE HOST SECTION --- */}
             <section className="w-full mt-20 mb-24 flex flex-col items-center text-center">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase  tracking-widest mb-6">
+              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
                 Meet Your Guide
               </h2>
-            <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
+              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
-            <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-12 text-left">
-            <div className="relative w-full max-w-[300px] aspect-[4/5] rounded-xl border border-orange-900/40 overflow-hidden shadow-2xl group flex-shrink-0">
-            <img 
-              src="/images/misc/karrie-bio-illuminate.png" 
-             alt="Karrie Lynne (Lunaria)" 
-             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
-             />
-           </div>
-    <div className="flex-grow">
-      <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Lynne (Lunaria)</h3>
-      <p className="font-cormorant text-xl text-orange-200/70 italic mb-6">
-        Co-Founder of Rise Radio & Lead Host
-      </p>
-      <div className="font-cormorant text-gray-300 text-lg leading-relaxed space-y-4">
-        <p>
-          Lunaria is the co-founder of Rise Radio and a seasoned talk show host with over four years of experience inspiring and uplifting listeners. Her shows focus on healing, self-discovery, and learning to rise above life's traumas to create stronger, more meaningful relationships.
-        </p>
-        <p>
-          Known for her intuitive insight and compassionate nature, Lunaria is a listener, healer, reader, teacher, and guide—a gentle, caring soul who helps others find a little more love and light in their lives. 
-        </p>
-        <p>
-          With her signature blend of wit, sass, and sincerity, she brings laughter and wisdom to every broadcast, guiding audiences toward peace, purpose, and personal empowerment.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+              <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-12 text-left">
+                <div className="relative w-full max-w-[300px] aspect-[4/5] rounded-xl border border-orange-900/40 overflow-hidden shadow-2xl group flex-shrink-0">
+                  <img 
+                    src="/images/misc/karrie-bio-illuminate.png" 
+                    alt="Karrie Lynne (Lunaria)" 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                  />
+                </div>
+                <div className="flex-grow">
+                  <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Lynne (Lunaria)</h3>
+                  <p className="font-cormorant text-xl text-orange-200/70 italic mb-6">
+                    Co-Founder of Rise Radio & Lead Host
+                  </p>
+                  <div className="font-cormorant text-gray-300 text-lg leading-relaxed space-y-4">
+                    <p>
+                      Lunaria is the co-founder of Rise Radio and a seasoned talk show host with over four years of experience inspiring and uplifting listeners. Her shows focus on healing, self-discovery, and learning to rise above life's traumas to create stronger, more meaningful relationships.
+                    </p>
+                    <p>
+                      Known for her intuitive insight and compassionate nature, Lunaria is a listener, healer, reader, teacher, and guide—a gentle, caring soul who helps others find a little more love and light in their lives. 
+                    </p>
+                    <p>
+                      With her signature blend of wit, sass, and sincerity, she brings laughter and wisdom to every broadcast, guiding audiences toward peace, purpose, and personal empowerment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
 
           </div>
         </main>

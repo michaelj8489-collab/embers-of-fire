@@ -60,7 +60,7 @@ export default function TheCorePage() {
                   <div className="flex flex-col md:flex-row w-full md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
                       <iframe
-                        src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&muted=true&autoplay=false`}
+                        src="https://player.twitch.tv/?channel=riseradionetworks&parent=localhost&parent=embers-of-fire-4lgo.vercel.app&muted=true&autoplay=false"
                         className="w-full h-full"
                         frameBorder="0"
                         allowFullScreen={true}
@@ -68,7 +68,7 @@ export default function TheCorePage() {
                     </div>
                     <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       <iframe
-                       src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&darkpopout`}
+                        src="https://www.twitch.tv/embed/riseradionetworks/chat?parent=localhost&parent=embers-of-fire-4lgo.vercel.app&darkpopout"
                         className="w-full h-full"
                         frameBorder="0"
                       ></iframe>

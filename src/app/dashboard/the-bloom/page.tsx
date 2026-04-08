@@ -63,7 +63,7 @@ export default function TheBloomPage() {
                   <div className="flex flex-col md:flex-row w-full md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
                       <iframe
-                        src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&muted=true&autoplay=false`}
+                        src="https://player.twitch.tv/?channel=riseradionetworks&parent=localhost&parent=embers-of-fire-4lgo.vercel.app&muted=true&autoplay=false"
                         className="w-full h-full"
                         frameBorder="0"
                         allowFullScreen={true}
@@ -71,14 +71,14 @@ export default function TheBloomPage() {
                     </div>
                     <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       <iframe
-                       src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${process.env.NEXT_PUBLIC_TWITCH_PARENT}&darkpopout`}
+                        src="https://www.twitch.tv/embed/riseradionetworks/chat?parent=localhost&parent=embers-of-fire-4lgo.vercel.app&darkpopout"
                         className="w-full h-full"
                         frameBorder="0"
                       />
                     </div>
                   </div>
                 ) : (
-                  /* ARCHIVE VIEW - Replaced placeholder with YouTube Playlist */
+                  /* ARCHIVE VIEW */
                   <div className="w-full aspect-video">
                     <iframe
                       src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njT-1QD5R76W1Mv-eD-eijIE"
@@ -108,7 +108,7 @@ export default function TheBloomPage() {
                   <img 
                     src="/images/main-images/Cover Art/Diane Solo.png" 
                     alt="Rev. Diane R DeBiasi" 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                   />
                 </div>
                 <div className="flex-grow">
