@@ -1,10 +1,14 @@
+'use client'; // This tells Next.js this is an interactive page
+
+import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 
-export const dynamic = 'force-dynamic';
-
 export default function BrindlesVisionPage() {
+  // We use a "state" to track which view is active: 'archive' or 'live'
+  const [activeView, setActiveView] = useState<'archive' | 'live'>('archive');
+
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
@@ -16,7 +20,7 @@ export default function BrindlesVisionPage() {
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
-          <div className="w-full max-w-7xl"> {/* Widened to 7xl for Chat room */}
+          <div className="w-full max-w-7xl">
             
             <div className="mb-8">
               <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
@@ -37,67 +41,53 @@ export default function BrindlesVisionPage() {
             <div className="mb-16 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button 
-                  onClick={() => { 
-                    const t = document.getElementById('live-view');
-                    const a = document.getElementById('archive-view');
-                    if(t && a) { t.style.display = 'flex'; a.style.display = 'none'; }
-                  }}
-                  className="px-6 py-2 font-cinzel text-sm border border-orange-500 text-orange-500 hover:bg-orange-500/10 transition-all rounded-full uppercase tracking-widest active:scale-95 shadow-[0_0_15px_rgba(234,88,12,0.2)]"
+                  onClick={() => setActiveView('live')}
+                  className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}
                 >
                   🔴 Live Stream & Chat
                 </button>
                 <button 
-                  onClick={() => { 
-                    const t = document.getElementById('live-view');
-                    const a = document.getElementById('archive-view');
-                    if(t && a) { t.style.display = 'none'; a.style.display = 'block'; }
-                  }}
-                  className="px-6 py-2 font-cinzel text-sm border border-gray-600 text-gray-400 hover:border-orange-500/50 hover:text-orange-200 transition-all rounded-full uppercase tracking-widest active:scale-95"
+                  onClick={() => setActiveView('archive')}
+                  className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}
                 >
                   🎬 The Archives
                 </button>
               </div>
 
-              {/* Player & Chat Container */}
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
                 
-                {/* View 1: Live View (Player + Chat) */}
-                <div id="live-view" style={{ display: 'none' }} className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
-                  {/* Twitch Player */}
-                  <div className="flex-grow h-full bg-black">
+                {activeView === 'live' ? (
+                  <div className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
+                    <div className="flex-grow h-full bg-black">
+                      <iframe
+                        src="https://player.twitch.tv/?channel=brindlyzer&parent=embers-of-fire-4lgo.vercel.app&muted=true&autoplay=false"
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allowFullScreen={true}
+                      ></iframe>
+                    </div>
+                    <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
+                      <iframe
+                        src="https://www.twitch.tv/embed/brindlyzer/chat?parent=embers-of-fire-4lgo.vercel.app&darkpopout"
+                        className="w-full h-full"
+                        frameBorder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full aspect-video">
                     <iframe
-                      src="https://player.twitch.tv/?channel=brindlyzer&parent=embers-of-fire-4lgo.vercel.app&muted=true&autoplay=false"
+                      src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njSDRIYBDZcUbzqQFYQGmXIr"
                       className="w-full h-full"
                       frameBorder="0"
-                      allowFullScreen={true}
-                      scrolling="no"
+                      allowFullScreen
                     ></iframe>
                   </div>
-                  {/* Twitch Chat - Only on Desktop, stacks on mobile */}
-                  <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
-                    <iframe
-                      src="https://www.twitch.tv/embed/brindlyzer/chat?parent=embers-of-fire-4lgo.vercel.app&darkpopout"
-                      className="w-full h-full"
-                      frameBorder="0"
-                    ></iframe>
-                  </div>
-                </div>
-
-                {/* View 2: YouTube Archive (Full Screen) */}
-                <div id="archive-view" className="w-full aspect-video">
-                  <iframe
-                    src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njSDRIYBDZcUbzqQFYQGmXIr"
-                    className="w-full h-full"
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
+                )}
 
               </div>
               <p className="text-center font-cormorant italic text-gray-500 mt-4">
-                Switch to "Live Stream" to interact with the host and community during show hours!
+                {activeView === 'live' ? 'You are watching LIVE. Join the chat!' : 'Viewing The Archives. Join us live Tuesdays at 12 PM EST.'}
               </p>
             </div>
 
@@ -113,7 +103,7 @@ export default function BrindlesVisionPage() {
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.1)]">
                     <img
                       src="/images/brindle-bio.JPG" 
-                      alt="Michka Grant - Brindle's Vision Host"
+                      alt="Michka Grant"
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent"></div>
@@ -122,9 +112,7 @@ export default function BrindlesVisionPage() {
                     <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold">
                       Michka Grant
                     </h3>
-                    <p className="font-cormorant text-gray-400 italic text-lg">
-                      RISE Co-Founder & Host
-                    </p>
+                    <p className="font-cormorant text-gray-400 italic text-lg">RISE Co-Founder & Host</p>
                   </div>
                 </div>
 
