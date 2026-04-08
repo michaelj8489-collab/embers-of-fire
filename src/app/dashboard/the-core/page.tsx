@@ -92,50 +92,49 @@ export default function TheCorePage() {
               </p>
             </div>
 
-            {/* --- MEET THE FOUNDERS SECTION --- */}
+           {/* --- MEET THE FOUNDERS SECTION --- */}
             <section className="w-full mt-20 mb-24 text-center">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
                 Meet The Founders
               </h2>
               <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch">
                 
                 {/* Host 1: Michka */}
-                <div className="bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col items-center text-center">
-                  <div className="relative w-full aspect-[4/5] rounded-lg border border-orange-900/40 overflow-hidden mb-6">
-                    <img src="/images/misc/michka-core-bio.jpg" alt="Michka Grant" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                <div className="flex flex-col items-center">
+                  <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
+                    <img src="/images/misc/michka-core-bio.jpg" alt="Michka Grant" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
-                  <h3 className="font-cinzel text-xl text-orange-500 tracking-widest uppercase font-bold mb-1">Michka Grant</h3>
-                  <p className="font-cormorant text-gray-400 italic">RISE Co-Founder</p>
+                  <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold mb-2">Michka Grant</h3>
+                  <p className="font-cormorant text-gray-300 italic leading-relaxed px-4">
+                    Visionary host and co-founder of RISE, Michka brings a deep focus on frequency and soul-led performance to the heart of every discussion.
+                  </p>
                 </div>
 
                 {/* Host 2: Karrie */}
-                <div className="bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col items-center text-center">
-                  <div className="relative w-full aspect-[4/5] rounded-lg border border-orange-900/40 overflow-hidden mb-6">
-                    <img src="/images/misc/karrie.jpg" alt="Karrie Northrup" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                <div className="flex flex-col items-center">
+                  <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
+                    {/* Check if this needs to be Karrie.jpg or karrie.jpg! */}
+                    <img src="/images/misc/karrie.jpg" alt="Karrie Northrup" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
-                  <h3 className="font-cinzel text-xl text-orange-500 tracking-widest uppercase font-bold mb-1">Karrie Northrup</h3>
-                  <p className="font-cormorant text-gray-400 italic">RISE Co-Founder</p>
+                  <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Northrup</h3>
+                  <p className="font-cormorant text-gray-300 italic leading-relaxed px-4">
+                    As a co-founder of RISE, Karrie is dedicated to stripping away the layers of the ego to find the authentic core of the artistic journey.
+                  </p>
                 </div>
 
                 {/* Host 3: Rev. Diane */}
-                <div className="bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col items-center text-center">
-                  <div className="relative w-full aspect-[4/5] rounded-lg border border-orange-900/40 overflow-hidden mb-6">
-                    <img src="/images/misc/Diane Solo.jpg" alt="Rev. Diane R DeBiasi" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                <div className="flex flex-col items-center">
+                  <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
+                    <img src="/images/misc/Diane Solo.jpg" alt="Rev. Diane R DeBiasi" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
-                  <h3 className="font-cinzel text-xl text-orange-500 tracking-widest uppercase font-bold mb-1">Rev. Diane R DeBiasi</h3>
-                  <p className="font-cormorant text-gray-400 italic">RISE Co-Founder</p>
+                  <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold mb-2">Rev. Diane R DeBiasi</h3>
+                  <p className="font-cormorant text-gray-300 italic leading-relaxed px-4">
+                    Rev. Diane explores the intersection of spiritual depth and creative wisdom, guiding listeners through the journey of the soul.
+                  </p>
                 </div>
 
-              </div>
-
-              {/* Show Promo Section */}
-              <div className="mt-20 flex flex-col items-center">
-                <h3 className="font-cinzel text-2xl text-orange-200 mb-8 tracking-widest uppercase">Show Promo</h3>
-                <div className="w-full max-w-3xl rounded-xl border border-orange-900/50 overflow-hidden shadow-2xl">
-                    <img src="/images/main-images/Cover Art/core-hosts-bio.jpg" alt="The CORE Hosts Promo" className="w-full h-auto" />
-                </div>
               </div>
             </section>
 
