@@ -33,7 +33,7 @@ export default function LoginPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col font-cormorant relative bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: "url('/images/jmc-edits-palettes/phoenix-bg.png')" }}
+    style={{ backgroundImage: "url('/images/phoenix-revised.png')" }}
     >
       <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none"></div>
 

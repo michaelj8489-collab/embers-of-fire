@@ -10,7 +10,7 @@ const subscriptionTiers = [
     description: "The starting point for those beginning their journey. Access the core frequency and join the growing community of awareness.",
     perks: ["Access to all main live streams", "Basic community forum access", "Public show archives"],
     color: "from-gray-500 to-gray-700",
-    // Updated to the Wolf and Raven image!
+    // NOTE: Make sure forward slashes are used for public folder access
     image: "/images/misc/Misc/wolf and raven.jpg" 
   },
   {
@@ -93,21 +93,22 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
           {subscriptionTiers.map((tier) => (
             
+            /* --- UPDATED CARD WRAPPER --- */
             <div
               key={tier.name}
               className="relative flex flex-col bg-black/80 rounded-2xl border border-orange-900/40 shadow-2xl transition-all duration-500 hover:border-orange-500/60 group hover:shadow-[0_0_40px_rgba(255,100,0,0.15)] overflow-hidden"
             >
               
-              {/* Background Image Layer */}
+              {/* 2. The Background Image Layer - BASE OPACITY SET TO 55% for all */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10 transition-opacity duration-500 group-hover:opacity-30 z-0"
+                className="absolute inset-0 bg-cover bg-center opacity-55 transition-opacity duration-500 group-hover:opacity-75 z-0"
                 style={{ backgroundImage: `url('${tier.image}')` }}
               ></div>
 
-              {/* Darkening Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-[#0a0a0a] z-0"></div>
+              {/* 3. The Darkening Gradient Overlay - Darkened slightly at the top for contrast against brighter images */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-[#0a0a0a] z-0"></div>
 
-              {/* Content Wrapper */}
+              {/* 4. The Content Wrapper - Must be relative z-10 to sit above the image/gradient */}
               <div className="relative z-10 p-8 flex flex-col h-full">
                 
                 {/* Header Section */}
@@ -145,6 +146,7 @@ export default function HomePage() {
               
               </div>
             </div>
+            /* --- END UPDATED CARD WRAPPER --- */
 
           ))}
         </div>
