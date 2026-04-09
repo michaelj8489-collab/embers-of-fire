@@ -1,12 +1,20 @@
 'use client'; 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 
 export default function TheMessengersPage() {
   const [activeView, setActiveView] = useState<'archive' | 'live'>('archive');
+  const [parentDomain, setParentDomain] = useState('');
+
+  // Automatically grab the domain for Twitch security
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setParentDomain(window.location.hostname);
+    }
+  }, []);
 
   return (
     <div 
@@ -59,19 +67,23 @@ export default function TheMessengersPage() {
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
-                      <iframe
-                        src="https://player.twitch.tv/?channel=riseradionetworks&parent=embers-of-fire.vercel.app&parent=localhost&muted=false&autoplay=true"
-                        className="w-full h-full"
-                        frameBorder="0"
-                        allowFullScreen={true}
-                      ></iframe>
+                      {parentDomain && (
+                        <iframe
+                          src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allowFullScreen={true}
+                        />
+                      )}
                     </div>
                     <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
-                      <iframe
-                        src="https://www.twitch.tv/embed/riseradionetworks/chat?parent=embers-of-fire.vercel.app&parent=localhost&darkpopout"
-                        className="w-full h-full"
-                        frameBorder="0"
-                      ></iframe>
+                      {parentDomain && (
+                        <iframe
+                          src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&darkpopout`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                        />
+                      )}
                     </div>
                   </div>
                 ) : (
