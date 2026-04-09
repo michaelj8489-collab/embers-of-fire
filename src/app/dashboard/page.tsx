@@ -32,7 +32,7 @@ export default function NetworkPortal() {
                     loop 
                     muted 
                     playsInline 
-                    className="w-full h-full object-cover grayscale-[60%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
+                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-110 transition-all duration-1000"
                   >
                     <source src="/images/eol-come-alive.mp4" type="video/mp4" />
                   </video>
@@ -53,7 +53,7 @@ export default function NetworkPortal() {
                     loop 
                     muted 
                     playsInline 
-                    className="w-full h-full object-cover grayscale-[60%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
+                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-110 transition-all duration-1000"
                   >
                     <source src="/images/jmc-edits-palettes/rise-radio-bg.mp4" type="video/mp4" />
                   </video>

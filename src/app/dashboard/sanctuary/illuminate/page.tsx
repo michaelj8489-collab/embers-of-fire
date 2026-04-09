@@ -31,7 +31,7 @@ export default function IlluminatePage() {
             
             {/* Back Button */}
             <div className="mb-8">
-              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
+              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
                 <span>←</span> BACK TO SANCTUARY
               </Link>
             </div>
