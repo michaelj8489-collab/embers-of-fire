@@ -51,57 +51,59 @@ export default function Header() {
         </Link>
       </div>
 
-      {/* Center Navigation: Dropdowns */}
-      <nav className="hidden md:flex items-center gap-8">
-        
-        {/* Sanctuary Dropdown */}
-        <div 
-          className="relative py-2" 
-          onMouseEnter={() => setIsSanctuaryOpen(true)} 
-          onMouseLeave={() => setIsSanctuaryOpen(false)}
-        >
-          <button className="font-cinzel text-orange-400 hover:text-orange-300 transition-colors uppercase tracking-widest flex items-center gap-1">
-            The Sanctuary ▾
-          </button>
+      {/* Center Navigation: ONLY shows if user is Logged In */}
+      {isLoggedIn && (
+        <nav className="hidden md:flex items-center gap-8">
           
-          {isSanctuaryOpen && (
-            <div className="absolute top-full left-0 w-56 bg-black/95 border border-orange-900/50 backdrop-blur-2xl p-2 rounded-b-lg flex flex-col gap-1 shadow-2xl">
-              <Link href="/dashboard/sanctuary" className="text-gray-400 hover:text-white hover:bg-orange-900/30 p-2 rounded transition-all text-sm uppercase tracking-tighter">Sanctuary Hub</Link>
-              <div className="h-px bg-orange-900/30 my-1"></div>
-              <Link href="/dashboard/sanctuary/the-bloom" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The Bloom</Link>
-              <Link href="/dashboard/sanctuary/the-messengers" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The Messengers</Link>
-              <Link href="/dashboard/sanctuary/brindles-vision" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Brindle's Vision</Link>
-              <Link href="/dashboard/sanctuary/phoenix-talks" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Phoenix Talks</Link>
-              <Link href="/dashboard/sanctuary/the-core" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The CORE</Link>
-              <Link href="/dashboard/sanctuary/illuminate" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Illuminate</Link>
-            </div>
-          )}
-        </div>
+          {/* Sanctuary Dropdown */}
+          <div 
+            className="relative py-2" 
+            onMouseEnter={() => setIsSanctuaryOpen(true)} 
+            onMouseLeave={() => setIsSanctuaryOpen(false)}
+          >
+            <button className="font-cinzel text-orange-400 hover:text-orange-300 transition-colors uppercase tracking-widest flex items-center gap-1">
+              The Sanctuary ▾
+            </button>
+            
+            {isSanctuaryOpen && (
+              <div className="absolute top-full left-0 w-56 bg-black/95 border border-orange-900/50 backdrop-blur-2xl p-2 rounded-b-lg flex flex-col gap-1 shadow-2xl">
+                <Link href="/dashboard/sanctuary" className="text-gray-400 hover:text-white hover:bg-orange-900/30 p-2 rounded transition-all text-sm uppercase tracking-tighter">Sanctuary Hub</Link>
+                <div className="h-px bg-orange-900/30 my-1"></div>
+                <Link href="/dashboard/sanctuary/the-bloom" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The Bloom</Link>
+                <Link href="/dashboard/sanctuary/the-messengers" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The Messengers</Link>
+                <Link href="/dashboard/sanctuary/brindles-vision" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Brindle's Vision</Link>
+                <Link href="/dashboard/sanctuary/phoenix-talks" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Phoenix Talks</Link>
+                <Link href="/dashboard/sanctuary/the-core" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The CORE</Link>
+                <Link href="/dashboard/sanctuary/illuminate" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Illuminate</Link>
+              </div>
+            )}
+          </div>
 
-        {/* RISE Dropdown */}
-        <div 
-          className="relative py-2" 
-          onMouseEnter={() => setIsRiseOpen(true)} 
-          onMouseLeave={() => setIsRiseOpen(false)}
-        >
-          <button className="font-cinzel text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest flex items-center gap-1">
-            Rise Radio ▾
-          </button>
-          
-          {isRiseOpen && (
-            <div className="absolute top-full left-0 w-56 bg-black/95 border border-red-900/50 backdrop-blur-2xl p-2 rounded-b-lg flex flex-col gap-1 shadow-2xl">
-              <Link href="/dashboard/rise-hub" className="text-gray-400 hover:text-white hover:bg-red-900/30 p-2 rounded transition-all text-sm uppercase tracking-tighter">Rise Hub</Link>
-              <div className="h-px bg-red-900/30 my-1"></div>
-              <Link href="/dashboard/rise-hub/honky-tonk-heaven" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Honky Tonk Heaven</Link>
-              <Link href="/dashboard/rise-hub/voices-on-the-rise" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Voices on the Rise</Link>
-              <div className="h-px bg-red-900/30 my-1"></div>
-              <Link href="/dashboard/rise-hub/submissions" className="bg-red-900/40 text-red-400 border border-red-500/50 hover:bg-red-600 hover:text-white p-2 rounded text-center text-xs font-bold transition-all uppercase tracking-widest">
-                Submit Song
-              </Link>
-            </div>
-          )}
-        </div>
-      </nav>
+          {/* RISE Dropdown */}
+          <div 
+            className="relative py-2" 
+            onMouseEnter={() => setIsRiseOpen(true)} 
+            onMouseLeave={() => setIsRiseOpen(false)}
+          >
+            <button className="font-cinzel text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest flex items-center gap-1">
+              Rise Radio ▾
+            </button>
+            
+            {isRiseOpen && (
+              <div className="absolute top-full left-0 w-56 bg-black/95 border border-red-900/50 backdrop-blur-2xl p-2 rounded-b-lg flex flex-col gap-1 shadow-2xl">
+                <Link href="/dashboard/rise-hub" className="text-gray-400 hover:text-white hover:bg-red-900/30 p-2 rounded transition-all text-sm uppercase tracking-tighter">Rise Hub</Link>
+                <div className="h-px bg-red-900/30 my-1"></div>
+                <Link href="/dashboard/rise-hub/honky-tonk-heaven" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Honky Tonk Heaven</Link>
+                <Link href="/dashboard/rise-hub/voices-on-the-rise" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Voices on the Rise</Link>
+                <div className="h-px bg-red-900/30 my-1"></div>
+                <Link href="/dashboard/rise-hub/submissions" className="bg-red-900/40 text-red-400 border border-red-500/50 hover:bg-red-600 hover:text-white p-2 rounded text-center text-xs font-bold transition-all uppercase tracking-widest">
+                  Submit Song
+                </Link>
+              </div>
+            )}
+          </div>
+        </nav>
+      )}
 
       {/* Right Side: Dynamic Auth Button */}
       <div>
