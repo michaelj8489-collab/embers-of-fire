@@ -79,7 +79,7 @@ export default function Header() {
             )}
           </div>
 
-          {/* RISE Dropdown */}
+          {/* RISE Dropdown (Submissions Removed) */}
           <div 
             className="relative py-2" 
             onMouseEnter={() => setIsRiseOpen(true)} 
@@ -95,10 +95,6 @@ export default function Header() {
                 <div className="h-px bg-red-900/30 my-1"></div>
                 <Link href="/dashboard/rise-hub/honky-tonk-heaven" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Honky Tonk Heaven</Link>
                 <Link href="/dashboard/rise-hub/voices-on-the-rise" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Voices on the Rise</Link>
-                <div className="h-px bg-red-900/30 my-1"></div>
-                <Link href="/dashboard/rise-hub/submissions" className="bg-red-900/40 text-red-400 border border-red-500/50 hover:bg-red-600 hover:text-white p-2 rounded text-center text-xs font-bold transition-all uppercase tracking-widest">
-                  Submit Song
-                </Link>
               </div>
             )}
           </div>
