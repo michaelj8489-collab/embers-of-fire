@@ -1,124 +1,73 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
 export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isSanctuaryOpen, setIsSanctuaryOpen] = useState(false);
-  const [isRiseOpen, setIsRiseOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
-    };
-
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/login');
   };
 
+  const shows = [
+    { name: "The Bloom", href: "/dashboard/the-bloom" },
+    { name: "The Messengers", href: "/dashboard/the-messengers" },
+    { name: "Brindle's Vision", href: "/dashboard/brindles-vision" },
+    { name: "Phoenix Talks", href: "/dashboard/phoenix-talks" },
+    { name: "The CORE", href: "/dashboard/the-core" },
+    { name: "Illuminate", href: "/dashboard/illuminate" },
+    { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
+    { name: "Voices on the Rise", href: "/dashboard/voices-on-the-rise" },
+    { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
+  ];
+
   return (
-    <header className="w-full border-b border-orange-900/50 bg-black/80 backdrop-blur-md p-4 flex items-center justify-between sticky top-0 z-50">
-      
-      {/* Left Side: Logo & Title */}
-      <div className="flex items-center gap-4">
-        <Link href="/" className="flex items-center gap-4 group">
-          <img 
-            src="/images/rise-radio-logo.png" 
-            alt="Rise Radio Logo" 
-            className="h-12 w-12 rounded-full object-cover border border-orange-900/50 group-hover:border-orange-500 transition-colors"
-          />
-          <span className="font-cinzel text-xl md:text-2xl font-bold text-orange-500 tracking-wider group-hover:text-orange-400 transition-colors uppercase">
-            Embers of Light
-          </span>
+    <header className="w-full border-b border-orange-900/50 bg-black/90 backdrop-blur-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <img src="/images/rise-radio-logo.png" alt="Logo" className="h-10 w-10 rounded-full border border-orange-500" />
+          <span className="font-cinzel text-lg font-bold text-orange-500 uppercase tracking-tighter">Embers of Light</span>
         </Link>
-      </div>
 
-      {/* Center Navigation: ONLY shows if user is Logged In */}
-      {isLoggedIn && (
-        <nav className="hidden md:flex items-center gap-8">
-          
-          {/* Sanctuary Dropdown */}
-          <div 
-            className="relative py-2" 
-            onMouseEnter={() => setIsSanctuaryOpen(true)} 
-            onMouseLeave={() => setIsSanctuaryOpen(false)}
-          >
-            <button className="font-cinzel text-orange-400 hover:text-orange-300 transition-colors uppercase tracking-widest flex items-center gap-1">
-              The Sanctuary ▾
+        {/* Desktop Nav */}
+        <nav className="hidden lg:flex items-center gap-6">
+          <div className="relative group">
+            <button className="font-cinzel text-gray-300 hover:text-orange-400 uppercase tracking-widest text-sm flex items-center gap-1">
+              Shows ▾
             </button>
-            
-            {isSanctuaryOpen && (
-              <div className="absolute top-full left-0 w-56 bg-black/95 border border-orange-900/50 backdrop-blur-2xl p-2 rounded-b-lg flex flex-col gap-1 shadow-2xl">
-                <Link href="/dashboard/sanctuary" className="text-gray-400 hover:text-white hover:bg-orange-900/30 p-2 rounded transition-all text-sm uppercase tracking-tighter">Sanctuary Hub</Link>
-                <div className="h-px bg-orange-900/30 my-1"></div>
-                <Link href="/dashboard/sanctuary/the-bloom" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The Bloom</Link>
-                <Link href="/dashboard/sanctuary/the-messengers" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The Messengers</Link>
-                <Link href="/dashboard/sanctuary/brindles-vision" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Brindle's Vision</Link>
-                <Link href="/dashboard/sanctuary/phoenix-talks" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Phoenix Talks</Link>
-                <Link href="/dashboard/sanctuary/the-core" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">The CORE</Link>
-                <Link href="/dashboard/sanctuary/illuminate" className="text-gray-300 hover:text-orange-400 p-2 rounded text-sm uppercase">Illuminate</Link>
-              </div>
-            )}
+            <div className="absolute top-full left-0 w-64 bg-black border border-orange-900/50 p-2 hidden group-hover:flex flex-col gap-1 shadow-2xl">
+              {shows.map((show) => (
+                <Link key={show.href} href={show.href} className="text-gray-400 hover:text-orange-400 p-2 text-xs uppercase tracking-widest transition-colors">
+                  {show.name}
+                </Link>
+              ))}
+            </div>
           </div>
-
-          {/* RISE Dropdown (Submissions Removed) */}
-          <div 
-            className="relative py-2" 
-            onMouseEnter={() => setIsRiseOpen(true)} 
-            onMouseLeave={() => setIsRiseOpen(false)}
-          >
-            <button className="font-cinzel text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest flex items-center gap-1">
-              Rise Radio ▾
-            </button>
-            
-            {isRiseOpen && (
-              <div className="absolute top-full left-0 w-56 bg-black/95 border border-red-900/50 backdrop-blur-2xl p-2 rounded-b-lg flex flex-col gap-1 shadow-2xl">
-                <Link href="/dashboard/rise-hub" className="text-gray-400 hover:text-white hover:bg-red-900/30 p-2 rounded transition-all text-sm uppercase tracking-tighter">Rise Hub</Link>
-                <div className="h-px bg-red-900/30 my-1"></div>
-                <Link href="/dashboard/rise-hub/honky-tonk-heaven" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Honky Tonk Heaven</Link>
-                <Link href="/dashboard/rise-hub/voices-on-the-rise" className="text-gray-300 hover:text-red-500 p-2 rounded text-sm uppercase">Voices on the Rise</Link>
-              </div>
-            )}
-          </div>
+          <Link href="/dashboard/defining-your-character" className="font-cinzel text-red-500 text-sm uppercase tracking-widest">DYC (Coming Soon)</Link>
+          <button onClick={handleSignOut} className="border border-orange-600 text-orange-500 px-4 py-1 rounded text-xs font-cinzel">SIGN OUT</button>
         </nav>
-      )}
 
-      {/* Right Side: Dynamic Auth Button */}
-      <div>
-        {isLoggedIn ? (
-          <button 
-            onClick={handleSignOut}
-            className="border border-orange-600 text-orange-500 hover:bg-orange-600 hover:text-white px-4 md:px-6 py-2 rounded transition-all font-cinzel font-bold tracking-widest text-sm"
-          >
-            SIGN OUT
-          </button>
-        ) : (
-          <Link 
-            href="/login"
-            className="border border-orange-600 text-orange-500 hover:bg-orange-600 hover:text-white px-4 md:px-6 py-2 rounded transition-all font-cinzel font-bold tracking-widest text-sm inline-block"
-          >
-            SIGN IN
-          </Link>
-        )}
+        {/* Mobile Toggle */}
+        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-orange-500">
+          {isOpen ? '✕' : '☰'}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="lg:hidden bg-black border-t border-orange-900/50 p-4 flex flex-col gap-4">
+          {shows.map((show) => (
+            <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest">{show.name}</Link>
+          ))}
+          <button onClick={handleSignOut} className="text-left text-orange-500 uppercase text-sm font-bold">Sign Out</button>
+        </div>
+      )}
     </header>
   );
 }

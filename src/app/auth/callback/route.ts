@@ -13,5 +13,5 @@ export async function GET(request: Request) {
   }
 
   // Once verified, instantly redirect the user to your main homepage
-  return NextResponse.redirect(`${origin}/`)
+  return NextResponse.redirect(`${origin}/dashboard`)
 }
