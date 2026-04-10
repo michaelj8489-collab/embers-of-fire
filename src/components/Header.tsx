@@ -29,7 +29,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="w-full border-b border-orange-900/50 bg-black/90 backdrop-blur-md sticky top-0 z-50">
+   <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         
         {/* Left Side: Logo (RETAINED) */}

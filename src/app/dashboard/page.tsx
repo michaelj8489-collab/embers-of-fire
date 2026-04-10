@@ -39,7 +39,7 @@ export default function UnifiedDashboard() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
 
-        <main className="flex-grow flex flex-col items-center py-12 px-4 w-full">
+       <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-6xl">
             
             {/* HERO VIDEOS */}
