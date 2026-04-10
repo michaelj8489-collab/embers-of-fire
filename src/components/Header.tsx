@@ -15,6 +15,7 @@ export default function Header() {
     router.push('/login');
   };
 
+  // Updated array to include ALL missing shows
   const shows = [
     { name: "The Bloom", href: "/dashboard/the-bloom" },
     { name: "The Messengers", href: "/dashboard/the-messengers" },
@@ -30,6 +31,8 @@ export default function Header() {
   return (
     <header className="w-full border-b border-orange-900/50 bg-black/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        
+        {/* Left Side: Logo (RETAINED) */}
         <Link href="/dashboard" className="flex items-center gap-3">
           <img src="/images/rise-radio-logo.png" alt="Logo" className="h-10 w-10 rounded-full border border-orange-500" />
           <span className="font-cinzel text-lg font-bold text-orange-500 uppercase tracking-tighter">Embers of Light</span>
@@ -41,6 +44,7 @@ export default function Header() {
             <button className="font-cinzel text-gray-300 hover:text-orange-400 uppercase tracking-widest text-sm flex items-center gap-1">
               Shows ▾
             </button>
+            {/* The Dropdown Menu */}
             <div className="absolute top-full left-0 w-64 bg-black border border-orange-900/50 p-2 hidden group-hover:flex flex-col gap-1 shadow-2xl">
               {shows.map((show) => (
                 <Link key={show.href} href={show.href} className="text-gray-400 hover:text-orange-400 p-2 text-xs uppercase tracking-widest transition-colors">
@@ -49,8 +53,14 @@ export default function Header() {
               ))}
             </div>
           </div>
+          
+          {/* DYC Standout Link */}
           <Link href="/dashboard/defining-your-character" className="font-cinzel text-red-500 text-sm uppercase tracking-widest">DYC (Coming Soon)</Link>
-          <button onClick={handleSignOut} className="border border-orange-600 text-orange-500 px-4 py-1 rounded text-xs font-cinzel">SIGN OUT</button>
+          
+          {/* Sign Out Button (RETAINED) */}
+          <button onClick={handleSignOut} className="border border-orange-600 text-orange-500 px-4 py-1 rounded text-xs font-cinzel hover:bg-orange-600 hover:text-white transition-all">
+            SIGN OUT
+          </button>
         </nav>
 
         {/* Mobile Toggle */}
