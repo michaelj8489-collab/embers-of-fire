@@ -1,6 +1,11 @@
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { getStripe } from '@/utils/stripe/client';
 
 const subscriptionTiers = [
   {
@@ -10,7 +15,6 @@ const subscriptionTiers = [
     description: "The starting point for those beginning their journey. Access the core frequency and join the growing community of awareness.",
     perks: ["Access to all main live streams", "Basic community forum access", "Public show archives"],
     color: "from-gray-500 to-gray-700",
-    // NOTE: Make sure forward slashes are used for public folder access
     image: "/images/misc/wolf-and-raven.jpg" 
   },
   {
@@ -61,6 +65,40 @@ const subscriptionTiers = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+
+      const handleSubscription = async (tierName: string, price: string) => {
+    // 1. If it's the free tier, just go to signup
+    if (price === "0" || tierName === "Seeker") {
+      router.push('/signup');
+      return;
+    }
+
+    // 2. Otherwise, trigger Stripe Checkout
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tierName }),
+      });
+
+      const { sessionId, error } = await response.json();
+
+      if (error) {
+        console.error("Checkout Error:", error);
+        alert("Something went wrong with the checkout. Please try again.");
+        return;
+      }
+
+      const stripe = await getStripe();
+      if (stripe) {
+        await (stripe as any).redirectToCheckout({ sessionId });
+      }
+    } catch (err) {
+      console.error("Network Error:", err);
+    }
+  };
+
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center bg-black overflow-x-hidden">
       
@@ -93,22 +131,21 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
           {subscriptionTiers.map((tier) => (
             
-            /* --- UPDATED CARD WRAPPER --- */
             <div
               key={tier.name}
               className="relative flex flex-col bg-black/80 rounded-2xl border border-orange-900/40 shadow-2xl transition-all duration-500 hover:border-orange-500/60 group hover:shadow-[0_0_40px_rgba(255,100,0,0.15)] overflow-hidden"
             >
               
-              {/* 2. The Background Image Layer - BASE OPACITY SET TO 55% for all */}
+              {/* Image Layer */}
               <div 
                 className="absolute inset-0 bg-cover bg-center opacity-55 transition-opacity duration-500 group-hover:opacity-75 z-0"
                 style={{ backgroundImage: `url('${tier.image}')` }}
               ></div>
 
-              {/* 3. The Darkening Gradient Overlay - Darkened slightly at the top for contrast against brighter images */}
+              {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-[#0a0a0a] z-0"></div>
 
-              {/* 4. The Content Wrapper - Must be relative z-10 to sit above the image/gradient */}
+              {/* Content Wrapper */}
               <div className="relative z-10 p-8 flex flex-col h-full">
                 
                 {/* Header Section */}
@@ -136,17 +173,16 @@ export default function HomePage() {
                   ))}
                 </ul>
 
-                {/* FUNCTIONAL LINK BUTTON */}
-                <Link
-                  href="/signup"
+                {/* REPLACED LINK WITH FUNCTIONAL BUTTON */}
+                <button
+                  onClick={() => handleSubscription(tier.name, tier.price)}
                   className={`block w-full py-4 text-center text-white text-lg font-cinzel font-bold rounded-lg transition-all transform hover:-translate-y-1 bg-gradient-to-br ${tier.color} shadow-lg hover:shadow-orange-500/20`}
                 >
                   Unlock {tier.name}
-                </Link>
+                </button>
               
               </div>
             </div>
-            /* --- END UPDATED CARD WRAPPER --- */
 
           ))}
         </div>
