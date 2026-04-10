@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -67,12 +66,14 @@ const subscriptionTiers = [
 export default function HomePage() {
   const router = useRouter();
 
-      const handleSubscription = async (tierName: string, price: string) => {
+  const handleSubscription = async (tierName: string, price: string) => {
     // 1. If it's the free tier, just go to signup
     if (price === "0" || tierName === "Seeker") {
       router.push('/signup');
       return;
     }
+
+    console.log(`Initiating checkout for: ${tierName}`);
 
     // 2. Otherwise, trigger Stripe Checkout
     try {
@@ -82,20 +83,27 @@ export default function HomePage() {
         body: JSON.stringify({ tierName }),
       });
 
-      const { sessionId, error } = await response.json();
+      const resData = await response.json();
 
-      if (error) {
-        console.error("Checkout Error:", error);
-        alert("Something went wrong with the checkout. Please try again.");
+      if (resData.error) {
+        console.error("Stripe API Error:", resData.error);
+        alert(`Error: ${resData.error}`);
         return;
       }
 
       const stripe = await getStripe();
-      if (stripe) {
-        await (stripe as any).redirectToCheckout({ sessionId });
+      if (stripe && resData.sessionId) {
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: resData.sessionId,
+        });
+        
+        if (error) {
+          console.error("Stripe Redirect Error:", error.message);
+        }
       }
     } catch (err) {
-      console.error("Network Error:", err);
+      console.error("Network or Client Error:", err);
+      alert("Failed to connect to the payment server. Please check your connection.");
     }
   };
 
@@ -130,12 +138,10 @@ export default function HomePage() {
         {/* TIERS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
           {subscriptionTiers.map((tier) => (
-            
             <div
               key={tier.name}
               className="relative flex flex-col bg-black/80 rounded-2xl border border-orange-900/40 shadow-2xl transition-all duration-500 hover:border-orange-500/60 group hover:shadow-[0_0_40px_rgba(255,100,0,0.15)] overflow-hidden"
             >
-              
               {/* Image Layer */}
               <div 
                 className="absolute inset-0 bg-cover bg-center opacity-55 transition-opacity duration-500 group-hover:opacity-75 z-0"
@@ -173,7 +179,7 @@ export default function HomePage() {
                   ))}
                 </ul>
 
-                {/* REPLACED LINK WITH FUNCTIONAL BUTTON */}
+                {/* ACTION BUTTON */}
                 <button
                   onClick={() => handleSubscription(tier.name, tier.price)}
                   className={`block w-full py-4 text-center text-white text-lg font-cinzel font-bold rounded-lg transition-all transform hover:-translate-y-1 bg-gradient-to-br ${tier.color} shadow-lg hover:shadow-orange-500/20`}
@@ -183,11 +189,11 @@ export default function HomePage() {
               
               </div>
             </div>
-
           ))}
         </div>
       </div>
       
+      <Header /> {/* Re-added to ensure it's at the top, though normally it's fixed */}
       <Footer />
     </main>
   );
