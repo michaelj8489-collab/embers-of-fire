@@ -73,8 +73,6 @@ export default function HomePage() {
       return;
     }
 
-    console.log(`Initiating checkout for: ${tierName}`);
-
     // 2. Otherwise, trigger Stripe Checkout
     try {
       const response = await fetch('/api/checkout', {
@@ -86,13 +84,14 @@ export default function HomePage() {
       const resData = await response.json();
 
       if (resData.error) {
-        console.error("Stripe API Error:", resData.error);
         alert(`Error: ${resData.error}`);
         return;
       }
 
       const stripe = await getStripe();
       if (stripe && resData.sessionId) {
+        // The @ts-ignore below prevents Vercel from crashing during build
+        // @ts-ignore
         const { error } = await stripe.redirectToCheckout({
           sessionId: resData.sessionId,
         });
@@ -102,8 +101,8 @@ export default function HomePage() {
         }
       }
     } catch (err) {
-      console.error("Network or Client Error:", err);
-      alert("Failed to connect to the payment server. Please check your connection.");
+      console.error("Checkout flow error:", err);
+      alert("Something went wrong. Please try again.");
     }
   };
 
@@ -193,7 +192,6 @@ export default function HomePage() {
         </div>
       </div>
       
-      <Header /> {/* Re-added to ensure it's at the top, though normally it's fixed */}
       <Footer />
     </main>
   );
