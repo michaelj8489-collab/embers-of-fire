@@ -1,11 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
 
 export default function UnifiedDashboard() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userTier, setUserTier] = useState<string>('seeker'); // Default room
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profile && profile.subscription_tier) {
+          setUserTier(profile.subscription_tier);
+        }
+      }
+    };
+
+    checkSession();
+  }, [supabase]);
+
   const schedule = [
     { name: "The Bloom", day: "Tuesdays", time: "8:00 PM EST", href: "/dashboard/the-bloom", status: "LIVE" },
     { name: "The Messengers", day: "Wednesdays", time: "7:00 PM EST", href: "/dashboard/the-messengers", status: "Active" },
@@ -32,15 +58,14 @@ export default function UnifiedDashboard() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
 
-        {/* Main content now uses w-full and responsive horizontal padding to hit the edges */}
         <main className="flex-grow flex flex-col items-center pt-32 pb-12 px-6 md:px-12 lg:px-20 w-full">
           <div className="w-full flex flex-col items-center">
             
             {/* HERO VIDEOS */}
-            <div className="flex flex-col md:flex-row gap-16 md:gap-32 items-center justify-center mb-24">
+            <div className="flex flex-col md:flex-row gap-16 md:gap-32 items-center justify-center mb-16">
               
-              {/* THE SANCTUARY (Now a working button!) */}
-              <Link href="/sanctuary/ascending" className="flex flex-col items-center group cursor-pointer">
+              {/* THE SANCTUARY (Smart Link!) */}
+              <Link href={isLoggedIn ? `/sanctuary/${userTier}` : '/login'} className="flex flex-col items-center group cursor-pointer">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-2 border-orange-900/50 shadow-[0_0_50px_rgba(234,88,12,0.2)] bg-neutral-900 transition-all duration-700 group-hover:border-orange-500 group-hover:shadow-[0_0_80px_rgba(234,88,12,0.4)]">
                   <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-100">
                     <source src="/images/eol-come-alive.mp4" type="video/mp4" />
@@ -61,7 +86,21 @@ export default function UnifiedDashboard() {
 
             </div>
 
-            {/* SPARK & FREQUENCIES - Expands across the full width */}
+            {/* NEW: THE SANCTUARY EXPLANATION BOX */}
+            <div className="w-full max-w-5xl mx-auto mb-24 bg-gradient-to-b from-orange-900/20 to-black/60 backdrop-blur-md border border-orange-500/30 p-10 md:p-16 rounded-[2rem] shadow-2xl text-center relative overflow-hidden group">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50"></div>
+              <h3 className="font-cinzel text-3xl md:text-4xl text-orange-400 mb-6 tracking-widest uppercase">What is The Sanctuary?</h3>
+              <p className="text-xl md:text-2xl text-gray-300 font-cormorant leading-relaxed max-w-3xl mx-auto mb-8">
+                Think of this Dashboard as our main lobby, but <strong className="text-orange-500 font-bold">The Sanctuary</strong> is your exclusive VIP Lounge. 
+                Depending on your Seeker, Keeper, or Flame Bearer tier, stepping into The Sanctuary unlocks a private community board. 
+                Check back daily for exclusive broadcasts, behind-the-scenes updates, and direct transmissions tailored just for you.
+              </p>
+              <p className="text-sm font-cinzel text-orange-500/70 tracking-[0.3em] uppercase">
+                Click the glowing bird above to step into your room.
+              </p>
+            </div>
+
+            {/* SPARK & FREQUENCIES */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 mb-24 w-full">
               <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 rounded-2xl flex flex-col justify-between shadow-2xl">
                 <div>
@@ -125,7 +164,7 @@ export default function UnifiedDashboard() {
               </div>
             </section>
 
-            {/* DONOR SECTION - FULL WIDTH */}
+            {/* DONOR SECTION */}
             <section className="w-full bg-gradient-to-r from-orange-950/40 via-black to-red-950/40 border-y border-orange-900/40 p-20 text-center rounded-[3rem] mb-12 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
               <h3 className="font-cinzel text-5xl text-orange-500 mb-8 uppercase tracking-[0.2em]">Guardian of the Embers</h3>
               <p className="text-2xl italic text-gray-300 mb-12 max-w-4xl mx-auto font-cormorant leading-relaxed">

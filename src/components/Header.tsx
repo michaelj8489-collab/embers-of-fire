@@ -9,6 +9,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [userTier, setUserTier] = useState<string>('seeker'); // Defaults to seeker
+  
   const router = useRouter();
   const supabase = createClient();
 
@@ -18,12 +20,28 @@ export default function Header() {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+
+      // If they are logged in, find out what tier room they belong in!
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profile && profile.subscription_tier) {
+          setUserTier(profile.subscription_tier);
+        }
+      }
     };
 
     checkSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
+      if (event === 'SIGNED_IN') {
+        checkSession(); // Re-check tier on fresh login
+      }
     });
 
     return () => {
@@ -34,6 +52,7 @@ export default function Header() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
+    setUserTier('seeker');
     router.push('/login');
   };
 
@@ -61,9 +80,13 @@ export default function Header() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-10">
-          {/* PROTECTED DESKTOP NAV LINKS */}
           {isMounted && isLoggedIn && (
             <>
+              {/* DYNAMIC SANCTUARY LINK */}
+              <Link href={`/sanctuary/${userTier}`} className="font-cinzel text-orange-400 hover:text-orange-300 font-bold text-sm uppercase tracking-widest transition-colors">
+                My Sanctuary
+              </Link>
+
               <div className="relative group">
                 <button className="font-cinzel text-gray-300 hover:text-orange-400 uppercase tracking-widest text-sm flex items-center gap-1">
                   Shows ▾
@@ -81,7 +104,6 @@ export default function Header() {
             </>
           )}
           
-          {/* DESKTOP AUTH BUTTON LOGIC */}
           {isMounted && isLoggedIn && (
             <button onClick={handleSignOut} className="border border-orange-600 text-orange-500 px-8 py-2 rounded-md text-xs font-cinzel font-bold hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_15px_rgba(234,88,12,0.1)]">
               SIGN OUT
@@ -99,15 +121,20 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Nav */}
       {isOpen && (
         <div className="lg:hidden bg-black border-t border-orange-900/50 p-8 flex flex-col gap-6">
-          {/* PROTECTED MOBILE NAV LINKS */}
-          {isMounted && isLoggedIn && shows.map((show) => (
-            <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest">{show.name}</Link>
-          ))}
+          {isMounted && isLoggedIn && (
+            <>
+              {/* MOBILE DYNAMIC SANCTUARY LINK */}
+              <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4">
+                My Sanctuary
+              </Link>
+              {shows.map((show) => (
+                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest">{show.name}</Link>
+              ))}
+            </>
+          )}
           
-          {/* MOBILE AUTH BUTTON LOGIC */}
           {isMounted && isLoggedIn && (
             <button onClick={handleSignOut} className="text-left text-orange-500 uppercase text-sm font-bold pt-4 border-t border-orange-900/20">Sign Out</button>
           )}
