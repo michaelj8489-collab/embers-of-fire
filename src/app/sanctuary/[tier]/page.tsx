@@ -13,26 +13,35 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
   const [newMessage, setNewMessage] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // NEW: The X-Ray Tracker
+  const [debugText, setDebugText] = useState('Checking authorization...');
 
   useEffect(() => {
     async function getAccess() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !user) {
+        setDebugText('X-Ray: No user found. Not logged in.');
         setLoading(false);
         return;
       }
 
-      // Fetch the user's profile to check their role
-      const { data: profile } = await supabase
+      const { data: profile, error: dbError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
 
-      // THE FIX: If the role is admin, flip the switch!
-      if (profile && profile.role === 'admin') {
-        setIsAdmin(true);
+      if (dbError) {
+        setDebugText(`X-Ray Error: ${dbError.message}`);
+      } else if (profile) {
+        setDebugText(`X-Ray Success -> Email: ${user.email} | DB Role: ${profile.role}`);
+        if (profile.role === 'admin') {
+          setIsAdmin(true);
+        }
+      } else {
+        setDebugText('X-Ray: User logged in, but no matching profile found in database.');
       }
 
       fetchMessages();
@@ -64,7 +73,6 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
 
     if (!error) {
       setNewMessage('');
-      // Refresh the feed
       const { data } = await supabase
         .from('messages')
         .select('*')
@@ -82,9 +90,14 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
         <h1 className="text-5xl font-bold text-orange-500 mb-4 uppercase tracking-widest border-b border-orange-900/30 pb-4">
           The {tier} Sanctuary
         </h1>
+        
+        {/* NEW: The X-Ray Display */}
+        <div className="bg-red-900/20 border border-red-500/50 p-4 rounded-lg mb-8">
+            <p className="text-red-400 font-mono text-sm uppercase tracking-wider">{debugText}</p>
+        </div>
+
         <p className="text-gray-400 italic mb-12 text-xl font-cormorant">Transmissions for the {tier} Tier</p>
 
-        {/* Admin Post Box - Only visible if isAdmin is true */}
         {isAdmin && (
           <div className="bg-zinc-900/40 p-8 rounded-2xl border border-orange-500/20 mb-16 shadow-2xl">
             <h3 className="text-xs uppercase tracking-widest text-orange-400 mb-6 font-sans font-bold">New Broadcast</h3>
@@ -105,7 +118,6 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
           </div>
         )}
 
-        {/* Message Feed */}
         <div className="space-y-12">
           {loading ? (
             <div className="animate-pulse text-orange-500/50 italic">Tuning frequency...</div>
