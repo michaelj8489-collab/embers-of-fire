@@ -12,10 +12,8 @@ export default function Header() {
   const router = useRouter();
   const supabase = createClient();
 
-  // THE EXORCISM: This tells the Header to wait for the actual client browser 
-  // to ask Supabase for the real truth before drawing the buttons.
   useEffect(() => {
-    setIsMounted(true); // Wakes up the client side
+    setIsMounted(true);
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -24,7 +22,6 @@ export default function Header() {
 
     checkSession();
 
-    // This listens for when they actually click sign out/in and updates instantly
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
     });
@@ -64,20 +61,25 @@ export default function Header() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-10">
-          <div className="relative group">
-            <button className="font-cinzel text-gray-300 hover:text-orange-400 uppercase tracking-widest text-sm flex items-center gap-1">
-              Shows ▾
-            </button>
-            <div className="absolute top-full left-0 w-64 bg-black border border-orange-900/50 p-2 hidden group-hover:flex flex-col gap-1 shadow-2xl rounded-b-lg">
-              {shows.map((show) => (
-                <Link key={show.href} href={show.href} className="text-gray-400 hover:text-orange-400 p-2 text-xs uppercase tracking-widest transition-all hover:bg-orange-900/20">
-                  {show.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-          
-          <Link href="/dashboard/defining-your-character" className="font-cinzel text-red-500 hover:text-red-400 text-sm uppercase tracking-widest">DYC (Coming Soon)</Link>
+          {/* PROTECTED DESKTOP NAV LINKS */}
+          {isMounted && isLoggedIn && (
+            <>
+              <div className="relative group">
+                <button className="font-cinzel text-gray-300 hover:text-orange-400 uppercase tracking-widest text-sm flex items-center gap-1">
+                  Shows ▾
+                </button>
+                <div className="absolute top-full left-0 w-64 bg-black border border-orange-900/50 p-2 hidden group-hover:flex flex-col gap-1 shadow-2xl rounded-b-lg">
+                  {shows.map((show) => (
+                    <Link key={show.href} href={show.href} className="text-gray-400 hover:text-orange-400 p-2 text-xs uppercase tracking-widest transition-all hover:bg-orange-900/20">
+                      {show.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              
+              <Link href="/dashboard/defining-your-character" className="font-cinzel text-red-500 hover:text-red-400 text-sm uppercase tracking-widest">DYC (Coming Soon)</Link>
+            </>
+          )}
           
           {/* DESKTOP AUTH BUTTON LOGIC */}
           {isMounted && isLoggedIn && (
@@ -100,7 +102,8 @@ export default function Header() {
       {/* Mobile Nav */}
       {isOpen && (
         <div className="lg:hidden bg-black border-t border-orange-900/50 p-8 flex flex-col gap-6">
-          {shows.map((show) => (
+          {/* PROTECTED MOBILE NAV LINKS */}
+          {isMounted && isLoggedIn && shows.map((show) => (
             <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest">{show.name}</Link>
           ))}
           
