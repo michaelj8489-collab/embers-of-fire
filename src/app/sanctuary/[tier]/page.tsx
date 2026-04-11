@@ -1,136 +1,136 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-export default function SanctuaryBoard({ params }: { params: Promise<{ tier: string }> }) {
-  const resolvedParams = use(params);
-  const tier = resolvedParams.tier;
-  
-  const displayTier = tier.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+const ADMIN_EMAILS = [
+  'michael.j.8489@gmail.com',
+  // 'collaborator@example.com'
+];
 
-  const [messages, setMessages] = useState<any[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
+const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color: string, perks: string[], image: string }> = {
+  "seeker": {
+    title: "THE SEEKER SANCTUARY",
+    subtitle: "The starting point of the journey.",
+    color: "from-gray-500 to-gray-700",
+    image: "/images/misc/wolf-and-raven.jpg",
+    perks: ["Public Show Archives", "Basic Community Forum", "Main Live Stream Access"]
+  },
+  "keepers-of-the-embers": {
+    title: "THE KEEPERS SANCTUARY",
+    subtitle: "Fueling the eternal flame.",
+    color: "from-orange-500 to-orange-700",
+    image: "/images/jmc-edits-palettes/keepers-of-the-embers.png",
+    perks: ["Digital Supporter Recognition", "Ember Keeper Identity Badge", "Community Posts Feed"]
+  },
+  "flame-bearers": {
+    title: "THE BEARERS SANCTUARY",
+    subtitle: "Guiding the community fire.",
+    color: "from-orange-400 to-red-600",
+    image: "/images/jmc-edits-palettes/flame-bearers.png",
+    perks: ["Exclusive 'Awareness Insights'", "Priority Voting on Themes", "Ad-Free Show Archives"]
+  },
+  "phoenix-circle": {
+    title: "THE PHOENIX CIRCLE",
+    subtitle: "Direct impact. Deep awareness.",
+    color: "from-yellow-400 to-orange-500",
+    image: "/images/jmc-edits-palettes/phoenix-circle.png",
+    perks: ["Monthly 'Fireside' Livestream", "Monthly On-Air Shout-out", "Zoom Workshop Access"]
+  },
+  "wings-of-the-phoenix": {
+    title: "THE WINGS SANCTUARY",
+    subtitle: "Building the legacy infrastructure.",
+    color: "from-red-500 to-orange-600",
+    image: "/images/jmc-edits-palettes/wings-of-the-phoenix.png",
+    perks: ["Quarterly Executive Council Calls", "Phoenix Vision Insight Letters", "Submission Priority"]
+  },
+  "phoenix-ascending": {
+    title: "THE ASCENDING SANCTUARY",
+    subtitle: "The highest vision realized.",
+    color: "from-yellow-200 via-orange-400 to-red-700",
+    image: "/images/jmc-edits-palettes/phoenix-ascending.png",
+    perks: ["Annual 1-on-1 Virtual Call", "Private Annual Virtual Gathering", "Executive-Level Recognition"]
+  }
+};
+
+export default function SanctuaryTierPage({ params }: { params: { tier: string } }) {
+  const [broadcasts, setBroadcasts] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // Use the browser-aware client that can read your login cookies!
   const supabase = createClient();
 
+  const decoration = TIER_DECORATIONS[params.tier] || TIER_DECORATIONS["seeker"];
+
   useEffect(() => {
-    async function getAccess() {
+    const getData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+
+      const { data: messages } = await supabase
+        .from('broadcasts')
+        .select('*')
+        .eq('target_tier', params.tier)
+        .order('created_at', { ascending: false });
       
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (profile && profile.role === 'admin') {
-        setIsAdmin(true);
-      }
-
-      fetchMessages();
-    }
-
-    async function fetchMessages() {
-      const { data } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('tier', tier)
-        .order('created_at', { ascending: false });
-
-      if (data) setMessages(data);
+      setBroadcasts(messages || []);
       setLoading(false);
-    }
+    };
+    getData();
+  }, [params.tier]);
 
-    getAccess();
-  }, [tier, supabase]);
-
-  async function handlePost() {
-    if (!newMessage.trim()) return;
-    const { data: { user } } = await supabase.auth.getUser();
-
-    const { error } = await supabase.from('messages').insert({
-      content: newMessage,
-      tier: tier,
-      author_name: user?.email
-    });
-
-    if (!error) {
-      setNewMessage('');
-      const { data } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('tier', tier)
-        .order('created_at', { ascending: false });
-      if (data) setMessages(data);
-    }
-  }
+  if (loading) return <div className="min-h-screen bg-black text-white p-10 font-cinzel text-center pt-40">Synchronizing Transmissions...</div>;
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+    <main className="relative min-h-screen w-full flex flex-col bg-black overflow-x-hidden">
+      <div className="fixed top-0 left-0 w-full h-full bg-cover bg-center opacity-40 z-0 pointer-events-none" style={{ backgroundImage: `url('${decoration.image}')` }}></div>
+      <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-10 pointer-events-none"></div>
+
       <Header />
       
-      <main className="flex-grow w-full px-6 md:px-12 lg:px-20 pt-40 pb-20">
-        
-        <div className="w-full">
-          <h1 className="font-cinzel text-5xl font-bold text-orange-500 mb-4 uppercase tracking-[0.2em] border-b border-orange-900/30 pb-4">
-            The {displayTier} Sanctuary
-          </h1>
-          <p className="font-cormorant text-gray-400 italic mb-12 text-2xl">Transmissions for the {displayTier} Tier</p>
+      <div className="relative z-20 max-w-5xl mx-auto pt-32 px-6 pb-20">
+        <h1 className={`text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r ${decoration.color} mb-2 uppercase tracking-tighter drop-shadow-lg`}>
+          {decoration.title}
+        </h1>
+        <p className="text-xl md:text-2xl font-cormorant text-gray-300 italic mb-12 tracking-widest uppercase">{decoration.subtitle}</p>
 
-          {isAdmin && (
-            <div className="bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-900/30 mb-16 shadow-2xl">
-              <h3 className="font-cinzel text-sm uppercase tracking-[0.2em] text-orange-400 mb-6 font-bold">New Broadcast</h3>
-              <textarea
-                className="w-full bg-black/80 border border-orange-900/40 rounded-xl p-6 text-xl text-white font-cormorant focus:border-orange-500 outline-none transition-all min-h-[150px] resize-none"
-                placeholder="Speak into the Embers..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-              />
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handlePost}
-                  className="bg-gradient-to-r from-orange-700 to-red-700 hover:from-orange-600 hover:to-red-600 text-white px-12 py-4 rounded-full font-cinzel text-lg tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:scale-105 active:scale-95 uppercase font-bold"
-                >
-                  Send Signal
-                </button>
-              </div>
+        {/* PERKS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          {decoration.perks.map((perk, index) => (
+            <div key={index} className="p-4 bg-black/50 border border-orange-500/20 rounded-lg text-center backdrop-blur-md">
+              <span className="text-orange-500 font-cinzel text-[10px] block mb-1 uppercase tracking-widest">Unlocked Perk</span>
+              <p className="text-gray-200 font-cormorant italic text-sm">{perk}</p>
             </div>
-          )}
-
-          <div className="space-y-12">
-            {loading ? (
-              <div className="animate-pulse text-orange-500/50 italic font-cormorant text-2xl">Tuning frequency...</div>
-            ) : messages.length === 0 ? (
-              <p className="text-zinc-500 italic font-cormorant text-2xl">The air is still. No transmissions yet.</p>
-            ) : (
-              messages.map((msg) => (
-                <div key={msg.id} className="group relative bg-neutral-900/20 p-8 rounded-2xl border border-white/5 hover:border-orange-900/30 transition-all">
-                  <div className="absolute -left-px top-8 bottom-8 w-1 bg-gradient-to-b from-orange-600 to-transparent opacity-30 group-hover:opacity-100 transition-opacity rounded-full" />
-                  <p className="text-zinc-100 font-cormorant text-3xl leading-relaxed">{msg.content}</p>
-                  <div className="mt-8 flex items-center gap-4 text-xs uppercase tracking-[0.3em] font-cinzel text-zinc-500 border-t border-white/5 pt-4">
-                    <span className="text-orange-500/70 font-bold">From: {msg.author_name}</span>
-                    <span>•</span>
-                    <span>{new Date(msg.created_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          ))}
         </div>
-      </main>
-      
+
+        {/* SECRET ADMIN PORTAL: Only Michael and crew see this */}
+        {user && ADMIN_EMAILS.includes(user.email) && (
+          <div className="mb-16 p-8 bg-zinc-900/60 border border-orange-500/30 rounded-2xl text-center backdrop-blur-xl">
+            <h3 className="text-sm font-cinzel text-orange-400 mb-4 tracking-widest uppercase">Admin Presence Detected</h3>
+            <a href="/dashboard/admin" className="px-10 py-4 bg-gradient-to-r from-orange-600 to-red-800 text-white rounded-lg hover:scale-105 transition-all font-cinzel font-bold inline-block">
+              Return to Command Center
+            </a>
+          </div>
+        )}
+
+        {/* BROADCAST FEED */}
+        <div className="space-y-12">
+          <h2 className="text-sm font-cinzel text-orange-500/60 tracking-[0.4em] uppercase border-b border-orange-900/30 pb-4">Latest Transmissions</h2>
+          {broadcasts.length > 0 ? (
+            broadcasts.map((msg) => (
+              <div key={msg.id} className="p-10 bg-black/70 border-l-4 border-orange-600 rounded-r-2xl shadow-2xl backdrop-blur-lg">
+                <p className="text-2xl leading-relaxed text-gray-100 mb-6 whitespace-pre-wrap font-cormorant italic">"{msg.content}"</p>
+                <div className="text-[10px] font-cinzel text-gray-500 uppercase tracking-widest">Received: {new Date(msg.created_at).toLocaleString()}</div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-24 border border-dashed border-zinc-800 rounded-2xl bg-black/30 font-cormorant text-xl text-gray-600">The Embers are quiet...</div>
+          )}
+        </div>
+      </div>
       <Footer />
-    </div>
+    </main>
   );
 }

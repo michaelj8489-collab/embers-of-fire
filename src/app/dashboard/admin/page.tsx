@@ -3,163 +3,109 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { useRouter } from 'next/navigation';
 
-export default function AdminControlRoom() {
+// THE INNER CIRCLE: Authorized Admin Emails
+const ADMIN_EMAILS = [
+  'michael.j.8489@gmail.com',
+  // 'collaborator@example.com' (Add Lunaria and others here)
+];
+
+const TIERS = [
+  { id: 'seeker', label: 'Seeker' },
+  { id: 'keepers-of-the-embers', label: 'Keepers' },
+  { id: 'flame-bearers', label: 'Flame Bearers' },
+  { id: 'phoenix-circle', label: 'Phoenix Circle' },
+  { id: 'wings-of-the-phoenix', label: 'Wings' },
+  { id: 'phoenix-ascending', label: 'Ascending' }
+];
+
+export default function AdminDashboard() {
   const [message, setMessage] = useState('');
   const [selectedTier, setSelectedTier] = useState('seeker');
-  const [isSending, setIsSending] = useState(false);
-  const [status, setStatus] = useState({ type: '', text: '' });
-  const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loading, setLoading] = useState(true);
-
+  const [status, setStatus] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const supabase = createClient();
-  const router = useRouter();
-
-  // The official roster of tier designations
-  const tiers = [
-    { id: 'seeker', name: 'Seeker' },
-    { id: 'keepers-of-the-embers', name: 'Keepers of the Embers' },
-    { id: 'flame-bearers', name: 'Flame Bearers' },
-    { id: 'phoenix-circle', name: 'Phoenix Circle' },
-    { id: 'wings-of-the-phoenix', name: 'Wings of the Phoenix' },
-    { id: 'phoenix-ascending', name: 'Phoenix Ascending' }
-  ];
 
   useEffect(() => {
-    async function checkAdminStatus() {
+    const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-
-      // If not logged in, boot to login
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      // Check if they have the admin key
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (profile && profile.role === 'admin') {
-        setIsAuthorized(true);
+      if (user && ADMIN_EMAILS.includes(user.email!)) {
+        setIsAdmin(true);
       } else {
-        // If they are a regular user, boot them to the main dashboard
-        router.push('/dashboard'); 
+        window.location.href = '/dashboard'; 
       }
-      setLoading(false);
-    }
+    };
+    checkUser();
+  }, []);
 
-    checkAdminStatus();
-  }, [supabase, router]);
+  const sendBroadcast = async () => {
+    if (!message) return;
+    setStatus('Sending Signal...');
 
-  const handleBroadcast = async () => {
-    if (!message.trim()) {
-      setStatus({ type: 'error', text: 'Transmission payload cannot be empty.' });
-      return;
-    }
-
-    setIsSending(true);
-    setStatus({ type: '', text: '' });
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Fire the signal to the database
-    const { error } = await supabase.from('messages').insert({
-      content: message,
-      tier: selectedTier,
-      author_name: user?.email
-    });
+    const { error } = await supabase
+      .from('broadcasts')
+      .insert([{ content: message, target_tier: selectedTier }]);
 
     if (error) {
-      setStatus({ type: 'error', text: `Transmission failed: ${error.message}` });
+      setStatus('Error: ' + error.message);
     } else {
-      setStatus({ type: 'success', text: `Signal successfully broadcasted to ${selectedTier}!` });
-      setMessage(''); // Clear the box for the next message
-      setTimeout(() => setStatus({ type: '', text: '' }), 4000); // Fade out success text
+      setStatus(`Signal Blasted to ${selectedTier.replace(/-/g, ' ')}!`);
+      setMessage('');
     }
-    setIsSending(false);
   };
 
-  if (loading) {
-    return <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 font-cinzel text-2xl animate-pulse tracking-widest">Initializing Control Room...</div>;
-  }
-
-  // Double security: Render nothing if not authorized (prevents a flash of the page before redirect)
-  if (!isAuthorized) return null; 
+  if (!isAdmin) return <div className="min-h-screen bg-black text-white p-10 font-cinzel text-center pt-40 tracking-widest">Verifying Authority...</div>;
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+    <main className="min-h-screen bg-black text-white font-cinzel overflow-x-hidden">
       <Header />
-
-      <main className="flex-grow w-full px-6 md:px-12 lg:px-20 pt-40 pb-20 flex flex-col items-center">
-        <div className="w-full max-w-4xl">
-          <h1 className="font-cinzel text-5xl font-bold text-red-600 mb-4 uppercase tracking-[0.2em] border-b border-red-900/30 pb-4 text-center">
-            Master Control Room
-          </h1>
-          <p className="font-cormorant text-gray-400 italic mb-12 text-2xl text-center">
-            Direct your transmissions to any specific tier across the network.
-          </p>
-
-          <div className="bg-gradient-to-b from-neutral-900/80 to-black/90 backdrop-blur-md p-10 md:p-14 rounded-3xl border border-red-900/40 shadow-[0_0_50px_rgba(220,38,38,0.15)] relative overflow-hidden">
-            
-            {/* TIER SELECTOR */}
-            <div className="mb-10 relative z-10">
-              <label className="block font-cinzel text-sm uppercase tracking-[0.2em] text-orange-400 mb-4 font-bold">
-                Target Frequency (Select Tier)
-              </label>
-              <select
-                value={selectedTier}
-                onChange={(e) => setSelectedTier(e.target.value)}
-                className="w-full bg-black border border-orange-900/50 rounded-xl p-5 text-2xl text-white font-cinzel focus:border-orange-500 outline-none cursor-pointer hover:bg-neutral-900/50 transition-colors"
+      <div className="max-w-4xl mx-auto pt-32 px-6 pb-20">
+        <h1 className="text-4xl text-orange-500 mb-8 border-b border-orange-900/30 pb-4">ADMIN COMMAND CENTER</h1>
+        
+        {/* SECTION 1: QUICK NAVIGATION FOR INSPECTION */}
+        <section className="mb-12">
+          <h2 className="text-sm text-gray-500 mb-4 tracking-[0.3em] uppercase">Sanctuary Inspection Links</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {TIERS.map((tier) => (
+              <a 
+                key={tier.id}
+                href={`/sanctuary/${tier.id}`}
+                className="p-3 bg-zinc-900/50 border border-orange-500/10 rounded hover:border-orange-500/50 hover:bg-orange-600/10 transition-all text-xs text-center text-orange-300"
               >
-                {tiers.map((tier) => (
-                  <option key={tier.id} value={tier.id}>
-                    {tier.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* MESSAGE BOX */}
-            <div className="mb-10 relative z-10">
-              <label className="block font-cinzel text-sm uppercase tracking-[0.2em] text-orange-400 mb-4 font-bold">
-                Transmission Payload
-              </label>
-              <textarea
-                className="w-full bg-black/80 border border-orange-900/40 rounded-xl p-6 text-2xl text-white font-cormorant focus:border-red-500 outline-none transition-all min-h-[200px] resize-none"
-                placeholder="Type your broadcast here..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-            </div>
-
-            {/* STATUS MESSAGE FEEDBACK */}
-            {status.text && (
-              <div className={`mb-8 p-5 rounded-xl font-cinzel text-sm uppercase tracking-[0.2em] text-center font-bold relative z-10 ${status.type === 'error' ? 'bg-red-950/40 text-red-400 border border-red-900/50' : 'bg-green-950/40 text-green-400 border border-green-900/50'}`}>
-                {status.text}
-              </div>
-            )}
-
-            {/* FIRE BUTTON */}
-            <div className="flex justify-end relative z-10">
-              <button
-                onClick={handleBroadcast}
-                disabled={isSending}
-                className={`bg-gradient-to-r from-red-800 to-red-600 hover:from-red-700 hover:to-red-500 text-white px-12 py-5 rounded-full font-cinzel text-xl tracking-[0.3em] transition-all shadow-[0_0_30px_rgba(220,38,38,0.4)] uppercase font-bold flex items-center justify-center min-w-[300px] ${isSending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
-              >
-                {isSending ? 'Transmitting...' : 'Broadcast Signal'}
-              </button>
-            </div>
-
+                Inspect {tier.label}
+              </a>
+            ))}
           </div>
-        </div>
-      </main>
+        </section>
 
-      <Footer />
-    </div>
+        {/* SECTION 2: BROADCAST CONTROL */}
+        <section className="bg-zinc-900/50 p-8 rounded-2xl border border-orange-900/30 backdrop-blur-md">
+          <label className="block text-xs text-orange-400 mb-2 uppercase tracking-[0.2em]">Target Frequency</label>
+          <select 
+            value={selectedTier}
+            onChange={(e) => setSelectedTier(e.target.value)}
+            className="w-full bg-black border border-orange-500/30 p-4 rounded-lg mb-6 text-white focus:border-orange-500 outline-none"
+          >
+            {TIERS.map(tier => <option key={tier.id} value={tier.id}>{tier.label} Sanctuary</option>)}
+          </select>
+
+          <label className="block text-xs text-orange-400 mb-2 uppercase tracking-[0.2em]">Transmission Content</label>
+          <textarea 
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Speak into the Embers..."
+            className="w-full h-48 bg-black border border-orange-500/30 p-4 rounded-lg mb-6 text-white font-cormorant italic text-lg focus:border-orange-500 transition-all outline-none"
+          />
+
+          <button 
+            onClick={sendBroadcast}
+            className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-800 rounded-lg font-bold hover:scale-[1.01] transition-transform shadow-[0_0_20px_rgba(255,100,0,0.2)]"
+          >
+            SEND SIGNAL
+          </button>
+          {status && <p className="mt-4 text-orange-400 italic text-center animate-pulse">{status}</p>}
+        </section>
+      </div>
+    </main>
   );
 }
