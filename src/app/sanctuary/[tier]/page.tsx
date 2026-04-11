@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { supabase } from '@/utils/supabase';
+import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -9,13 +9,15 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
   const resolvedParams = use(params);
   const tier = resolvedParams.tier;
   
-  // Clean up the URL string for the display title (e.g., "seeker" -> "Seeker")
   const displayTier = tier.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Use the browser-aware client that can read your login cookies!
+  const supabase = createClient();
 
   useEffect(() => {
     async function getAccess() {
@@ -51,7 +53,7 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
     }
 
     getAccess();
-  }, [tier]);
+  }, [tier, supabase]);
 
   async function handlePost() {
     if (!newMessage.trim()) return;
@@ -78,11 +80,9 @@ export default function SanctuaryBoard({ params }: { params: Promise<{ tier: str
     <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
       <Header />
       
-      {/* Matched the Dashboard's wide, responsive padding */}
       <main className="flex-grow w-full px-6 md:px-12 lg:px-20 pt-40 pb-20">
         
         <div className="w-full">
-          {/* Brand Fonts Applied to Headers */}
           <h1 className="font-cinzel text-5xl font-bold text-orange-500 mb-4 uppercase tracking-[0.2em] border-b border-orange-900/30 pb-4">
             The {displayTier} Sanctuary
           </h1>
