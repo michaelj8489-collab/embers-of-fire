@@ -38,23 +38,27 @@ export default function UnifiedDashboard() {
             
             {/* HERO VIDEOS */}
             <div className="flex flex-col md:flex-row gap-16 md:gap-32 items-center justify-center mb-24">
-              <div className="flex flex-col items-center group">
-                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-2 border-orange-900/50 shadow-[0_0_50px_rgba(234,88,12,0.2)] bg-neutral-900 transition-all duration-700 group-hover:border-orange-500">
-                  <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60">
+              
+              {/* THE SANCTUARY (Now a working button!) */}
+              <Link href="/sanctuary/ascending" className="flex flex-col items-center group cursor-pointer">
+                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-2 border-orange-900/50 shadow-[0_0_50px_rgba(234,88,12,0.2)] bg-neutral-900 transition-all duration-700 group-hover:border-orange-500 group-hover:shadow-[0_0_80px_rgba(234,88,12,0.4)]">
+                  <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-100">
                     <source src="/images/eol-come-alive.mp4" type="video/mp4" />
                   </video>
                 </div>
-                <h2 className="mt-8 font-cinzel text-3xl text-orange-400 tracking-widest uppercase group-hover:text-orange-300">The Sanctuary</h2>
-              </div>
+                <h2 className="mt-8 font-cinzel text-3xl text-orange-400 tracking-widest uppercase group-hover:text-orange-300 transition-colors">The Sanctuary</h2>
+              </Link>
 
-              <div className="flex flex-col items-center group">
-                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-2 border-red-900/50 shadow-[0_0_50px_rgba(220,38,38,0.2)] bg-neutral-900 transition-all duration-700 group-hover:border-red-600">
-                  <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60">
+              {/* THE STATION */}
+              <Link href="/dashboard/station" className="flex flex-col items-center group cursor-pointer">
+                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-2 border-red-900/50 shadow-[0_0_50px_rgba(220,38,38,0.2)] bg-neutral-900 transition-all duration-700 group-hover:border-red-600 group-hover:shadow-[0_0_80px_rgba(220,38,38,0.4)]">
+                  <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-100">
                     <source src="/images/jmc-edits-palettes/rise-radio-bg.mp4" type="video/mp4" />
                   </video>
                 </div>
-                <h2 className="mt-8 font-cinzel text-3xl text-red-600 tracking-widest uppercase group-hover:text-red-500">The Station</h2>
-              </div>
+                <h2 className="mt-8 font-cinzel text-3xl text-red-600 tracking-widest uppercase group-hover:text-red-500 transition-colors">The Station</h2>
+              </Link>
+
             </div>
 
             {/* SPARK & FREQUENCIES - Expands across the full width */}
