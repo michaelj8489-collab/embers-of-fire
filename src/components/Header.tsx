@@ -100,7 +100,7 @@ export default function Header() {
                 </div>
               </div>
               
-              <Link href="/dashboard/defining-your-character" className="font-cinzel text-red-500 hover:text-red-400 text-sm uppercase tracking-widest">DYC (Coming Soon)</Link>
+              
             </>
           )}
           
