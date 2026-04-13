@@ -1,138 +1,80 @@
-'use client'; 
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Link from 'next/link';
+import MerchGallery from '@/components/MerchGallery';
+
+const messengerProducts = [
+  { id: 1, name: "All Over Print T-Shirt", price: "$28.00", image: "https://images-api.printify.com/mockup/69c72a018b1ab6926a04e5e2/83516/53246/the-messengers-all-over-print-t-shirt.jpg?camera_label=back-on-person&revision=1775077516292&s=2048", link: "https://embers-of-light.printify.me/product/27613875/the-messengers-all-over-print-t-shirt" },
+  { id: 2, name: "The Dreamkeepers Cap", price: "$24.00", image: "https://images.printify.com/mockup/69cec44f338dbae7f501adc0/104281/53890/the-messengers-cap-the-dreamkeepers-fantasy-baseball-hat.jpg?camera_label=front", link: "https://embers-of-light.printify.me/product/27752339/the-messengers-cap-the-dreamkeepers-fantasy-baseball-hat" },
+  { id: 3, name: "Cotton Canvas Tote Bag", price: "$18.00", image: "https://images-api.printify.com/mockup/69c3f80803e9be5c6d0cf798/101409/93895/the-messengers-cotton-canvas-tote-bag.jpg?camera_label=front&revision=1775077355987&s=400", link: "https://embers-of-light.printify.me/product/27561004/the-messengers-cotton-canvas-tote-bag" },
+  { id: 4, name: "Unisex Heavy Cotton Tee", price: "$22.00", image: "https://images-api.printify.com/mockup/69c3efb260984dddf1091ba7/12100/92570/the-messengers-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077356747&s=2048", link: "https://embers-of-light.printify.me/product/27560433/the-messengers-unisex-heavy-cotton-tee" },
+  { id: 5, name: "Ceramic Mug", price: "$15.00", image: "https://images.printify.com/mockup/69c33ee920953e335a0838f6/65216/6312/the-messengers-ceramic-mug-11oz-15oz.jpg?camera_label=left", link: "https://embers-of-light.printify.me/product/27551482/the-messengers-ceramic-mug-11oz-15oz" },
+  { id: 6, name: "Hardcover Matte Journal", price: "$20.00", image: "https://images-api.printify.com/mockup/69d991397404a2552503e760/65223/7338/the-messengers-hardcover-journal-matte.jpg?camera_label=front&revision=1775866250857&s=2048", link: "https://embers-of-light.printify.me/product/27905110/the-messengers-hardcover-journal-matte" }
+];
 
 export default function TheMessengersPage() {
   const [activeView, setActiveView] = useState<'archive' | 'live'>('archive');
   const [parentDomain, setParentDomain] = useState('');
 
-  // Automatically grab the domain for Twitch security
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setParentDomain(window.location.hostname);
-    }
+    if (typeof window !== 'undefined') { setParentDomain(window.location.hostname); }
   }, []);
 
   return (
-    <div 
-      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/messengers-new.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
-
+    <div className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" style={{ backgroundImage: "url('/images/main-images/Cover Art/messengers-new.jpg')" }}>
+      <div className="absolute inset-0 bg-black/95 z-0 pointer-events-none"></div>
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
-
-        <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
-          <div className="w-full max-w-7xl">
-            
-            {/* Back Button */}
-            <div className="mb-8">
-              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
-                <span>←</span> BACK TO SANCTUARY
-              </Link>
-            </div>
-
-            {/* Show Title */}
-            <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
-              <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
-                The Messengers
-              </h1>
-              <p className="font-cinzel text-xl text-orange-200/80 italic">
-                Bringing people together through music and inner peace.
-              </p>
-            </div>
-
-            {/* --- PLAYER & CHAT SECTION --- */}
-            <div className="mb-16 relative">
-              <div className="flex justify-center gap-4 mb-8">
-                <button 
-                  onClick={() => setActiveView('live')}
-                  className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}
-                >
-                  🔴 Live Stream & Chat
-                </button>
-                <button 
-                  onClick={() => setActiveView('archive')}
-                  className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}
-                >
-                  🎬 The Archives
-                </button>
-              </div>
-
-              <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
-                {activeView === 'live' ? (
-                  <div className="flex flex-col md:flex-row w-full md:h-[600px]">
-                    <div className="flex-grow h-full bg-black">
-                      {parentDomain && (
-                        <iframe
-                          src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
-                          className="w-full h-full"
-                          frameBorder="0"
-                          allowFullScreen={true}
-                        />
-                      )}
-                    </div>
-                    <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
-                      {parentDomain && (
-                        <iframe
-                          src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&darkpopout`}
-                          className="w-full h-full"
-                          frameBorder="0"
-                        />
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full aspect-video">
-                    <iframe
-                      src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njQ46KfUQgXQ0wnE3_PEtZwK"
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                )}
-              </div>
-              <p className="text-center font-cormorant italic text-gray-500 mt-4">
-                {activeView === 'live' ? 'You are watching The Messengers Live!' : 'Viewing The Messengers Archives. Join us live Mondays at 6 PM EST.'}
-              </p>
-            </div>
-
-            {/* --- MEET THE HOSTS SECTION --- */}
-            <section className="w-full mt-20 mb-24 flex flex-col items-center text-center">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
-                Meet The Founders
-              </h2>
-              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
-
-              {/* Combined Bio Card */}
-              <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-12 text-left">
-                <div className="relative w-full max-w-[350px] aspect-[4/3] rounded-xl border border-orange-900/40 overflow-hidden shadow-2xl group flex-shrink-0">
-                  <img 
-                    src="/images/main-images/Cover Art/eol-lnk.jpg" 
-                    alt="Michka Grant and Karrie Lynne (Lunaria)" 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
-                  />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-4">Michka Grant & Karrie Lynne (Lunaria)</h3>
-                  <p className="font-cormorant text-xl text-gray-300 italic leading-relaxed mb-6">
-                    Co-Founders of Rise Radio Network
-                  </p>
-                  <p className="font-cormorant text-gray-400 text-lg leading-relaxed">
-                    As the driving forces behind Rise Radio, Michka and Karrie share a unified dream: to help bring people together and find inner peace through music, tarot, and any other means at their disposal. The Messengers is where their shared vision comes to life, creating a space for deep connection, honest conversation, and spiritual growth.
-                  </p>
-                </div>
-              </div>
-            </section>
-
+        <main className="flex-grow container mx-auto px-4 py-12 text-center">
+          <h1 className="text-6xl font-cinzel text-white mb-4 tracking-[0.2em]">THE MESSENGERS</h1>
+          <p className="text-orange-500 tracking-widest uppercase text-sm font-bold mb-12">Official Show Page</p>
+          
+          <div className="flex gap-4 justify-center mb-12">
+            <button onClick={() => setActiveView('live')} className={`px-8 py-2 rounded-full font-cinzel tracking-widest transition-all ${activeView === 'live' ? 'bg-orange-600 shadow-[0_0_20px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-gray-400'}`}>LIVE STREAM</button>
+            <button onClick={() => setActiveView('archive')} className={`px-8 py-2 rounded-full font-cinzel tracking-widest transition-all ${activeView === 'archive' ? 'bg-orange-600 shadow-[0_0_20px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-gray-400'}`}>ARCHIVES</button>
           </div>
-        </main>
 
+          <div className="max-w-6xl mx-auto mb-20 bg-black/60 rounded-2xl overflow-hidden border border-orange-500/20 shadow-2xl backdrop-blur-md">
+            {activeView === 'live' ? (
+              <div className="flex flex-col lg:flex-row h-[600px]">
+                <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} height="100%" width="100%" className="lg:w-3/4" allowFullScreen></iframe>
+                <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}`} height="100%" width="100%" className="lg:w-1/4"></iframe>
+              </div>
+            ) : (
+              <div className="p-12 py-32">
+                <h3 className="text-2xl font-cinzel text-white mb-6">The Messengers Archive</h3>
+                <a href="https://youtube.com/playlist?list=PLKmO6Km32njQ46KfUQgXQ0wnE3_PEtZwK" target="_blank" rel="noopener noreferrer" className="inline-block px-10 py-3 bg-red-700 hover:bg-red-600 text-white rounded-full font-cinzel tracking-widest transition-all">VIEW ON YOUTUBE</a>
+              </div>
+            )}
+          </div>
+
+          <section className="max-w-5xl mx-auto mb-20">
+            <h2 className="text-3xl font-cinzel text-white mb-12 tracking-widest">MEET YOUR HOSTS</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-10">
+              <div className="relative group overflow-hidden rounded-xl border border-white/10 aspect-[4/5]">
+                 <img src="/images/brindle-bio.JPG" alt="Michka Grant" className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" />
+                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
+                    <p className="font-cinzel text-orange-500 text-lg">Michka Grant</p>
+                 </div>
+              </div>
+              <div className="relative group overflow-hidden rounded-xl border border-white/10 aspect-[4/5]">
+                 <img src="/images/misc/lunaria.jpg" alt="Karrie Lynne" className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" />
+                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
+                    <p className="font-cinzel text-orange-500 text-lg">Karrie Lynne</p>
+                 </div>
+              </div>
+            </div>
+            <div className="bg-black/40 p-8 rounded-2xl border border-white/5 backdrop-blur-sm text-center">
+              <p className="text-gray-300 leading-relaxed font-cormorant text-2xl italic">
+                "As the driving forces behind Rise Radio, they share a unified dream: to help bring people together and find inner peace through music, tarot, and other creative means. The Messengers is the space where their shared vision comes to life."
+              </p>
+            </div>
+          </section>
+
+          <MerchGallery showName="The Messengers" products={messengerProducts} />
+        </main>
         <Footer />
       </div>
     </div>
