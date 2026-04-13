@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
 
 const bloomProducts = [
@@ -22,47 +23,82 @@ export default function TheBloomPage() {
   }, []);
 
   return (
-    <div className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" style={{ backgroundImage: "url('/images/main-images/Cover Art/bloom-new.jpg')" }}>
-      <div className="absolute inset-0 bg-black/95 z-0 pointer-events-none"></div>
+    <div 
+      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
+      style={{ backgroundImage: "url('/images/main-images/Cover Art/bloom-new.jpg')" }}
+    >
+      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
+
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
-        <main className="flex-grow container mx-auto px-4 py-12 text-center">
-          <h1 className="text-6xl font-cinzel text-white mb-4 tracking-[0.2em]">THE BLOOM</h1>
-          <p className="text-orange-500 tracking-widest uppercase text-sm font-bold mb-12">Hosted by Rev. Diane R. DeBiasi</p>
-          
-          <div className="flex gap-4 justify-center mb-12">
-            <button onClick={() => setActiveView('live')} className={`px-8 py-2 rounded-full font-cinzel tracking-widest transition-all ${activeView === 'live' ? 'bg-orange-600 shadow-[0_0_20px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-gray-400'}`}>LIVE STREAM</button>
-            <button onClick={() => setActiveView('archive')} className={`px-8 py-2 rounded-full font-cinzel tracking-widest transition-all ${activeView === 'archive' ? 'bg-orange-600 shadow-[0_0_20px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-gray-400'}`}>ARCHIVES</button>
-          </div>
 
-          <div className="max-w-6xl mx-auto mb-20 bg-black/60 rounded-2xl overflow-hidden border border-orange-500/20 shadow-2xl backdrop-blur-md">
-            {activeView === 'live' ? (
-              <div className="flex flex-col lg:flex-row h-[600px]">
-                <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} height="100%" width="100%" className="lg:w-3/4" allowFullScreen></iframe>
-                <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}`} height="100%" width="100%" className="lg:w-1/4"></iframe>
-              </div>
-            ) : (
-              <div className="p-12 py-32">
-                <h3 className="text-2xl font-cinzel text-white mb-6">The Bloom Archive</h3>
-                <a href="https://youtube.com/playlist?list=PLKmO6Km32njT-1QD5R76W1Mv-eD-eijIE" target="_blank" rel="noopener noreferrer" className="inline-block px-10 py-3 bg-red-700 hover:bg-red-600 text-white rounded-full font-cinzel tracking-widest transition-all">VIEW ON YOUTUBE</a>
-              </div>
-            )}
-          </div>
-
-          <section className="max-w-5xl mx-auto mb-20 text-left grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="w-full aspect-square border border-orange-500/20 rounded-2xl overflow-hidden bg-zinc-900 shadow-lg">
-              <img src="/images/main-images/Cover Art/Diane Solo.png" alt="Rev. Diane R. DeBiasi" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
+        <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
+          <div className="w-full max-w-7xl">
+            
+            {/* Back Button */}
+            <div className="mb-8">
+              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
+                <span>←</span> BACK TO SANCTUARY
+              </Link>
             </div>
-            <div>
-              <h2 className="text-3xl font-cinzel text-orange-500 mb-6">Rev. Diane R. DeBiasi</h2>
-              <p className="text-gray-300 leading-relaxed font-cormorant text-2xl italic">
-                "Rev. Diane R. DeBiasi, a co-founder of RISE Radio, hosts The Bloom every Monday morning. Her program serves as a sanctuary dedicated to spiritual growth, creative unfolding, and the sharing of gentle, intuitive wisdom."
+
+            {/* Title Section */}
+            <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
+              <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
+                The Bloom
+              </h1>
+              <p className="font-cinzel text-xl text-orange-200/80 italic uppercase tracking-[0.3em]">
+                Hosted by Rev. Diane R. DeBiasi
               </p>
             </div>
-          </section>
 
-          <MerchGallery showName="The Bloom" products={bloomProducts} />
+            {/* Smart Player Section */}
+            <div className="mb-16 relative">
+              <div className="flex justify-center gap-4 mb-8">
+                <button onClick={() => setActiveView('live')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10' : 'border-gray-600 text-gray-500'}`}>🔴 Live Stream</button>
+                <button onClick={() => setActiveView('archive')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10' : 'border-gray-600 text-gray-500'}`}>🎬 The Archives</button>
+              </div>
+
+              <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
+                {activeView === 'live' ? (
+                  <div className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
+                    <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} className="flex-grow h-full" frameBorder="0" allowFullScreen></iframe>
+                    <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-l border-orange-900/30" frameBorder="0"></iframe>
+                  </div>
+                ) : (
+                  <div className="w-full aspect-video">
+                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njT-1QD5R76W1Mv-eD-eijIE" className="w-full h-full" frameBorder="0" allowFullScreen></iframe>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Meet The Host Section */}
+            <section className="w-full mt-20 mb-24 text-center">
+              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet The Host</h2>
+              <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl">
+                <div className="flex flex-col items-center">
+                  <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden">
+                    <img src="/images/main-images/Cover Art/Diane Solo.png" alt="Rev. Diane R. DeBiasi" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                  </div>
+                  <div className="mt-6">
+                    <h3 className="font-cinzel text-2xl text-orange-500 tracking-widest uppercase font-bold">Rev. Diane R. DeBiasi</h3>
+                  </div>
+                </div>
+                <div className="hidden md:block w-px h-full min-h-[300px] bg-gradient-to-b from-transparent via-orange-900/40 to-transparent"></div>
+                <div className="text-left">
+                  <p className="font-cormorant text-xl md:text-2xl text-gray-200 leading-relaxed italic">
+                    "Rev. Diane R. DeBiasi, a co-founder of RISE Radio, hosts The Bloom every Monday morning. Her program serves as a sanctuary dedicated to spiritual growth, creative unfolding, and the sharing of gentle, intuitive wisdom."
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* MERCH SECTION */}
+            <MerchGallery showName="The Bloom" products={bloomProducts} />
+          </div>
         </main>
+
         <Footer />
       </div>
     </div>
