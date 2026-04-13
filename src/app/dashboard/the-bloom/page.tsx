@@ -25,7 +25,7 @@ export default function TheBloomPage() {
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/bloom-new.jpg')" }}
+      style={{ backgroundImage: "url('/images/main-images/Cover Art/bloom-bg.jpg')" }}
     >
       <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
 
