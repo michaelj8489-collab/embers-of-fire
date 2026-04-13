@@ -79,7 +79,7 @@ export default function TheMessengersPage() {
                    </div>
                 </div>
                 <div className="relative group overflow-hidden rounded-xl border border-orange-900/40 aspect-[4/5]">
-                   <img src="/images/misc/lunaria.jpg" alt="Karrie Lynne" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
+                   <img src="/images/misc/karrie-bio-illuminate.png" alt="Karrie Lynne" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
                       <p className="font-cinzel text-orange-500 text-lg">Karrie Lynne</p>
                    </div>
