@@ -8,7 +8,7 @@ import { createClient } from '@/utils/supabase/client';
 
 export default function UnifiedDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userTier, setUserTier] = useState<string>('seeker'); // Default room
+  const [userTier, setUserTier] = useState<string>('seeker'); 
   const supabase = createClient();
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function UnifiedDashboard() {
             {/* HERO VIDEOS */}
             <div className="flex flex-col md:flex-row gap-16 md:gap-32 items-center justify-center mb-16">
               
-              {/* THE SANCTUARY (Smart Link!) */}
+              {/* THE SANCTUARY */}
               <Link href={isLoggedIn ? `/sanctuary/${userTier}` : '/login'} className="flex flex-col items-center group cursor-pointer">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-2 border-orange-900/50 shadow-[0_0_50px_rgba(234,88,12,0.2)] bg-neutral-900 transition-all duration-700 group-hover:border-orange-500 group-hover:shadow-[0_0_80px_rgba(234,88,12,0.4)]">
                   <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-100">
@@ -86,7 +86,7 @@ export default function UnifiedDashboard() {
 
             </div>
 
-            {/* NEW: THE SANCTUARY EXPLANATION BOX */}
+            {/* THE SANCTUARY EXPLANATION BOX */}
             <div className="w-full max-w-5xl mx-auto mb-24 bg-gradient-to-b from-orange-900/20 to-black/60 backdrop-blur-md border border-orange-500/30 p-10 md:p-16 rounded-[2rem] shadow-2xl text-center relative overflow-hidden group">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50"></div>
               <h3 className="font-cinzel text-3xl md:text-4xl text-orange-400 mb-6 tracking-widest uppercase">What is The Sanctuary?</h3>
@@ -165,13 +165,13 @@ export default function UnifiedDashboard() {
             </section>
 
             {/* SUBSCRIPTION SECTION */}
-            <section className="w-full bg-gradient-to-r from-orange-950/40 via-black to-red-950/40 border-y border-orange-900/40 p-20 text-center rounded-[3rem] mb-12 shadow- [0_0_60px_rgba(0,0,0,0.8)]">
+            <section className="w-full bg-gradient-to-r from-orange-950/40 via-black to-red-950/40 border-y border-orange-900/40 p-20 text-center rounded-[3rem] mb-12 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
               <h3 className="font-cinzel text-5xl text-orange-500 mb-8 uppercase tracking-[0.2em]">Ascend the Embers</h3>
               <p className="text-2xl italic text-gray-300 mb-12 max-w-4xl mx-auto font-cormorant leading-relaxed">
-               Join the ranks of our community. Your subscription directly fuels the independent voices of Rise Radio and unlocks the deeper secrets of the Sanctuary.
+                Join the ranks of our community. Your subscription directly fuels the independent voices of Rise Radio and unlocks the deeper secrets of the Sanctuary.
               </p>
-              <Link href="/dashboard/subscribe" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 hover:from-orange-600 hover:to-red-600 text-white px-16 py-6 rounded-full font-cinzel text-2xl tracking-[0.4em] transition-all shadow-[0_0_40px_rgba(234,88,12,0.4)] hover:scale-105 active:scale-95 uppercase font-bold">
-              Become a Subscriber
+              <Link href="/dashboard/donate" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 hover:from-orange-600 hover:to-red-600 text-white px-16 py-6 rounded-full font-cinzel text-2xl tracking-[0.4em] transition-all shadow-[0_0_40px_rgba(234,88,12,0.4)] hover:scale-105 active:scale-95 uppercase font-bold">
+                Become a Subscriber
               </Link>
             </section>
           </div>
