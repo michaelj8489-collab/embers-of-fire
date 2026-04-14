@@ -164,17 +164,16 @@ export default function UnifiedDashboard() {
               </div>
             </section>
 
-            {/* DONOR SECTION */}
-            <section className="w-full bg-gradient-to-r from-orange-950/40 via-black to-red-950/40 border-y border-orange-900/40 p-20 text-center rounded-[3rem] mb-12 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
-              <h3 className="font-cinzel text-5xl text-orange-500 mb-8 uppercase tracking-[0.2em]">Guardian of the Embers</h3>
+            {/* SUBSCRIPTION SECTION */}
+            <section className="w-full bg-gradient-to-r from-orange-950/40 via-black to-red-950/40 border-y border-orange-900/40 p-20 text-center rounded-[3rem] mb-12 shadow- [0_0_60px_rgba(0,0,0,0.8)]">
+              <h3 className="font-cinzel text-5xl text-orange-500 mb-8 uppercase tracking-[0.2em]">Ascend the Embers</h3>
               <p className="text-2xl italic text-gray-300 mb-12 max-w-4xl mx-auto font-cormorant leading-relaxed">
-                By standing here within the Embers, you are fueling the fire. Your support allows this independent platform to reach those who need it most.
+               Join the ranks of our community. Your subscription directly fuels the independent voices of Rise Radio and unlocks the deeper secrets of the Sanctuary.
               </p>
-              <Link href="/dashboard/donate" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 hover:from-orange-600 hover:to-red-600 text-white px-16 py-6 rounded-full font-cinzel text-2xl tracking-[0.4em] transition-all shadow-[0_0_40px_rgba(234,88,12,0.4)] hover:scale-105 active:scale-95 uppercase font-bold">
-                Become a Donor
+              <Link href="/dashboard/subscribe" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 hover:from-orange-600 hover:to-red-600 text-white px-16 py-6 rounded-full font-cinzel text-2xl tracking-[0.4em] transition-all shadow-[0_0_40px_rgba(234,88,12,0.4)] hover:scale-105 active:scale-95 uppercase font-bold">
+              Become a Subscriber
               </Link>
             </section>
-
           </div>
         </main>
 
