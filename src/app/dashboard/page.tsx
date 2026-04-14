@@ -33,15 +33,15 @@ export default function UnifiedDashboard() {
   }, [supabase]);
 
   const schedule = [
-    { name: "The Bloom", day: "Tuesdays", time: "8:00 PM EST", href: "/dashboard/the-bloom", status: "LIVE" },
-    { name: "The Messengers", day: "Wednesdays", time: "7:00 PM EST", href: "/dashboard/the-messengers", status: "Active" },
-    { name: "Brindle's Vision", day: "Thursdays", time: "6:00 PM EST", href: "/dashboard/brindles-vision", status: "Active" },
-    { name: "Phoenix Talks", day: "Thursdays", time: "9:00 PM EST", href: "/dashboard/phoenix-talks", status: "Active" },
-    { name: "The CORE", day: "Fridays", time: "6:00 PM EST", href: "/dashboard/the-core", status: "Active" },
+    { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom", status: "LIVE" },
+    { name: "The Messengers", day: "Mondays", time: " 6:00 PM EST", href: "/dashboard/the-messengers", status: "Active" },
+    { name: "Brindle's Vision", day: "Tuesdays", time: "12:00 PM EST", href: "/dashboard/brindles-vision", status: "Active" },
+    { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks", status: "Active" },
+    { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core", status: "Active" },
     { name: "Honky Tonk Heaven", day: "Fridays", time: "8:00 PM EST", href: "/dashboard/honky-tonk-heaven", status: "Active" },
-    { name: "Illuminate", day: "Saturdays", time: "12:00 PM EST", href: "/dashboard/illuminate", status: "Active" },
-    { name: "Voices on the Rise", day: "Saturdays", time: "7:00 PM EST", href: "/dashboard/voices-on-the-rise", status: "Active" },
-    { name: "Defining Your Character", day: "Starts April 19", time: "TBA", href: "/dashboard/defining-your-character", status: "Coming Soon" },
+    { name: "Illuminate", day: "Fridays", time: "11:00 AM EST", href: "/dashboard/illuminate", status: "Active" },
+    { name: "Voices on the Rise", day: "Fridays (biweekly)", time: "6:00 PM EST", href: "/dashboard/voices-on-the-rise", status: "Active" },
+    { name: "Defining Your Character", day: "Saturdays", time: "6:00 PM EST", href: "/dashboard/defining-your-character", status: "Coming Soon" },
   ];
 
   return (

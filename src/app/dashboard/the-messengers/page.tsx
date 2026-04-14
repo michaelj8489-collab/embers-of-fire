@@ -46,7 +46,7 @@ export default function TheMessengersPage() {
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
                 The Messengers
               </h1>
-              <p className="font-cinzel text-xl text-orange-200/80 italic">Tune into the frequency.</p>
+              <p className="font-cinzel text-xl text-orange-200/80 italic">Hosted by Brindle Wolf & Lunaria</p>
             </div>
 
             <div className="mb-16 relative">
