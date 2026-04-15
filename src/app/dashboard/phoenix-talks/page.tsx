@@ -4,12 +4,57 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import MerchGallery from '@/components/MerchGallery';
+
+const phoenixProducts = [
+  { 
+    id: 1, 
+    name: "Phoenix Falls Baseball Cap", 
+    price: "$17.36", 
+    image: "https://images-api.printify.com/mockup/69cec44f338dbae7f501adc0/104281/53890/the-messengers-cap-the-dreamkeepers-fantasy-baseball-hat.jpg?camera_label=front", // Fixed to standard front view
+    link: "https://embers-of-light.printify.me/product/27752380" 
+  },
+  { 
+    id: 2, 
+    name: "Unisex Heavy Cotton Tee", 
+    price: "$31.35", 
+    image: "https://images-api.printify.com/mockup/69c3ebb1484a05af4d015a2e/12100/92570/phoenix-talks-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077363566&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27560198" 
+  },
+  { 
+    id: 3, 
+    name: "Ceramic Mug (11oz, 15oz)", 
+    price: "$7.93", 
+    image: "https://images-api.printify.com/mockup/69c3402b29d2eb7b2906a7b8/65216/6310/phoenix-talks-ceramic-mug-11oz-15oz.jpg?camera_label=front&revision=1775077516149&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27551615" 
+  },
+  { 
+    id: 4, 
+    name: "Cotton Canvas Tote Bag", 
+    price: "$18.68", 
+    image: "https://images-api.printify.com/mockup/69c3f77adfc5bce200091b86/101409/93895/phoenix-talks-cotton-canvas-tote-bag.jpg?camera_label=front&revision=1775077355814&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27560982" 
+  },
+  { 
+    id: 5, 
+    name: "Heavy Blend™ Hooded Sweatshirt", 
+    price: "$30.92", 
+    image: "https://images-api.printify.com/mockup/69c426e3f4a6bbf9820c5f24/32912/98424/phoenix-talks-unisex-heavy-blend-hooded-sweatshirt.jpg?camera_label=front&revision=1775077264789&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27564906" 
+  },
+  { 
+    id: 6, 
+    name: "Phoenix Talks Custom Deck", 
+    price: "$16.69", 
+    image: "https://images-api.printify.com/mockup/69c701ef53e54911530e235f/72763/16651/poker-playing-cards-phoenix-talks-custom-deck-ace-spade-design.jpg?camera_label=front-2&revision=1775077508717&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27610080" 
+  }
+];
 
 export default function PhoenixTalksPage() {
-  const [activeView, setActiveView] = useState<'archive' | 'live'>('live');
+  const [activeView, setActiveView] = useState<'archive' | 'live'>('archive');
   const [parentDomain, setParentDomain] = useState('');
 
-  // Automatically grab whatever URL you are currently visiting
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setParentDomain(window.location.hostname);
@@ -31,7 +76,7 @@ export default function PhoenixTalksPage() {
             
             {/* Back Button */}
             <div className="mb-8">
-              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
+              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
                 <span>←</span> BACK TO SANCTUARY
               </Link>
             </div>
@@ -64,11 +109,9 @@ export default function PhoenixTalksPage() {
               </div>
 
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
-                
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
-                      {/* Using template literals to inject the parentDomain automatically */}
                       {parentDomain && (
                         <iframe
                           src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
@@ -98,12 +141,14 @@ export default function PhoenixTalksPage() {
                     ></iframe>
                   </div>
                 )}
-
               </div>
               <p className="text-center font-cormorant italic text-gray-500 mt-4">
                 {activeView === 'live' ? 'Interact with Michka & Rev. Diane LIVE!' : 'Viewing Phoenix Archives. Join us live Wednesdays at 6 PM EST.'}
               </p>
             </div>
+
+            {/* --- MERCH GALLERY (Site-Wide Standard Position) --- */}
+            <MerchGallery showName="Phoenix Talks" products={phoenixProducts} />
 
             {/* --- MEET THE HOSTS SECTION --- */}
             <section className="w-full mt-20 mb-24 text-center">
