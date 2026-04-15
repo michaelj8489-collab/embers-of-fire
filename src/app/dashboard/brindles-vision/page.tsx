@@ -4,13 +4,78 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import MerchGallery from '@/components/MerchGallery';
+
+const brindleProducts = [
+  { 
+    id: 1, 
+    name: "Insulated Travel Mug (40oz)", 
+    price: "$50.34", 
+    image: "https://images-api.printify.com/mockup/69d9921381e6be64cb06ce81/107788/104042/brindles-vision-insulated-travel-mug-40oz.jpg?camera_label=front&revision=1775866534486&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27905156" 
+  },
+  { 
+    id: 2, 
+    name: "Hardcover Journal (Matte)", 
+    price: "$12.63", 
+    image: "https://images-api.printify.com/mockup/69d98fabbc276d78e10be1b6/65223/7338/brindles-vision-hardcover-journal-matte.jpg?camera_label=front&revision=1775865856500&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27905024" 
+  },
+  { 
+    id: 3, 
+    name: "Boundless Beyond Dad Hat", 
+    price: "$17.36", 
+    image: "https://images-api.printify.com/mockup/69cec58b4b32c89c4a0ef238/104278/53890/brindles-vision-baseball-cap-boundless-beyond-inspirational-dad-hat.jpg?camera_label=front&revision=1775158740741&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27752404" 
+  },
+  { 
+    id: 4, 
+    name: "Brindle's Vision Custom Deck", 
+    price: "$16.69", 
+    image: "https://images-api.printify.com/mockup/69c7026c0b1e5178180405fc/72763/16404/brindles-vision-custom-deck.jpg?camera_label=front&revision=1775077508985&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27610146" 
+  },
+  { 
+    id: 5, 
+    name: "Men's Loose T-shirt (AOP)", 
+    price: "$14.27", 
+    image: "https://images-api.printify.com/mockup/69c7095bdfda05aa090e56d9/83519/51812/brindles-vision-mens-loose-t-shirt-aop.jpg?camera_label=front&revision=1775077515971&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27612791" 
+  },
+  { 
+    id: 6, 
+    name: "Unisex Heavy Cotton Tee", 
+    price: "$31.35", 
+    image: "https://images-api.printify.com/mockup/69c3e6df727c05a77b09e713/12100/92570/brindles-vision-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077503107&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27559772" 
+  },
+  { 
+    id: 7, 
+    name: "Ceramic Mug (11oz, 15oz)", 
+    price: "$9.44", 
+    image: "https://images-api.printify.com/mockup/69c349798d2a35a9db00eb2c/104692/101750/brindles-vision-ceramic-mug-11oz-15oz.jpg?camera_label=front&revision=1775077357141&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27552349" 
+  },
+  { 
+    id: 8, 
+    name: "Unisex Heavy Blend™ Hooded Sweatshirt", 
+    price: "$30.92", 
+    image: "https://images-api.printify.com/mockup/69c4265ae470967b040f7302/32912/98424/brindles-vision-unisex-heavy-blend-hooded-sweatshirt.jpg?camera_label=front&revision=1775077270545&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27564844" 
+  },
+  { 
+    id: 9, 
+    name: "Cotton Canvas Tote Bag", 
+    price: "$18.68", 
+    image: "https://images-api.printify.com/mockup/69c3f6e05158daff1c100b94/101409/93895/brindles-vision-cotton-canvas-tote-bag.jpg?camera_label=front&revision=1775077362587&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27560933" 
+  }
+];
 
 export default function BrindlesVisionPage() {
-  // We use a "state" to track which view is active: 'archive' or 'live'
   const [activeView, setActiveView] = useState<'archive' | 'live'>('archive');
   const [parentDomain, setParentDomain] = useState('');
 
-  // Detect current domain for Twitch security
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setParentDomain(window.location.hostname);
@@ -43,7 +108,7 @@ export default function BrindlesVisionPage() {
                 Brindle's Vision
               </h1>
               <p className="font-cinzel text-xl text-orange-200/80 italic">
-                Tune into the frequency.
+                Hosted by Brindle Wolf
               </p>
             </div>
 
@@ -65,7 +130,6 @@ export default function BrindlesVisionPage() {
               </div>
 
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
-                
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
                     <div className="flex-grow h-full bg-black">
@@ -98,12 +162,14 @@ export default function BrindlesVisionPage() {
                     ></iframe>
                   </div>
                 )}
-
               </div>
               <p className="text-center font-cormorant italic text-gray-500 mt-4">
                 {activeView === 'live' ? 'You are watching LIVE. Join the chat!' : 'Viewing The Archives. Join us live Tuesdays at 12 PM EST.'}
               </p>
             </div>
+
+            {/* --- MERCH GALLERY (Standardized Placement) --- */}
+            <MerchGallery showName="Brindle's Vision" products={brindleProducts} />
 
             {/* --- MEET THE HOST SECTION --- */}
             <section className="w-full mt-20 mb-24 text-center">

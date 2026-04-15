@@ -49,6 +49,7 @@ export default function TheMessengersPage() {
               <p className="font-cinzel text-xl text-orange-200/80 italic">Hosted by Brindle Wolf & Lunaria</p>
             </div>
 
+            {/* Smart Player Section */}
             <div className="mb-16 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button onClick={() => setActiveView('live')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10' : 'border-gray-600 text-gray-500'}`}>🔴 Live Stream</button>
@@ -69,6 +70,10 @@ export default function TheMessengersPage() {
               </div>
             </div>
 
+            {/* MERCH SECTION (NOW MOVED UP) */}
+            <MerchGallery showName="The Messengers" products={messengerProducts} />
+
+            {/* Meet The Hosts Section */}
             <section className="w-full mt-20 mb-24 text-center">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet The Hosts</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
@@ -92,7 +97,6 @@ export default function TheMessengersPage() {
               </div>
             </section>
 
-            <MerchGallery showName="The Messengers" products={messengerProducts} />
           </div>
         </main>
 

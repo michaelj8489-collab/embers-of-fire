@@ -35,14 +35,12 @@ export default function TheBloomPage() {
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl">
             
-            {/* Back Button */}
             <div className="mb-8">
               <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
                 <span>←</span> BACK TO SANCTUARY
               </Link>
             </div>
 
-            {/* Title Section */}
             <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
                 The Bloom
@@ -73,6 +71,9 @@ export default function TheBloomPage() {
               </div>
             </div>
 
+            {/* MERCH SECTION (NOW MOVED UP) */}
+            <MerchGallery showName="The Bloom" products={bloomProducts} />
+
             {/* Meet The Host Section */}
             <section className="w-full mt-20 mb-24 text-center">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet The Host</h2>
@@ -94,8 +95,6 @@ export default function TheBloomPage() {
               </div>
             </section>
 
-            {/* MERCH SECTION */}
-            <MerchGallery showName="The Bloom" products={bloomProducts} />
           </div>
         </main>
 
