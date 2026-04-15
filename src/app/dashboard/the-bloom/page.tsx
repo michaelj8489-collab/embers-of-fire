@@ -11,7 +11,14 @@ const bloomProducts = [
   { id: 2, name: "Unisex Heavy Cotton Tee", price: "$31.35", image: "https://images-api.printify.com/mockup/69c3ee43f4a6bbf9820c5657/12100/92570/the-bloom-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077503615&s=2048", link: "https://embers-of-light.printify.me/product/27560397" },
   { id: 3, name: "Ceramic Mug (11oz, 15oz)", price: "$9.44", image: "https://images-api.printify.com/mockup/69c3ed039003cbb4a4052fdc/104692/101750/the-bloom-ceramic-mug-11oz-15oz.jpg?camera_label=front&revision=1775077354876&s=2048", link: "https://embers-of-light.printify.me/product/27560337" },
   { id: 4, name: "Cotton Canvas Tote Bag", price: "$18.68", image: "https://images-api.printify.com/mockup/69c3f631451dae57710f9abb/101409/93895/the-bloom-cotton-canvas-tote-bag.jpg?camera_label=front&revision=1775077686552&s=400", link: "https://embers-of-light.printify.me/product/27560885" },
-  { id: 5, name: "Heavy Blend™ Hooded Sweatshirt", price: "$30.92", image: "https://images-api.printify.com/mockup/69c425bf7a696940f8027bf3/32912/98425/the-bloom-unisex-heavy-blend-hooded-sweatshirt.jpg?camera_label=back&revision=1775077355722&s=2048", link: "https://embers-of-light.printify.me/product/27564745" }
+  { id: 5, name: "Heavy Blend™ Hooded Sweatshirt", price: "$30.92", image: "https://images-api.printify.com/mockup/69c425bf7a696940f8027bf3/32912/98425/the-bloom-unisex-heavy-blend-hooded-sweatshirt.jpg?camera_label=back&revision=1775077355722&s=2048", link: "https://embers-of-light.printify.me/product/27564745" },
+  { 
+    id: 6, 
+    name: "Artistic Rose Playing Cards", 
+    price: "$16.69", 
+    image: "https://images-api.printify.com/mockup/69c702d28ac9a0544a0eaf42/72763/16404/the-bloom-poker-playing-cards-artistic-rose-design-casino-deck.jpg?camera_label=front&revision=1775077509146&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27610177" 
+  }
 ];
 
 export default function TheBloomPage() {
@@ -71,7 +78,7 @@ export default function TheBloomPage() {
               </div>
             </div>
 
-            {/* MERCH SECTION (NOW MOVED UP) */}
+            {/* MERCH SECTION */}
             <MerchGallery showName="The Bloom" products={bloomProducts} />
 
             {/* Meet The Host Section */}
