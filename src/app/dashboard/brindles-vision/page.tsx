@@ -154,10 +154,13 @@ export default function BrindlesVisionPage() {
                   </div>
                 ) : (
                   <div className="w-full h-full aspect-video">
-                    <iframe
-                      src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njQ46KfUQgXQ0wnE3_PEtZwK"
+                    <iframe 
+                      src="https://www.youtube.com/embed/videoseries?si=iGTdtFAfDKXOF02L&list=PLKmO6Km32njSDRIYBDZcUbzqQFYQGmXIr" 
+                      title="YouTube video player" 
                       className="w-full h-full"
-                      frameBorder="0"
+                      frameBorder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      referrerPolicy="strict-origin-when-cross-origin" 
                       allowFullScreen
                     ></iframe>
                   </div>
