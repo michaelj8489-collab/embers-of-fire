@@ -61,7 +61,7 @@ export default function DefiningYourCharacterPage() {
               <h1 className="font-cinzel-decorative text-4xl md:text-7xl text-orange-500 uppercase tracking-[0.15em] mb-4 drop-shadow-[0_0_20px_rgba(234,88,12,0.5)]">
                 Defining Your Character
               </h1>
-              <p className="font-cinzel italic text-xl md:text-2xl text-orange-300/90 tracking-widest">
+              <p className="font-cinzel italic text-xl md:text-2xl text-orange-300/90 tracking-widest uppercase">
                 Returning to RISE Radio — April 19, 2026
               </p>
               <div className="h-px w-64 bg-gradient-to-r from-transparent via-orange-900/50 to-transparent mx-auto mt-8" />
@@ -75,7 +75,7 @@ export default function DefiningYourCharacterPage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
                   </span>
-                  <h2 className="font-cinzel text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Live RISE Radio Broadcast</h2>
+                  <h2 className="font-cinzel text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Live Broadcast Stream</h2>
                 </div>
                 
                 <audio controls className="w-full h-12 accent-orange-500">
@@ -89,31 +89,11 @@ export default function DefiningYourCharacterPage() {
               </div>
             </section>
 
-            {/* --- MERCH GALLERY (Standardized Placement) --- */}
+            {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Defining Your Character" products={dycProducts} />
 
-            {/* AUDIO ARCHIVES SECTION */}
-            <section className="mt-16">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="h-px flex-1 bg-orange-900/30"></div>
-                <h2 className="font-cinzel text-lg text-orange-400 uppercase tracking-[0.3em] font-bold">The Audio Archives</h2>
-                <div className="h-px flex-1 bg-orange-900/30"></div>
-              </div>
-
-              <div className="bg-black/50 border border-orange-900/20 rounded-xl overflow-hidden backdrop-blur-sm shadow-inner">
-                <iframe 
-                  src="https://zeno.fm/podcast/defining-your-character/embed/" 
-                  width="100%" 
-                  height="450px" 
-                  frameBorder="0" 
-                  scrolling="no"
-                  className="opacity-90 hover:opacity-100 transition-opacity"
-                ></iframe>
-              </div>
-            </section>
-
             {/* MEET THE HOST SECTION */}
-            <section className="w-full mt-24 mb-24 text-center">
+            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
               <h2 className="font-cinzelDec text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
                 Meet The Host
               </h2>
