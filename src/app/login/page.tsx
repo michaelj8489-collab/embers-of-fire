@@ -1,78 +1,124 @@
 'use client';
 
-import React from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import React, { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+// Forces Vercel to render dynamically to prevent build errors with Supabase
+export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    
+    if (error) {
+      setError(error.message);
+    } else {
+      alert('Success! Check your email for the confirmation link.');
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen relative bg-black text-gray-200 flex flex-col font-cormorant">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-cormorant text-gray-200">
       
-      {/* --- VIDEO BACKGROUND --- */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover opacity-50"
-        >
-          <source src="/images/phoenix-revived.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 pointer-events-none" />
-      </div>
+      {/* Cinematic Looping Video Background */}
+      <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0">
+         <source src="/images/phoenix-revived.mp4" type="video/mp4" />
+      </video>
 
-      <div className="relative z-20 flex flex-col min-h-screen w-full">
-        <Header />
+      {/* Dark Overlay to keep the form readable against the fire */}
+      <div className="absolute inset-0 bg-black/80 z-10 pointer-events-none"></div>
 
-        <main className="flex-grow flex items-center justify-center px-4 w-full pt-20 pb-12">
-          
-          {/* THE MASTER CONTAINER: This holds both the logo and the box together */}
-          <div className="relative w-full max-w-md pt-24 mt-12">
-            
-            {/* THE HOVERING PHOENIX: Pinned to the top of the Master Container */}
-            <div className="absolute top-0 left-0 right-0 z-30 flex justify-center pointer-events-none">
-              <img 
-                src="/images/main-images/RISE LOGO NO BG.png" 
-                alt="Rise Radio Phoenix" 
-                className="w-48 md:w-64 h-auto drop-shadow-[0_0_40px_rgba(234,88,12,0.8)] transition-transform duration-700 hover:scale-105"
-              />
-            </div>
+      {/* Login Form Container */}
+      <div className="relative z-20 flex flex-col items-center bg-black/60 p-10 rounded-xl border border-orange-900/50 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-md">
+        
+        <h1 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-8 tracking-widest text-center">
+          Embers of Light
+        </h1>
 
-            {/* THE LOGIN BOX: Pushed down via pt-24 in the Master Container so the logo overlaps its top border */}
-            <div className="relative z-20 bg-zinc-950/80 backdrop-blur-xl border border-orange-500/20 p-8 pt-16 rounded-[2.5rem] shadow-[0_0_60px_rgba(0,0,0,0.9)]">
-              <div className="text-center mb-10">
-                <h2 className="font-cinzel text-3xl text-orange-500 tracking-[0.2em] uppercase font-bold">Portal Access</h2>
-                <div className="h-px w-24 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent mx-auto mt-4" />
-              </div>
+        {error && <p className="text-red-500 mb-4 font-sans text-sm">{error}</p>}
 
-              {/* AUTH AREA */}
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="font-cinzel text-xs uppercase tracking-widest text-gray-400 ml-2">Seeker Credentials</label>
-                  <input 
-                    type="email" 
-                    placeholder="Enter Email..." 
-                    className="w-full bg-black/60 border border-zinc-800 p-4 rounded-2xl focus:border-orange-500 outline-none transition-all font-cormorant text-lg text-white placeholder:text-zinc-600" 
-                  />
-                </div>
-                
-                <button className="w-full group relative overflow-hidden bg-gradient-to-br from-orange-600 to-red-800 p-4 rounded-2xl font-cinzel tracking-[0.3em] uppercase font-bold text-white shadow-xl hover:brightness-110 transition-all active:scale-95">
-                  <span className="relative z-10">Enter Sanctuary</span>
-                </button>
-
-                <p className="text-center font-cormorant italic text-gray-500 text-sm mt-6">
-                  Authorized access only.
-                </p>
-              </div>
-            </div>
-
+        <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+          <div className="flex flex-col text-left">
+            <label className="block text-sm font-medium text-gray-400 mb-1 font-cinzel tracking-wider uppercase">
+              Email
+            </label>
+            <input
+              className="p-3 rounded bg-gray-900/80 text-white border border-orange-900/50 focus:border-orange-500 outline-none w-full"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-        </main>
 
-        <Footer />
+          <div className="flex flex-col text-left">
+            <label className="block text-sm font-medium text-gray-400 mb-1 font-cinzel tracking-wider uppercase">
+              Password
+            </label>
+            <input
+              className="p-3 rounded bg-gray-900/80 text-white border border-orange-900/50 focus:border-orange-500 outline-none w-full"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold py-3 rounded transition-all duration-300 font-cinzel tracking-widest disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : 'IGNITE THE SIGNAL'}
+          </button>
+        </form>
+
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSignUp}
+            className="text-gray-400 hover:text-white text-sm transition font-sans underline"
+          >
+            First time? Join the Frequency
+          </button>
+        </div>
       </div>
+
     </div>
   );
 }
