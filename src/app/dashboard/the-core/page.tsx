@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -39,7 +39,7 @@ const coreProducts = [
     id: 5, 
     name: "Slogan Poker Deck", 
     price: "$16.69", 
-    image: "https://images-api.printify.com/mockup/69c7001e5a39cdc26c069608/72763/16651/the-core-poker-deck-with-slogan-we-cant-make-this-sht-up.jpg?camera_label=front-2&revision=1776215423266&s=2048", 
+    image: "https://images-api.printify.com/mockup/69c7001e5a39cdc26c069608/72763/16651/the-core-poker-deck-with-slogan-we-cant-make-this-sht-up.jpg?camera_label=front-2&revision=1776211566000&s=2048", 
     link: "https://embers-of-light.printify.me/product/27609966" 
   },
   { 
@@ -81,16 +81,16 @@ export default function TheCorePage() {
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl">
             
-            {/* Back Button */}
-            <div className="mb-8">
-              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
-                <span>←</span> BACK TO SANCTUARY
+            {/* Standard Nav Link Fix */}
+            <div className="mb-12">
+              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
+                <span>←</span> BACK TO DASHBOARD
               </Link>
             </div>
 
             {/* Show Title */}
-            <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
-              <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
+            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
+              <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-200">
                 The CORE
               </h1>
               <p className="font-cinzel text-xl text-orange-200/80 italic">
@@ -158,15 +158,15 @@ export default function TheCorePage() {
             <MerchGallery showName="The CORE" products={coreProducts} />
 
             {/* --- MEET THE FOUNDERS SECTION --- */}
-            <section className="w-full mt-20 mb-24 text-center">
+            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
                 Meet The Founders
               </h2>
               <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch text-left">
                 {/* Host 1: Michka */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center text-center">
                   <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
                     <img src="/images/misc/michka-core-bio.jpg" alt="Michka Grant" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
@@ -177,7 +177,7 @@ export default function TheCorePage() {
                 </div>
 
                 {/* Host 2: Karrie */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center text-center">
                   <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
                     <img src="/images/misc/karrie-fix.jpg" alt="Karrie Lynne (Lunaria)" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>
@@ -188,7 +188,7 @@ export default function TheCorePage() {
                 </div>
 
                 {/* Host 3: Rev. Diane */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center text-center">
                   <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-2xl border border-orange-900/30 overflow-hidden shadow-2xl mb-6 group">
                     <img src="/images/misc/Diane Solo.jpg" alt="Rev. Diane R DeBiasi" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                   </div>

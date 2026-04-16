@@ -49,7 +49,11 @@ export default function HonkyTonkPage() {
     <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
       {/* Background Layer */}
       <div className="absolute inset-0 z-0">
-        <img src="/images/media-4/honky-tonk-heaven.jpg" alt="Honky Tonk Background" className="w-full h-full object-cover fixed opacity-40" />
+        <img 
+          src="/images/media-4/honky-tonk-heaven.jpg" 
+          alt="Honky Tonk Background" 
+          className="w-full h-full object-cover fixed opacity-40" 
+        />
         <div className="absolute inset-0 bg-[#4B0082]/40 z-10 pointer-events-none fixed"></div>
         <div className="absolute inset-0 bg-black/80 z-10 pointer-events-none fixed"></div>
       </div>
@@ -60,13 +64,15 @@ export default function HonkyTonkPage() {
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl px-4 md:px-0">
             
-            {/* Nav Link */}
-            <Link href="/dashboard/rise-hub" className="text-[#8A2BE2] hover:text-[#FF8C00] font-cinzel tracking-widest transition-colors mb-12 flex items-center gap-2 w-fit">
-              <span>←</span> BACK TO STATION
-            </Link>
+            {/* Standard Nav Link Fix */}
+            <div className="mb-12">
+              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
+                <span>←</span> BACK TO DASHBOARD
+              </Link>
+            </div>
 
             {/* Hero Header */}
-            <div className="text-center mb-16">
+            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
               <h1 className="font-cinzel-decorative font-bold text-5xl md:text-7xl mb-6 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#FF4500] via-[#FFD700] to-[#FF4500]">
                 Honky Tonk Heaven
               </h1>
@@ -76,20 +82,27 @@ export default function HonkyTonkPage() {
             </div>
 
             {/* Smart Player Section */}
-            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-[#4B0082]/50 shadow-[0_0_50px_rgba(75,0,130,0.3)] mb-16">
-               <h3 className="font-cinzel text-[#FFD700] text-center mb-8 tracking-[0.2em] uppercase">Honky Tonk Heaven: Live Broadcast</h3>
+            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-16">
+               <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">Honky Tonk Heaven: Live Broadcast</h3>
                <div className="w-full flex justify-center">
-                 <iframe src="https://zeno.fm/player/rise-radio-woqo" width="100%" height="120" frameBorder="0" scrolling="no" className="rounded-lg shadow-2xl"></iframe>
+                 <iframe 
+                   src="https://zeno.fm/player/rise-radio-woqo" 
+                   width="100%" 
+                   height="120" 
+                   frameBorder="0" 
+                   scrolling="no" 
+                   className="rounded-lg shadow-2xl"
+                 ></iframe>
                </div>
             </div>
 
-            {/* --- MERCH GALLERY (Network Standard Position) --- */}
+            {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Honky Tonk Heaven" products={honkyProducts} />
 
             {/* About Section */}
-            <div className="max-w-4xl mx-auto bg-[#4B0082]/10 border-l-4 border-[#FF4500] p-8 rounded-r-xl mt-16">
-               <h4 className="font-cinzel text-[#FF8C00] mb-4 uppercase tracking-widest">About Honky Tonk Heaven</h4>
-               <p className="font-cormorant text-xl text-[#FFF8DC]/80 leading-relaxed italic">
+            <div className="max-w-4xl mx-auto bg-orange-900/10 border-l-4 border-orange-600 p-8 rounded-r-xl mt-16">
+               <h4 className="font-cinzel text-orange-500 mb-4 uppercase tracking-widest font-bold">About Honky Tonk Heaven</h4>
+               <p className="font-cormorant text-xl text-gray-200 leading-relaxed italic">
                  Welcome to Honky Tonk Heaven. This dedicated space is designed to showcase the unique energy and soulful expression that defines the RISE community. Join us as we tune into the frequencies that inspire connection, creativity, and the power of independent music.
                </p>
             </div>

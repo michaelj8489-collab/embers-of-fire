@@ -28,69 +28,74 @@ export default function TheMessengersPage() {
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
       style={{ backgroundImage: "url('/images/main-images/Cover Art/messengers-new.jpg')" }}
     >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
-          <div className="w-full max-w-7xl">
+          <div className="w-full max-w-7xl mx-auto">
             
-            <div className="mb-8">
-              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
-                <span>←</span> BACK TO SANCTUARY
+            {/* Standard Nav Link Fix */}
+            <div className="mb-12">
+              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
+                <span>←</span> BACK TO DASHBOARD
               </Link>
             </div>
 
-            <div className="text-center mb-16 border-b border-orange-900/50 pb-8">
-              <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
+            {/* Show Title */}
+            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
+              <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-orange-400">
                 The Messengers
               </h1>
-              <p className="font-cinzel text-xl text-orange-200/80 italic">Hosted by Brindle Wolf & Lunaria</p>
+              <p className="font-cinzel text-xl text-orange-200/80 italic tracking-widest uppercase">Hosted by Brindle Wolf & Lunaria</p>
             </div>
 
             {/* Smart Player Section */}
             <div className="mb-16 relative">
               <div className="flex justify-center gap-4 mb-8">
-                <button onClick={() => setActiveView('live')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10' : 'border-gray-600 text-gray-500'}`}>🔴 Live Stream</button>
-                <button onClick={() => setActiveView('archive')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10' : 'border-gray-600 text-gray-500'}`}>🎬 The Archives</button>
+                <button onClick={() => setActiveView('live')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}>🔴 Live Stream</button>
+                <button onClick={() => setActiveView('archive')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}>🎬 The Archives</button>
               </div>
 
-              <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
+              <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
-                  <div className="flex flex-col md:flex-row w-full aspect-video md:aspect-auto md:h-[600px]">
+                  <div className="flex flex-col md:flex-row w-full h-full">
                     <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} className="flex-grow h-full" frameBorder="0" allowFullScreen></iframe>
                     <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-l border-orange-900/30" frameBorder="0"></iframe>
                   </div>
                 ) : (
-                  <div className="w-full aspect-video">
+                  <div className="w-full h-full aspect-video">
                     <iframe src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njQ46KfUQgXQ0wnE3_PEtZwK" className="w-full h-full" frameBorder="0" allowFullScreen></iframe>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* MERCH SECTION (NOW MOVED UP) */}
+            {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="The Messengers" products={messengerProducts} />
 
             {/* Meet The Hosts Section */}
-            <section className="w-full mt-20 mb-24 text-center">
+            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet The Hosts</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                <div className="relative group overflow-hidden rounded-xl border border-orange-900/40 aspect-[4/5]">
+              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mx-auto mb-16"></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-10 max-w-5xl mx-auto">
+                <div className="relative group overflow-hidden rounded-2xl border border-orange-900/40 aspect-[4/5] shadow-2xl">
                    <img src="/images/brindle-bio.JPG" alt="Michka Grant" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
-                      <p className="font-cinzel text-orange-500 text-lg">Michka Grant</p>
+                      <p className="font-cinzel text-orange-500 text-lg font-bold tracking-widest uppercase">Michka Grant</p>
                    </div>
                 </div>
-                <div className="relative group overflow-hidden rounded-xl border border-orange-900/40 aspect-[4/5]">
+                <div className="relative group overflow-hidden rounded-2xl border border-orange-900/40 aspect-[4/5] shadow-2xl">
                    <img src="/images/misc/karrie-bio-illuminate.png" alt="Karrie Lynne" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
-                      <p className="font-cinzel text-orange-500 text-lg">Karrie Lynne</p>
+                      <p className="font-cinzel text-orange-500 text-lg font-bold tracking-widest uppercase">Karrie Lynne</p>
                    </div>
                 </div>
               </div>
-              <div className="bg-black/60 p-8 rounded-2xl border border-orange-900/30 text-center">
+              
+              <div className="bg-black/60 backdrop-blur-sm p-10 rounded-[2rem] border border-orange-900/30 text-center max-w-4xl mx-auto shadow-2xl">
                 <p className="font-cormorant text-xl md:text-2xl text-gray-200 italic leading-relaxed">
                   "As the driving forces behind Rise Radio, they share a unified dream: to help bring people together and find inner peace through music, tarot, and other creative means. The Messengers is the space where their shared vision comes to life."
                 </p>

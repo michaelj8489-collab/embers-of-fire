@@ -1,109 +1,69 @@
 'use client';
 
-import React, { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import React from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const supabase = createClient();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      router.push('/dashboard');
-    }
-  };
-
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-cormorant text-gray-200">
+    <div className="min-h-screen relative bg-black text-gray-200 flex flex-col font-cormorant">
+      {/* Background Image - 30% Opacity */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center opacity-30 fixed"
+        style={{ backgroundImage: "url('/images/main-images/Cover Art/sanctuary-bg.jpg')" }} 
+      />
       
-      {/* --- THE LIVE PHOENIX BACKGROUND --- */}
-      <div className="absolute inset-0 z-0">
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          className="w-full h-full object-cover"
-        >
-          <source src="/images/phoenix-revived.mp4" type="video/mp4" />
-        </video>
-        {/* Dark overlay for readability over the fire */}
-        <div className="absolute inset-0 bg-black/70 z-10 pointer-events-none"></div>
-      </div>
+      {/* Vignette Overlay */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-transparent to-black pointer-events-none fixed" />
 
-      {/* --- LOGIN FORM CONTENT --- */}
-      <div className="relative z-20 w-full max-w-md px-6">
-        <div className="bg-black/60 backdrop-blur-md border border-orange-900/40 p-8 rounded-2xl shadow-[0_0_50px_rgba(234,88,12,0.25)] text-center">
-          
-          <h1 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-2">
-            Embers Of Light
-          </h1>
-          <p className="font-cinzel text-orange-200/60 italic mb-10 tracking-widest text-sm text-center uppercase">
-            Step Into The Sanctuary
-          </p>
+      <div className="relative z-10 flex flex-col min-h-screen w-full">
+        <Header />
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="text-left">
-              <label className="block text-orange-500 font-cinzel text-xs uppercase tracking-widest mb-2 ml-1 text-center">Email Address</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-black/70 border border-orange-900/50 rounded-lg px-4 py-3 text-gray-200 focus:outline-none focus:border-orange-500 transition-colors font-sans"
-                placeholder="Enter your email..."
+        <main className="flex-grow flex flex-col items-center justify-center px-4 pt-20 pb-12">
+          <div className="w-full max-w-md relative">
+            
+            {/* --- THE HOVERING PHOENIX --- */}
+            {/* Higher z-index and negative bottom margin creates the overlap effect */}
+            <div className="flex justify-center relative z-20 -mb-16 md:-mb-24">
+              <img 
+                src="/images/main-images/RISE LOGO NO BG.png" 
+                alt="Rise Radio Phoenix" 
+                className="w-48 md:w-72 h-auto drop-shadow-[0_0_40px_rgba(234,88,12,0.6)] transition-transform hover:scale-110 duration-700"
               />
             </div>
 
-            <div className="text-left">
-              <label className="block text-orange-500 font-cinzel text-xs uppercase tracking-widest mb-2 ml-1 text-center">Password</label>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-black/70 border border-orange-900/50 rounded-lg px-4 py-3 text-gray-200 focus:outline-none focus:border-orange-500 transition-colors font-sans"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-900/30 border border-red-900/50 text-red-500 text-sm py-2 px-4 rounded font-sans">
-                {error}
+            {/* --- LOGIN CARD --- */}
+            <div className="relative z-10 bg-zinc-950/80 backdrop-blur-2xl border border-orange-500/20 p-8 pt-24 md:pt-32 rounded-[2.5rem] shadow-[0_0_60px_rgba(0,0,0,0.8)] border-b-orange-900/50">
+              <div className="text-center mb-10">
+                <h2 className="font-cinzel text-3xl text-orange-500 tracking-[0.2em] uppercase font-bold">Portal Access</h2>
+                <div className="h-px w-24 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent mx-auto mt-4" />
               </div>
-            )}
 
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-600 to-red-700 hover:from-orange-500 hover:to-red-600 text-white font-cinzel font-bold py-3 rounded-lg shadow-lg transform active:scale-95 transition-all tracking-widest disabled:opacity-50"
-            >
-              {loading ? 'IGNITING...' : 'IGNITE THE SIGNAL'}
-            </button>
-          </form>
+              {/* AUTH COMPONENT / FORM AREA */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="font-cinzel text-xs uppercase tracking-widest text-gray-400 ml-2">Seeker Credentials</label>
+                  <input 
+                    type="email" 
+                    placeholder="Enter Email..." 
+                    className="w-full bg-black/40 border border-zinc-800 p-4 rounded-2xl focus:border-orange-500 outline-none transition-all font-cormorant text-lg placeholder:text-zinc-700" 
+                  />
+                </div>
+                
+                <button className="w-full group relative overflow-hidden bg-gradient-to-br from-orange-600 to-red-800 p-4 rounded-2xl font-cinzel tracking-[0.3em] uppercase font-bold text-white shadow-lg transition-all active:scale-95">
+                  <span className="relative z-10">Enter Sanctuary</span>
+                </button>
 
-          <div className="mt-8 text-gray-400 text-sm italic">
-            Not a Seeker yet? <Link href="/signup" className="text-orange-500 hover:text-orange-400 transition-colors underline underline-offset-4 ml-1">Join the Frequency</Link>
+                <p className="text-center font-cormorant italic text-gray-500 text-sm mt-6">
+                  Authorized access only.
+                </p>
+              </div>
+            </div>
+
           </div>
-        </div>
+        </main>
+
+        <Footer />
       </div>
     </div>
   );

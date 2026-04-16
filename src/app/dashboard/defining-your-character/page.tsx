@@ -41,30 +41,29 @@ export default function DefiningYourCharacterPage() {
       />
       
       {/* VIGNETTE OVERLAY */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none fixed" />
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-32 pb-12 px-6 w-full">
-          <div className="w-full max-w-5xl">
+          <div className="w-full max-w-7xl mx-auto">
             
-            {/* Nav Link */}
-            <div className="mb-8">
-              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
-                <span>←</span> BACK TO SANCTUARY
+            {/* Standard Nav Link Fix */}
+            <div className="mb-12">
+              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
+                <span>←</span> BACK TO DASHBOARD
               </Link>
             </div>
 
             {/* SHOW TITLE HEADER */}
-            <div className="text-center mb-16">
+            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
               <h1 className="font-cinzel-decorative text-4xl md:text-7xl text-orange-500 uppercase tracking-[0.15em] mb-4 drop-shadow-[0_0_20px_rgba(234,88,12,0.5)]">
                 Defining Your Character
               </h1>
               <p className="font-cinzel italic text-xl md:text-2xl text-orange-300/90 tracking-widest uppercase">
                 Returning to RISE Radio — April 19, 2026
               </p>
-              <div className="h-px w-64 bg-gradient-to-r from-transparent via-orange-900/50 to-transparent mx-auto mt-8" />
             </div>
 
             {/* LIVE AUDIO PLAYER BOX */}
@@ -99,9 +98,9 @@ export default function DefiningYourCharacterPage() {
               </h2>
               <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
-              <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl">
-                <div className="flex flex-col items-center">
-                  <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.1)]">
+              <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl text-left">
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-2xl">
                     <img
                       src="/images/jmc-edits-palettes/michael-j-bio.png" 
                       alt="Michael J Cox"
@@ -117,7 +116,7 @@ export default function DefiningYourCharacterPage() {
 
                 <div className="hidden md:block w-px h-full min-h-[300px] bg-gradient-to-b from-transparent via-orange-900/40 to-transparent"></div>
 
-                <div className="text-left flex flex-col justify-center">
+                <div className="flex flex-col justify-center">
                   <div className="relative">
                     <span className="absolute -top-10 -left-6 text-8xl font-serif text-orange-900/20 pointer-events-none">“</span>
                     <p className="font-cormorant text-xl md:text-2xl text-gray-200 leading-relaxed italic relative z-10">
