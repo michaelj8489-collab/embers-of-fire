@@ -204,7 +204,7 @@ export default function BrindlesVisionPage() {
                   <div className="relative">
                     <span className="absolute -top-10 -left-6 text-8xl font-serif text-orange-900/20 pointer-events-none">“</span>
                     <p className="font-cormorant text-xl md:text-2xl text-gray-200 leading-relaxed italic relative z-10">
-                      Michka Grant is the heartbeat of Rise Radio. As a co-founder and the visionary behind Brindle’s Vision, Michka utilizes his deep understanding of frequency and performance to curate an inclusive sanctuary for emerging and established talent. 
+                      Michka Grant, known on air as Brindlewolf, is a seasoned coach, creator, and co-founder of RISE Radio Networks. With a background in guiding professionals out of burnout, people-pleasing, and disconnection, Michka uses heightened awareness to help others rise—like a Phoenix—from emotional ashes. As a DJ, host, and producer, he co-curates a space for authentic connection, where every show sparks self-recognition and the courage to step fully into your purpose. 
                       <br /><br />
                       His mission is to fuel the connection between singer and listener, building an awareness-driven community one broadcast at a time.
                     </p>
