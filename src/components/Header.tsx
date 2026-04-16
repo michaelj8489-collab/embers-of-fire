@@ -56,7 +56,8 @@ export default function Header() {
     router.push('/login');
   };
 
-  const shows = [
+  // Added TypeScript definition so it knows to expect the optional 'isComingSoon' flag
+  const shows: { name: string; href: string; isComingSoon?: boolean }[] = [
     { name: "The Bloom", href: "/dashboard/the-bloom" },
     { name: "The Messengers", href: "/dashboard/the-messengers" },
     { name: "Brindle's Vision", href: "/dashboard/brindles-vision" },
@@ -66,6 +67,7 @@ export default function Header() {
     { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
     { name: "Voices on the Rise", href: "/dashboard/voices-on-the-rise" },
     { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
+    { name: "Mystic Mist", href: "/dashboard/mystic-mist", isComingSoon: true },
   ];
 
   return (
@@ -95,6 +97,9 @@ export default function Header() {
                   {shows.map((show) => (
                     <Link key={show.href} href={show.href} className="text-gray-400 hover:text-orange-400 p-2 text-xs uppercase tracking-widest transition-all hover:bg-orange-900/20">
                       {show.name}
+                      {show.isComingSoon && (
+                        <span className="text-orange-500 text-[10px] italic ml-1 normal-case tracking-normal">(Coming Soon)</span>
+                      )}
                     </Link>
                   ))}
                 </div>
@@ -130,7 +135,12 @@ export default function Header() {
                 My Sanctuary
               </Link>
               {shows.map((show) => (
-                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest">{show.name}</Link>
+                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block">
+                  {show.name}
+                  {show.isComingSoon && (
+                    <span className="text-orange-500 text-[10px] italic ml-2 normal-case tracking-normal">(Coming Soon)</span>
+                  )}
+                </Link>
               ))}
             </>
           )}

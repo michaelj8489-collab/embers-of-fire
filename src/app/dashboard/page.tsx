@@ -42,6 +42,7 @@ export default function UnifiedDashboard() {
     { name: "Illuminate", day: "Fridays", time: "11:00 AM EST", href: "/dashboard/illuminate", status: "Active" },
     { name: "Voices on the Rise", day: "Fridays (biweekly)", time: "6:00 PM EST", href: "/dashboard/voices-on-the-rise", status: "Active" },
     { name: "Defining Your Character", day: "Saturdays", time: "6:00 PM EST", href: "/dashboard/defining-your-character", status: "Coming Soon" },
+    { name: "Mystic Mist with Amanda", day: "TBA", time: "TBA", href: "/dashboard/mystic-mist", status: "Coming Soon" },
   ];
 
   return (

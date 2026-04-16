@@ -25,7 +25,7 @@ const voicesProducts = [
     id: 2, 
     name: "Vintage Microphone Baseball Cap", 
     price: "$17.36", 
-    image: "https://images-api.printify.com/mockup/69cec98a338dbae7f501ae99/104281/55688/voices-on-the-rise-vintage-microphone-baseball-cap.jpg?camera_label=back&revision=1775159836483&s=2048", 
+    image: "https://images-api.printify.com/mockup/69cec98a338dbae7f501ae99/104281/112105/voices-on-the-rise-vintage-microphone-baseball-cap.jpg?camera_label=left&revision=1775159836483&s=2048", 
     link: "https://embers-of-light.printify.me/product/27752705" 
   },
   { 
