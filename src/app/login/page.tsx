@@ -21,7 +21,7 @@ export default function LoginPage() {
           {/* THE HOVERING PHOENIX - Higher Z-Index and negative margin to overlap */}
           <div className="relative z-20 -mb-16 md:-mb-20 transition-transform hover:scale-105 duration-500">
             <img 
-              src="/images/main-images/RISE LOGO NO BG.png" 
+              src="/public/images/phoenix-revived.mp4" 
               alt="Rise Phoenix" 
               className="w-48 md:w-64 h-auto drop-shadow-[0_0_30px_rgba(234,88,12,0.6)]"
             />
