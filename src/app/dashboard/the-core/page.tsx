@@ -4,12 +4,64 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import MerchGallery from '@/components/MerchGallery';
+
+const coreProducts = [
+  { 
+    id: 1, 
+    name: "Cotton Canvas Tote Bag", 
+    price: "$18.68", 
+    image: "https://images-api.printify.com/mockup/69c3f9d4f4a6bbf9820c5812/101409/93895/the-core-cotton-canvas-tote-bag.jpg?camera_label=front&revision=1775077362399&s=2048", 
+    link: "http://embers-of-light.printify.me/product/27561137" 
+  },
+  { 
+    id: 2, 
+    name: "Portrait Dad Hat", 
+    price: "$17.36", 
+    image: "https://images-api.printify.com/mockup/69ceca2dd982abe0a90403c0/82433/53890/the-core-baseball-cap-personalized-portrait-dad-gift.jpg?camera_label=front&revision=1775159994002&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27752762" 
+  },
+  { 
+    id: 3, 
+    name: "Catch Phrase Ceramic Mug", 
+    price: "$9.44", 
+    image: "https://images-api.printify.com/mockup/69c3476bd00b55550d018ea4/104692/101750/the-core-catch-phrase-ceramic-mug-11oz-15oz.jpg?camera_label=front&revision=1775077356126&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27552207" 
+  },
+  { 
+    id: 4, 
+    name: "Logo Ceramic Mug", 
+    price: "$9.44", 
+    image: "https://images-api.printify.com/mockup/69c341c1cf96d3bc180d5950/104692/101750/the-core-logo-ceramic-mug-11oz-15oz.jpg?camera_label=front&revision=1775077356981&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27551712" 
+  },
+  { 
+    id: 5, 
+    name: "Slogan Poker Deck", 
+    price: "$16.69", 
+    image: "https://images-api.printify.com/mockup/69c7001e5a39cdc26c069608/72763/16651/the-core-poker-deck-with-slogan-we-cant-make-this-sht-up.jpg?camera_label=front-2&revision=1776215423266&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27609966" 
+  },
+  { 
+    id: 6, 
+    name: "Unisex Heavy Cotton Tee", 
+    price: "$31.35", 
+    image: "https://images-api.printify.com/mockup/69c3ea035158daff1c100980/12100/92570/the-core-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077509372&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27560081" 
+  },
+  { 
+    id: 7, 
+    name: "Insulated Travel Mug (40oz)", 
+    price: "$50.34", 
+    image: "https://images-api.printify.com/mockup/69d99490f24d9272f2079a70/107788/104042/the-core-insulated-travel-mug-40oz.jpg?camera_label=front&revision=1775867066597&s=2048", 
+    link: "https://embers-of-light.printify.me/product/27905263" 
+  }
+];
 
 export default function TheCorePage() {
   const [activeView, setActiveView] = useState<'archive' | 'live'>('archive');
   const [parentDomain, setParentDomain] = useState('');
 
-  // Detect current domain for Twitch security
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setParentDomain(window.location.hostname);
@@ -31,7 +83,7 @@ export default function TheCorePage() {
             
             {/* Back Button */}
             <div className="mb-8">
-              <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
+              <Link href="/dashboard/sanctuary" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit">
                 <span>←</span> BACK TO SANCTUARY
               </Link>
             </div>
@@ -101,6 +153,9 @@ export default function TheCorePage() {
                 {activeView === 'live' ? 'You are watching The CORE Live!' : 'Viewing The CORE Archives. Join us live Thursdays at 11 AM EST.'}
               </p>
             </div>
+
+            {/* --- MERCH GALLERY (Standardized Bridge) --- */}
+            <MerchGallery showName="The CORE" products={coreProducts} />
 
             {/* --- MEET THE FOUNDERS SECTION --- */}
             <section className="w-full mt-20 mb-24 text-center">

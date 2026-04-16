@@ -11,7 +11,7 @@ const phoenixProducts = [
     id: 1, 
     name: "Phoenix Falls Baseball Cap", 
     price: "$17.36", 
-    image: "https://images-api.printify.com/mockup/69cec44f338dbae7f501adc0/104281/53890/the-messengers-cap-the-dreamkeepers-fantasy-baseball-hat.jpg?camera_label=front", // Fixed to standard front view
+    image: "https://images-api.printify.com/mockup/69cec4f7905c4029f50a4bde/104282/53890/phoenix-talks-baseball-cap-inspirational-faith-design-phoenix-falls.jpg?camera_label=front&revision=1775158609409&s=2048", 
     link: "https://embers-of-light.printify.me/product/27752380" 
   },
   { 
