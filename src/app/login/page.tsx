@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen relative bg-black text-gray-200 flex flex-col overflow-hidden font-cormorant">
+    <div className="min-h-screen relative bg-black text-gray-200 flex flex-col font-cormorant">
       
       {/* --- VIDEO BACKGROUND --- */}
       <div className="absolute inset-0 z-0">
@@ -19,7 +19,6 @@ export default function LoginPage() {
         >
           <source src="/images/phoenix-revived.mp4" type="video/mp4" />
         </video>
-        {/* Dark overlay to ensure text readability */}
         <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 pointer-events-none" />
       </div>
@@ -27,24 +26,22 @@ export default function LoginPage() {
       <div className="relative z-20 flex flex-col min-h-screen w-full">
         <Header />
 
-        <main className="flex-grow flex flex-col items-center justify-center px-4 w-full">
+        <main className="flex-grow flex items-center justify-center px-4 w-full pt-20 pb-12">
           
-          {/* WRAPPER: Keeps Logo and Box locked together perfectly in the center */}
-          <div className="w-full max-w-md flex flex-col items-center mt-8">
+          {/* THE MASTER CONTAINER: This holds both the logo and the box together */}
+          <div className="relative w-full max-w-md pt-24 mt-12">
             
-            {/* --- THE HOVERING PHOENIX --- */}
-            {/* NO absolute positioning. We use a negative margin-bottom to pull the box up! */}
-            <div className="relative z-30 w-48 md:w-64 -mb-12 md:-mb-16 pointer-events-none">
+            {/* THE HOVERING PHOENIX: Pinned to the top of the Master Container */}
+            <div className="absolute top-0 left-0 right-0 z-30 flex justify-center pointer-events-none">
               <img 
                 src="/images/main-images/RISE LOGO NO BG.png" 
                 alt="Rise Radio Phoenix" 
-                className="w-full h-auto drop-shadow-[0_0_40px_rgba(234,88,12,0.7)] transition-transform duration-700 hover:scale-105"
+                className="w-48 md:w-64 h-auto drop-shadow-[0_0_40px_rgba(234,88,12,0.8)] transition-transform duration-700 hover:scale-105"
               />
             </div>
 
-            {/* --- LOGIN BOX --- */}
-            {/* Padding-top (pt) is increased here to make room for the overlapping logo */}
-            <div className="relative z-20 w-full bg-zinc-950/80 backdrop-blur-md border border-orange-500/20 p-8 pt-16 md:pt-20 rounded-[2.5rem] shadow-[0_0_60px_rgba(0,0,0,0.9)]">
+            {/* THE LOGIN BOX: Pushed down via pt-24 in the Master Container so the logo overlaps its top border */}
+            <div className="relative z-20 bg-zinc-950/80 backdrop-blur-xl border border-orange-500/20 p-8 pt-16 rounded-[2.5rem] shadow-[0_0_60px_rgba(0,0,0,0.9)]">
               <div className="text-center mb-10">
                 <h2 className="font-cinzel text-3xl text-orange-500 tracking-[0.2em] uppercase font-bold">Portal Access</h2>
                 <div className="h-px w-24 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent mx-auto mt-4" />
