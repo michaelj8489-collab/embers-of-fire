@@ -62,7 +62,7 @@ export default function DefiningYourCharacterPage() {
                 Defining Your Character
               </h1>
               <p className="font-cinzel italic text-xl md:text-2xl text-orange-300/90 tracking-widest uppercase">
-                Returning to RISE Radio — April 19, 2026
+                Returning to RISE Radio — April 18, 2026
               </p>
             </div>
 
@@ -83,7 +83,7 @@ export default function DefiningYourCharacterPage() {
                 </audio>
                 
                 <p className="font-cormorant text-center text-gray-500 mt-4 italic text-sm tracking-wide">
-                  Tuesdays & Fridays at 8 PM EST
+                  Saturday's at 6 PM EST
                 </p>
               </div>
             </section>
