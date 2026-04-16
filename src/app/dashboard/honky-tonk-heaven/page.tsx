@@ -1,10 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+
+// --- TYPESCRIPT BLUEPRINTS ---
+interface Episode {
+  title: string;
+  enclosureUrl: string;
+  pubDate: string;
+}
 
 const honkyProducts = [
   { 
@@ -45,6 +52,42 @@ const honkyProducts = [
 ];
 
 export default function HonkyTonkPage() {
+  // --- RSS FEED STATE (Now with TypeScript definitions!) ---
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeEpisode, setActiveEpisode] = useState<Episode | null>(null);
+
+  // --- FETCH RSS FEED DATA ---
+  useEffect(() => {
+    const fetchPodcast = async () => {
+      try {
+        const rssUrl = "https://podcast.zenomedia.com/api/public/podcasts/agxzfnplbm8tc3RhdHNyKwsSCkF1dGhFbnRpdHkYgICwodK2xgoMCxIHUG9kY2FzdBiAgMjmvvu8CwyiAQdsaWJyYXJ5/rss";
+        const res = await fetch(rssUrl);
+        const text = await res.text();
+        
+        // Parse the XML response
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'text/xml');
+        const items = Array.from(xml.querySelectorAll('item'));
+
+        // Extract the episode data we need
+        const parsedEpisodes: Episode[] = items.map(item => ({
+          title: item.querySelector('title')?.textContent || 'Unknown Episode',
+          enclosureUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
+          pubDate: item.querySelector('pubDate')?.textContent || ''
+        })).filter(ep => ep.enclosureUrl); // Only keep items that actually have an audio file attached
+
+        setEpisodes(parsedEpisodes);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch podcast feed:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchPodcast();
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
       {/* Background Layer */}
@@ -81,8 +124,8 @@ export default function HonkyTonkPage() {
               </p>
             </div>
 
-            {/* Smart Player Section */}
-            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-16">
+            {/* LIVE Player Section */}
+            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-8">
                <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">Honky Tonk Heaven: Live Broadcast</h3>
                <div className="w-full flex justify-center">
                  <iframe 
@@ -96,15 +139,89 @@ export default function HonkyTonkPage() {
                </div>
             </div>
 
+            {/* ARCHIVE Player Section (The New RSS Integration) */}
+            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-16">
+               <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
+               
+               {loading ? (
+                  <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
+               ) : episodes.length > 0 ? (
+                  <div className="flex flex-col gap-6">
+                    
+                    {/* The Active Audio Player */}
+                    {activeEpisode ? (
+                      <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
+                        <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
+                        <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg" autoPlay>
+                          Your browser does not support the audio element.
+                        </audio>
+                      </div>
+                    ) : (
+                      <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
+                         <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
+                      </div>
+                    )}
+
+                    {/* The Scrollable Episode List */}
+                    <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
+                      {episodes.map((ep, idx) => {
+                        const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => setActiveEpisode(ep)}
+                            className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                              isPlaying
+                                ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
+                                : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
+                            }`}
+                          >
+                            <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
+                              {ep.title}
+                            </div>
+                            <div className="font-cormorant text-sm opacity-60">
+                              {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+               ) : (
+                  <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
+               )}
+            </div>
+
             {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Honky Tonk Heaven" products={honkyProducts} />
 
-            {/* About Section */}
-            <div className="max-w-4xl mx-auto bg-orange-900/10 border-l-4 border-orange-600 p-8 rounded-r-xl mt-16">
-               <h4 className="font-cinzel text-orange-500 mb-4 uppercase tracking-widest font-bold">About Honky Tonk Heaven</h4>
-               <p className="font-cormorant text-xl text-gray-200 leading-relaxed italic">
-                 Welcome to Honky Tonk Heaven. This dedicated space is designed to showcase the unique energy and soulful expression that defines the RISE community. Join us as we tune into the frequencies that inspire connection, creativity, and the power of independent music.
-               </p>
+            {/* --- INFO SECTION: ABOUT & HOST --- */}
+            <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 mb-16">
+              
+              {/* About Section */}
+              <div className="bg-orange-900/10 border-l-4 border-orange-600 p-8 rounded-r-xl flex flex-col justify-center">
+                 <h4 className="font-cinzel text-orange-500 mb-4 uppercase tracking-widest font-bold">About Honky Tonk Heaven</h4>
+                 <p className="font-cormorant text-xl text-gray-200 leading-relaxed italic">
+                   Welcome to Honky Tonk Heaven. This dedicated space is designed to showcase the unique energy and soulful expression that defines the RISE community. Join us as we tune into the frequencies that inspire connection, creativity, and the power of independent music.
+                 </p>
+              </div>
+
+              {/* Meet the Host Section */}
+              <div className="bg-black/40 border border-orange-500/20 p-8 rounded-xl flex flex-col items-center text-center shadow-lg">
+                 <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-orange-500 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+                   <img 
+                     src="/images/misc/Will.jpg" 
+                     alt="Will Iommi - Host of Honky Tonk Heaven" 
+                     className="w-full h-full object-cover" 
+                   />
+                 </div>
+                 <h4 className="font-cinzel text-orange-400 mb-2 uppercase tracking-widest font-bold text-xl">Meet the Host</h4>
+                 <h5 className="font-cinzel text-gray-200 mb-4 text-lg tracking-wider">Will Iommi</h5>
+                 <p className="font-cormorant text-lg text-gray-400 leading-relaxed italic">
+                   With a deep-rooted love for classic country and southern soul, Will Iommi brings the authentic sounds of Honky Tonk Heaven to the RISE Radio Network. Will is dedicated to highlighting independent artists and sharing the powerful storytelling that defines the country genre. Whether he's spinning timeless classics or uncovering new voices, his passion for the music and the RISE community shines through every broadcast.
+                 </p>
+              </div>
+
             </div>
 
           </div>

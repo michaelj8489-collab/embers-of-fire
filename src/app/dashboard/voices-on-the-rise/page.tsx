@@ -1,10 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+
+// --- TYPESCRIPT BLUEPRINTS ---
+interface Episode {
+  title: string;
+  enclosureUrl: string;
+  pubDate: string;
+}
 
 const voicesProducts = [
   { 
@@ -52,6 +59,42 @@ const voicesProducts = [
 ];
 
 export default function VoicesOnRisePage() {
+  // --- RSS FEED STATE ---
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeEpisode, setActiveEpisode] = useState<Episode | null>(null);
+
+  // --- FETCH RSS FEED DATA ---
+  useEffect(() => {
+    const fetchPodcast = async () => {
+      try {
+        const rssUrl = "https://podcast.zenomedia.com/api/public/podcasts/96621ae0-0e4f-4100-9d7b-f8c958a92272/rss";
+        const res = await fetch(rssUrl);
+        const text = await res.text();
+        
+        // Parse the XML response
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'text/xml');
+        const items = Array.from(xml.querySelectorAll('item'));
+
+        // Extract the episode data we need
+        const parsedEpisodes: Episode[] = items.map(item => ({
+          title: item.querySelector('title')?.textContent || 'Unknown Episode',
+          enclosureUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
+          pubDate: item.querySelector('pubDate')?.textContent || ''
+        })).filter(ep => ep.enclosureUrl); 
+
+        setEpisodes(parsedEpisodes);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch podcast feed:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchPodcast();
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
       {/* Background Layer */}
@@ -88,7 +131,7 @@ export default function VoicesOnRisePage() {
             </div>
 
             {/* Live Player Box */}
-            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-16">
+            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-8">
                <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">Voices On The Rise: Live Broadcast</h3>
                <div className="w-full flex justify-center">
                  <iframe 
@@ -100,6 +143,59 @@ export default function VoicesOnRisePage() {
                    className="rounded-lg shadow-2xl"
                  ></iframe>
                </div>
+            </div>
+
+            {/* ARCHIVE Player Section */}
+            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-16">
+               <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
+               
+               {loading ? (
+                  <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
+               ) : episodes.length > 0 ? (
+                  <div className="flex flex-col gap-6">
+                    
+                    {/* The Active Audio Player */}
+                    {activeEpisode ? (
+                      <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
+                        <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
+                        <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg" autoPlay>
+                          Your browser does not support the audio element.
+                        </audio>
+                      </div>
+                    ) : (
+                      <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
+                         <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
+                      </div>
+                    )}
+
+                    {/* The Scrollable Episode List */}
+                    <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
+                      {episodes.map((ep, idx) => {
+                        const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => setActiveEpisode(ep)}
+                            className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                              isPlaying
+                                ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
+                                : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
+                            }`}
+                          >
+                            <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
+                              {ep.title}
+                            </div>
+                            <div className="font-cormorant text-sm opacity-60">
+                              {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+               ) : (
+                  <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
+               )}
             </div>
 
             {/* --- MERCH GALLERY --- */}
