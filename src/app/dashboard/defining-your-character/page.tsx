@@ -109,7 +109,7 @@ export default function DefiningYourCharacterPage() {
               </p>
             </div>
 
-            {/* LIVE AUDIO PLAYER BOX */}
+            {/* LIVE AUDIO PLAYER BOX (Updated to match standard Zeno embed) */}
             <section className="max-w-2xl mx-auto mb-8">
               <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
                 <div className="flex items-center justify-center gap-3 mb-6">
@@ -120,10 +120,16 @@ export default function DefiningYourCharacterPage() {
                   <h2 className="font-cinzel text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Live Broadcast Stream</h2>
                 </div>
                 
-                <audio controls className="w-full h-12 accent-orange-500">
-                  <source src="https://stream.zeno.fm/4wd4w83qgy8uv" type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
+                <div className="w-full flex justify-center">
+                  <iframe 
+                    src="https://zeno.fm/player/rise-radio-woqo" 
+                    width="100%" 
+                    height="120" 
+                    frameBorder="0" 
+                    scrolling="no" 
+                    className="rounded-lg shadow-2xl"
+                  ></iframe>
+                </div>
                 
                 <p className="font-cormorant text-center text-gray-500 mt-4 italic text-sm tracking-wide">
                   Saturday's at 6 PM EST
