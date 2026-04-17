@@ -75,29 +75,67 @@ export default function TheMessengersPage() {
             {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="The Messengers" products={messengerProducts} />
 
-            {/* Meet The Hosts Section */}
-            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet The Hosts</h2>
-              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mx-auto mb-16"></div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-10 max-w-5xl mx-auto">
-                <div className="relative group overflow-hidden rounded-2xl border border-orange-900/40 aspect-[4/5] shadow-2xl">
-                   <img src="/images/brindle-bio.JPG" alt="Michka Grant" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
-                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
-                      <p className="font-cinzel text-orange-500 text-lg font-bold tracking-widest uppercase">Michka Grant</p>
-                   </div>
+            {/* --- SHOW BIO / MEET THE HOSTS SECTION --- */}
+            <section className="w-full mt-24 mb-24 pt-20 border-t border-orange-900/20">
+              <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-16">
+                Meet The Messengers
+              </h2>
+
+              {/* Part 1: Welcome to The Messengers */}
+              <div className="flex flex-col md:flex-row items-center gap-12 mb-24">
+                <div className="w-full md:w-1/2 relative aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] group">
+                  <img 
+                    src="/images/jmc-edits-palettes/messengers-steampunk.png" 
+                    alt="Welcome to The Messengers" 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                  />
                 </div>
-                <div className="relative group overflow-hidden rounded-2xl border border-orange-900/40 aspect-[4/5] shadow-2xl">
-                   <img src="/images/misc/karrie-bio-illuminate.png" alt="Karrie Lynne" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
-                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md">
-                      <p className="font-cinzel text-orange-500 text-lg font-bold tracking-widest uppercase">Karrie Lynne</p>
-                   </div>
+                <div className="w-full md:w-1/2 flex flex-col justify-center">
+                  <h3 className="font-cinzel text-3xl text-orange-500 font-bold tracking-widest uppercase mb-6">
+                    A Sanctuary of Intuition
+                  </h3>
+                  <div className="font-cormorant text-xl text-gray-300 space-y-5 leading-relaxed">
+                    <p>
+                      Step into a high-vibrational sanctuary where intuition meets intentional action. Hosted by <span className="text-orange-400 font-semibold">Karrie "Lunaria" Lynne</span> and <span className="text-orange-400 font-semibold">Michka "BrindleWolf" Grant</span>, <em className="italic">The Messengers</em> is a space dedicated to clarity, soul-led purpose, and the raw power of the tarot. 
+                    </p>
+                    <p>
+                      Together, Karrie and Michka serve as conduits for the universe, delivering the unfiltered messages you need to align with your highest self. Their combined energy creates a bridge between the spiritual realms and your practical daily journey.
+                    </p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="bg-black/60 backdrop-blur-sm p-10 rounded-[2rem] border border-orange-900/30 text-center max-w-4xl mx-auto shadow-2xl">
-                <p className="font-cormorant text-xl md:text-2xl text-gray-200 italic leading-relaxed">
-                  "As the driving forces behind Rise Radio, they share a unified dream: to help bring people together and find inner peace through music, tarot, and other creative means. The Messengers is the space where their shared vision comes to life."
+
+              {/* Part 2: The Origin Story */}
+              <div className="flex flex-col md:flex-row-reverse items-center gap-12 mb-16">
+                <div className="w-full md:w-1/2 relative aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] group">
+                  <img 
+                    src="/images/brindle-lunaria-profile.png" 
+                    alt="The Spark of 2023" 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                  />
+                </div>
+                <div className="w-full md:w-1/2 flex flex-col justify-center">
+                  <h3 className="font-cinzel text-3xl text-orange-500 font-bold tracking-widest uppercase mb-6">
+                    The Spark of 2023
+                  </h3>
+                  <div className="font-cormorant text-xl text-gray-300 space-y-5 leading-relaxed">
+                    <p>
+                      The true catalyst for <em className="italic">The Messengers</em> arrived in May of 2023 with the birth of <strong className="text-orange-200">Untriggered</strong>—Michka’s heightened awareness coaching business. 
+                    </p>
+                    <p>
+                      A few months after launching his business, Michka approached Karrie with a vision: he wanted to create a show that integrated his coaching group and brought his message of awareness to a wider audience. During that conversation, a shared secret came to light—they were both tarot readers.
+                    </p>
+                    <p>
+                      In that moment of shared laughter and instant spiritual alignment, the path became clear. Fusing Michka’s visionary coaching with Karrie’s seasoned expertise in commanding the airwaves, they launched the show that would become the foundation for RISE Radio and the Embers of Light community.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Final Quote Box */}
+              <div className="bg-black/60 backdrop-blur-sm p-10 rounded-[2rem] border border-orange-900/30 text-center max-w-4xl mx-auto shadow-2xl mt-12">
+                <p className="font-cormorant text-xl md:text-2xl text-orange-200 italic leading-relaxed">
+                  "When you watch The Messengers, you are witnessing the original flame that started it all—a unified dream to help people find inner peace through music, tarot, and creative connection."
                 </p>
               </div>
             </section>
