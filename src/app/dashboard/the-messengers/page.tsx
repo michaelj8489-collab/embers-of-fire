@@ -23,6 +23,11 @@ export default function TheMessengersPage() {
     if (typeof window !== 'undefined') { setParentDomain(window.location.hostname); }
   }, []);
 
+  // Consistent divider for all show pages
+  const SectionDivider = () => (
+    <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-16"></div>
+  );
+
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
@@ -44,15 +49,17 @@ export default function TheMessengersPage() {
             </div>
 
             {/* Show Title */}
-            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
+            <div className="text-center mb-12">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-orange-400">
                 The Messengers
               </h1>
               <p className="font-cinzel text-xl text-orange-200/80 italic tracking-widest uppercase">Hosted by Brindle Wolf & Lunaria</p>
             </div>
 
+            <SectionDivider />
+
             {/* Smart Player Section */}
-            <div className="mb-16 relative">
+            <div className="mb-12 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button onClick={() => setActiveView('live')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}>🔴 Live Stream</button>
                 <button onClick={() => setActiveView('archive')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}>🎬 The Archives</button>
@@ -72,17 +79,21 @@ export default function TheMessengersPage() {
               </div>
             </div>
 
+            <SectionDivider />
+
             {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="The Messengers" products={messengerProducts} />
 
-            {/* --- SHOW BIO / MEET THE HOSTS SECTION --- */}
-            <section className="w-full mt-24 mb-24 pt-20 border-t border-orange-900/20">
+            <SectionDivider />
+
+            {/* --- SHOW BIO SECTION --- */}
+            <section className="w-full mb-24">
               <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-16">
                 Meet The Messengers
               </h2>
 
-              {/* Part 1: Welcome to The Messengers */}
-              <div className="flex flex-col md:flex-row items-center gap-12 mb-24">
+              {/* Part 1: Sanctuary of Intuition */}
+              <div className="flex flex-col md:flex-row items-center gap-12 mb-16">
                 <div className="w-full md:w-1/2 relative aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] group">
                   <img 
                     src="/images/jmc-edits-palettes/messengers-steampunk.png" 
@@ -126,7 +137,7 @@ export default function TheMessengersPage() {
                       A few months after launching his business, Michka approached Karrie with a vision: he wanted to create a show that integrated his coaching group and brought his message of awareness to a wider audience. During that conversation, a shared secret came to light—they were both tarot readers.
                     </p>
                     <p>
-                      In that moment of shared laughter and instant spiritual alignment, the path became clear. Fusing Michka’s visionary coaching with Karrie’s seasoned expertise in commanding the airwaves, they launched the show that would become the foundation for RISE Radio and the Embers of Light community.
+                      Fusing Michka’s visionary coaching with Karrie’s seasoned expertise in commanding the airwaves, they launched the show that would become the foundation for RISE Radio and the Embers of Light community.
                     </p>
                   </div>
                 </div>

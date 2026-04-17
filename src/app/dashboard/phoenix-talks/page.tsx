@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -61,6 +61,11 @@ export default function PhoenixTalksPage() {
     }
   }, []);
 
+  // Section divider helper for consistent layout
+  const SectionDivider = () => (
+    <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-16"></div>
+  );
+
   return (
     <div 
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
@@ -82,7 +87,7 @@ export default function PhoenixTalksPage() {
             </div>
 
             {/* Show Title */}
-            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
+            <div className="text-center mb-12">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-orange-400">
                 Phoenix Talks
               </h1>
@@ -91,8 +96,10 @@ export default function PhoenixTalksPage() {
               </p>
             </div>
 
+            <SectionDivider />
+
             {/* --- SMART PLAYER & CHAT SECTION --- */}
-            <div className="mb-16 relative">
+            <div className="mb-12 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button 
                   onClick={() => setActiveView('live')}
@@ -144,59 +151,46 @@ export default function PhoenixTalksPage() {
               </div>
             </div>
 
+            <SectionDivider />
+
             {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Phoenix Talks" products={phoenixProducts} />
 
-            {/* --- MEET THE HOSTS SECTION --- */}
-            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
-                Meet The Hosts
+            <SectionDivider />
+
+            {/* --- SHOW BIO SECTION --- */}
+            <section className="w-full mb-24">
+              <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-200 uppercase tracking-widest mb-12">
+                The Story of Phoenix Talks
               </h2>
-              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch max-w-6xl mx-auto">
-                
-                {/* Host 1: Michka */}
-                <div className="bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-8 text-left">
-                  <div className="relative w-[200px] h-[250px] flex-shrink-0 rounded-lg border border-orange-900/40 overflow-hidden shadow-xl">
-                    <img
-                      src="/images/misc/brindle.png" 
-                      alt="Michka Grant"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-cinzel text-xl text-orange-500 tracking-widest uppercase font-bold mb-2">Michka Grant</h3>
-                    <p className="font-cormorant text-gray-300 italic leading-relaxed">
-                      Co-founder of RISE and visionary host, Michka brings a deep focus on frequency and performance to every conversation.
+              <div className="flex flex-col md:flex-row items-center gap-12">
+                {/* Bio Photo */}
+                <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
+                  <img 
+                    src="/images/jmc-edits-palettes/pheonix-talks-bio.png" 
+                    alt="The History of Phoenix Talks" 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+
+                {/* Bio Content */}
+                <div className="w-full md:w-1/2 flex flex-col justify-center">
+                  <div className="font-cormorant text-xl text-gray-300 space-y-6 leading-relaxed">
+                    <p>
+                      <em className="text-orange-400 font-semibold italic">Phoenix Talks</em> was born in February 2024 from a chance meeting at a gathering. Brindlewolf and Diane had never met before and yet both attended the same event. A small spark of friendship had already been ignited.
+                    </p>
+                    <p>
+                      After the event, he reached out on Facebook to connect. Reading one of her posts, he had something to add in the comments that sparked an idea within Diane to create a podcast. Of course, he jumped at the chance. They got on the phone and talked for hours. The idea for Phoenix Talks was born in that conversation.
+                    </p>
+                    <p>
+                      <em className="text-orange-400 font-semibold italic">Phoenix Talks</em> is a unique show where each week they dive into a topic surrounding a singular element of mental health and well-being to give their insights based on experience and knowledge. What makes it unique is that it's not prepared. 
+                    </p>
+                    <p>
+                      They have a rule that they don't discuss the show and its topic until they go live on air. The conversation is completely organic with each show turning into a mini-master class on the branches of the topic.
                     </p>
                   </div>
                 </div>
-
-                {/* Host 2: Rev. Diane */}
-                <div className="bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-8 text-left">
-                  <div className="relative w-[200px] h-[250px] flex-shrink-0 rounded-lg border border-orange-900/40 overflow-hidden shadow-xl">
-                    <img
-                      src="/images/misc/rev-d.jpg" 
-                      alt="Rev. Diane R DeBiasi"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-cinzel text-xl text-orange-500 tracking-widest uppercase font-bold mb-2">Rev. Diane R DeBiasi</h3>
-                    <p className="font-cormorant text-gray-300 italic leading-relaxed">
-                      Bringing spiritual depth and resilient wisdom, Rev. Diane explores the journey of the soul and the artist's path.
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Show Blurb */}
-              <div className="mt-16 max-w-4xl mx-auto bg-black/40 p-8 rounded-3xl border border-orange-900/10">
-                <p className="font-cormorant text-2xl text-gray-200 leading-relaxed italic">
-                  Phoenix Talks explores what it means to rise from the ashes. Join us for deep discussions on life, resilience, and the journey of the artist.
-                </p>
               </div>
             </section>
 
