@@ -134,36 +134,34 @@ export default function UnifiedDashboard() {
             </div>
 
             {/* FULL WIDTH SCHEDULE */}
-            <section className="mb-24 w-full">
-              <h3 className="font-cinzel text-center text-5xl mb-16 tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 uppercase font-bold">Network Schedule</h3>
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm shadow-2xl">
-                <table className="w-full border-collapse font-cinzel text-sm">
-                  <thead>
-                    <tr className="bg-neutral-900/90 text-orange-400 text-lg">
-                      <th className="p-8 text-left uppercase tracking-widest">Show</th>
-                      <th className="p-8 text-center uppercase tracking-widest">Day</th>
-                      <th className="p-8 text-right uppercase tracking-widest">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {schedule.map((show) => (
-                      <tr key={show.name} className="border-t border-white/5 hover:bg-orange-900/20 transition-all group">
-                        <td className="p-8">
-                          <Link href={show.href} className="flex flex-col">
-                            <span className="text-2xl text-gray-200 group-hover:text-orange-400 transition-colors">{show.name}</span>
-                            <span className={`text-xs mt-1 uppercase font-bold tracking-widest ${show.status === 'LIVE' ? 'text-green-500 animate-pulse' : show.status === 'Coming Soon' ? 'text-blue-400' : 'text-gray-500'}`}>
-                              {show.status}
-                            </span>
-                          </Link>
-                        </td>
-                        <td className="p-8 text-center text-xl text-gray-400 group-hover:text-gray-100">{show.day}</td>
-                        <td className="p-8 text-right text-xl text-gray-400 group-hover:text-gray-100">{show.time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+        <div className="w-full max-w-5xl mx-auto mt-16 px-6 relative z-10 mb-20">
+          <h2 className="text-3xl font-cinzel-decorative font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-8 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]">
+            Network Schedule
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {schedule.map((show, index) => (
+              <Link 
+                key={index} 
+                href={show.href}
+                className="block bg-black/40 border border-orange-900/30 p-4 rounded-xl hover:bg-orange-900/20 hover:border-orange-500/50 transition-all duration-300 group"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-cinzel font-bold text-orange-400 text-lg group-hover:text-orange-300 transition-colors">
+                    {show.name}
+                  </h3>
+                </div>
+                <div className="flex flex-col gap-1 text-sm text-gray-400 font-cormorant">
+                  <span className="flex items-center gap-2">
+                    <span className="text-orange-600">📅</span> {show.day}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-orange-600">⏰</span> {show.time}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
 
             {/* SUBSCRIPTION SECTION */}
             <section className="w-full bg-gradient-to-r from-orange-950/40 via-black to-red-950/40 border-y border-orange-900/40 p-20 text-center rounded-[3rem] mb-12 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
