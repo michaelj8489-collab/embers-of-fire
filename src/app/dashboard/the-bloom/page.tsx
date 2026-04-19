@@ -100,7 +100,7 @@ export default function TheBloomPage() {
                   <img 
                     src="/images/jmc-edits-palettes/bloom-bio-pic.png" 
                     alt="Rev. Diane R. DeBiasi" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
