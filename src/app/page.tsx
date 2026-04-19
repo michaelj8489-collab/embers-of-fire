@@ -106,15 +106,26 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center bg-black overflow-x-hidden">
       
-      {/* Background Video Layer */}
+      {/* 🖥️ DESKTOP & TABLET Background Video (Hidden on Mobile) */}
       <video
         autoPlay
         muted
         loop
         playsInline
-        className="fixed top-0 left-0 w-full h-full object-contain z-0 opacity-40 pointer-events-none"
+        className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none hidden md:block"
       >
         <source src="/images/eol-moving-background.mp4" type="video/mp4" />
+      </video>
+
+      {/* 📱 MOBILE Background Video (Hidden on Desktop & Tablet) */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none block md:hidden"
+      >
+        <source src="/images/jmc-edits-palettes/mobile-background.mp4" type="video/mp4" />
       </video>
 
       {/* Dark Overlay for Readability */}
