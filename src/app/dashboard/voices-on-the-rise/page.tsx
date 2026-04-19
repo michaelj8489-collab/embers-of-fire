@@ -59,25 +59,20 @@ const voicesProducts = [
 ];
 
 export default function VoicesOnRisePage() {
-  // --- RSS FEED STATE ---
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeEpisode, setActiveEpisode] = useState<Episode | null>(null);
 
-  // --- FETCH RSS FEED DATA ---
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
         const rssUrl = "https://podcast.zenomedia.com/api/public/podcasts/96621ae0-0e4f-4100-9d7b-f8c958a92272/rss";
         const res = await fetch(rssUrl);
         const text = await res.text();
-        
-        // Parse the XML response
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, 'text/xml');
         const items = Array.from(xml.querySelectorAll('item'));
 
-        // Extract the episode data we need
         const parsedEpisodes: Episode[] = items.map(item => ({
           title: item.querySelector('title')?.textContent || 'Unknown Episode',
           enclosureUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
@@ -91,9 +86,13 @@ export default function VoicesOnRisePage() {
         setLoading(false);
       }
     };
-
     fetchPodcast();
   }, []);
+
+  // Section divider helper
+  const SectionDivider = () => (
+    <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-12"></div>
+  );
 
   return (
     <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
@@ -121,7 +120,7 @@ export default function VoicesOnRisePage() {
             </div>
 
             {/* Hero Section */}
-            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
+            <div className="text-center mb-8">
               <h1 className="font-cinzel-decorative font-bold text-5xl md:text-7xl mb-6 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-orange-400">
                 Voices On The Rise
               </h1>
@@ -130,83 +129,88 @@ export default function VoicesOnRisePage() {
               </p>
             </div>
 
-            {/* Live Player Box */}
-            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-8">
-               <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">Voices On The Rise: Live Broadcast</h3>
-               <div className="w-full flex justify-center">
-                 <iframe 
-                   src="https://zeno.fm/player/rise-radio-woqo" 
-                   width="100%" 
-                   height="120" 
-                   frameBorder="0" 
-                   scrolling="no" 
-                   className="rounded-lg shadow-2xl"
-                 ></iframe>
-               </div>
+            <SectionDivider />
+
+            {/* Media Player Container */}
+            <div className="flex flex-col gap-8">
+                {/* Live Player Box */}
+                <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl">
+                   <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">Live Broadcast</h3>
+                   <div className="w-full flex justify-center">
+                     <iframe 
+                       src="https://zeno.fm/player/rise-radio-woqo" 
+                       width="100%" 
+                       height="120" 
+                       frameBorder="0" 
+                       scrolling="no" 
+                       className="rounded-lg shadow-2xl"
+                     ></iframe>
+                   </div>
+                </div>
+
+                {/* ARCHIVE Player Section */}
+                <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl">
+                   <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
+                   
+                   {loading ? (
+                      <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
+                   ) : episodes.length > 0 ? (
+                      <div className="flex flex-col gap-6">
+                        {activeEpisode ? (
+                          <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
+                            <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
+                            <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg" autoPlay>
+                              Your browser does not support the audio element.
+                            </audio>
+                          </div>
+                        ) : (
+                          <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
+                             <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
+                          </div>
+                        )}
+
+                        <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
+                          {episodes.map((ep, idx) => {
+                            const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => setActiveEpisode(ep)}
+                                className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                                  isPlaying
+                                    ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
+                                    : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
+                                }`}
+                              >
+                                <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
+                                  {ep.title}
+                                </div>
+                                <div className="font-cormorant text-sm opacity-60">
+                                  {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                   ) : (
+                      <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
+                   )}
+                </div>
             </div>
 
-            {/* ARCHIVE Player Section */}
-            <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-16">
-               <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
-               
-               {loading ? (
-                  <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
-               ) : episodes.length > 0 ? (
-                  <div className="flex flex-col gap-6">
-                    
-                    {/* The Active Audio Player */}
-                    {activeEpisode ? (
-                      <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
-                        <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
-                        <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg" autoPlay>
-                          Your browser does not support the audio element.
-                        </audio>
-                      </div>
-                    ) : (
-                      <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
-                         <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
-                      </div>
-                    )}
-
-                    {/* The Scrollable Episode List */}
-                    <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
-                      {episodes.map((ep, idx) => {
-                        const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
-                        return (
-                          <button
-                            key={idx}
-                            onClick={() => setActiveEpisode(ep)}
-                            className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
-                              isPlaying
-                                ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
-                                : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
-                            }`}
-                          >
-                            <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
-                              {ep.title}
-                            </div>
-                            <div className="font-cormorant text-sm opacity-60">
-                              {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-               ) : (
-                  <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
-               )}
-            </div>
+            <SectionDivider />
 
             {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Voices On The Rise" products={voicesProducts} />
 
+            <SectionDivider />
+
             {/* --- MEET THE HOST SECTION --- */}
-            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
+            <section className="w-full mb-24">
+              <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-12">
                 Meet The Host
               </h2>
-              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mx-auto mb-16"></div>
 
               <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl text-left">
                 <div className="flex flex-col items-center text-center">
@@ -228,7 +232,7 @@ export default function VoicesOnRisePage() {
                   <div className="relative">
                     <span className="absolute -top-10 -left-6 text-8xl font-serif text-orange-900/20 pointer-events-none">“</span>
                     <p className="font-cormorant text-xl md:text-2xl text-gray-200 leading-relaxed italic relative z-10">
-                      Voices On The Rise is a dedicated space designed to showcase the unique energy and vocal expression that defines the RISE community. Hosted by Hathery, we tune into the frequencies that inspire connection, creativity, and the power of independent music, celebrating the emerging voices of our world.
+                      Hathery is a vocalist and music curator with a taste for the unexpected. She gravitates toward artists who take risks, reinterpret familiar songs, and bring their own perspective to every performance. With a focus on authenticity over polish, she’s interested in the moments where music feels personal rather than perfected. She prides herself on her ability to encourage vocalists to take risks and go outside their comfort zone, and she shares this journey with listeners on Voices on the Rise.
                     </p>
                     <span className="absolute -bottom-16 -right-4 text-8xl font-serif text-orange-900/20 pointer-events-none">”</span>
                   </div>

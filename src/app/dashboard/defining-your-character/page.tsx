@@ -50,13 +50,10 @@ export default function DefiningYourCharacterPage() {
         const rssUrl = "https://podcast.zenomedia.com/api/public/podcasts/abc09539-d2ed-404a-b34c-43a1f76999af/rss";
         const res = await fetch(rssUrl);
         const text = await res.text();
-        
-        // Parse the XML response
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, 'text/xml');
         const items = Array.from(xml.querySelectorAll('item'));
 
-        // Extract the episode data we need
         const parsedEpisodes: Episode[] = items.map(item => ({
           title: item.querySelector('title')?.textContent || 'Unknown Episode',
           enclosureUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
@@ -70,18 +67,27 @@ export default function DefiningYourCharacterPage() {
         setLoading(false);
       }
     };
-
     fetchPodcast();
   }, []);
+
+  // Section divider helper
+  const SectionDivider = () => (
+    <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-12"></div>
+  );
 
   return (
     <div className="relative min-h-screen bg-black text-gray-200 overflow-hidden font-cormorant">
       
-      {/* BACKGROUND IMAGE - 20% Opacity PNG */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center opacity-20 fixed"
-        style={{ backgroundImage: "url('/images/jmc-edits-palettes/defining-your-character.png')" }}
-      />
+      {/* VIDEO BACKGROUND - 20% Opacity */}
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className="absolute inset-0 w-full h-full object-cover z-0 fixed opacity-20"
+      >
+        <source src="/images/jmc-edits-palettes/defining-your-character-bg.mp4" type="video/mp4" />
+      </video>
       
       {/* VIGNETTE OVERLAY */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none fixed" />
@@ -89,7 +95,7 @@ export default function DefiningYourCharacterPage() {
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
-        <main className="flex-grow flex flex-col items-center pt-32 pb-12 px-6 w-full">
+        <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-6 w-full">
           <div className="w-full max-w-7xl mx-auto">
             
             {/* Standard Nav Link Fix */}
@@ -100,7 +106,7 @@ export default function DefiningYourCharacterPage() {
             </div>
 
             {/* SHOW TITLE HEADER */}
-            <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
+            <div className="text-center mb-8">
               <h1 className="font-cinzel-decorative text-4xl md:text-7xl text-orange-500 uppercase tracking-[0.15em] mb-4 drop-shadow-[0_0_20px_rgba(234,88,12,0.5)]">
                 Defining Your Character
               </h1>
@@ -109,98 +115,103 @@ export default function DefiningYourCharacterPage() {
               </p>
             </div>
 
-            {/* LIVE AUDIO PLAYER BOX (Updated to match standard Zeno embed) */}
-            <section className="max-w-2xl mx-auto mb-8">
-              <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
-                <div className="flex items-center justify-center gap-3 mb-6">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
-                  </span>
-                  <h2 className="font-cinzel text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Live Broadcast Stream</h2>
-                </div>
-                
-                <div className="w-full flex justify-center">
-                  <iframe 
-                    src="https://zeno.fm/player/rise-radio-woqo" 
-                    width="100%" 
-                    height="120" 
-                    frameBorder="0" 
-                    scrolling="no" 
-                    className="rounded-lg shadow-2xl"
-                  ></iframe>
-                </div>
-                
-                <p className="font-cormorant text-center text-gray-500 mt-4 italic text-sm tracking-wide">
-                  Saturday's at 6 PM EST
-                </p>
-              </div>
-            </section>
+            <SectionDivider />
 
-            {/* ARCHIVE PLAYER SECTION */}
-            <section className="max-w-2xl mx-auto mb-16">
-               <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
-                 <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
-                 
-                 {loading ? (
-                    <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
-                 ) : episodes.length > 0 ? (
-                    <div className="flex flex-col gap-6">
-                      
-                      {/* The Active Audio Player */}
-                      {activeEpisode ? (
-                        <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
-                          <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
-                          <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg accent-orange-500" autoPlay>
-                            Your browser does not support the audio element.
-                          </audio>
-                        </div>
-                      ) : (
-                        <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
-                           <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
-                        </div>
-                      )}
+            {/* PLAYER CONTAINER */}
+            <div className="flex flex-col gap-8">
+              {/* LIVE AUDIO PLAYER BOX */}
+              <section className="max-w-2xl mx-auto w-full">
+                <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
+                  <div className="flex items-center justify-center gap-3 mb-6">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+                    </span>
+                    <h2 className="font-cinzel text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Live Broadcast Stream</h2>
+                  </div>
+                  
+                  <div className="w-full flex justify-center">
+                    <iframe 
+                      src="https://zeno.fm/player/rise-radio-woqo" 
+                      width="100%" 
+                      height="120" 
+                      frameBorder="0" 
+                      scrolling="no" 
+                      className="rounded-lg shadow-2xl"
+                    ></iframe>
+                  </div>
+                  
+                  <p className="font-cormorant text-center text-gray-500 mt-4 italic text-sm tracking-wide">
+                    Saturday's at 6 PM EST
+                  </p>
+                </div>
+              </section>
 
-                      {/* The Scrollable Episode List */}
-                      <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
-                        {episodes.map((ep, idx) => {
-                          const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
-                          return (
-                            <button
-                              key={idx}
-                              onClick={() => setActiveEpisode(ep)}
-                              className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
-                                isPlaying
-                                  ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
-                                  : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
-                              }`}
-                            >
-                              <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
-                                {ep.title}
-                              </div>
-                              <div className="font-cormorant text-sm opacity-60">
-                                {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                              </div>
-                            </button>
-                          );
-                        })}
+              {/* ARCHIVE PLAYER SECTION */}
+              <section className="max-w-2xl mx-auto w-full">
+                 <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
+                   <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
+                   
+                   {loading ? (
+                      <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
+                   ) : episodes.length > 0 ? (
+                      <div className="flex flex-col gap-6">
+                        {activeEpisode ? (
+                          <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
+                            <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
+                            <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg accent-orange-500" autoPlay>
+                              Your browser does not support the audio element.
+                            </audio>
+                          </div>
+                        ) : (
+                          <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
+                             <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
+                          </div>
+                        )}
+
+                        <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
+                          {episodes.map((ep, idx) => {
+                            const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => setActiveEpisode(ep)}
+                                className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                                  isPlaying
+                                    ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
+                                    : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
+                                }`}
+                              >
+                                <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
+                                  {ep.title}
+                                </div>
+                                <div className="font-cormorant text-sm opacity-60">
+                                  {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                 ) : (
-                    <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
-                 )}
-               </div>
-            </section>
+                   ) : (
+                      <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
+                   )}
+                 </div>
+              </section>
+            </div>
+
+            <SectionDivider />
 
             {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Defining Your Character" products={dycProducts} />
 
+            <SectionDivider />
+
             {/* MEET THE HOST SECTION */}
-            <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
-              <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
+            <section className="w-full mb-24">
+              <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-12">
                 Meet The Host
               </h2>
-              <div className="w-32 h-px bg-gradient-to-r from-transparent via-orange-900/60 to-transparent mx-auto mb-16"></div>
 
               <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl text-left">
                 <div className="flex flex-col items-center text-center">
