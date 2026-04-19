@@ -112,7 +112,7 @@ export default function HomePage() {
         muted
         loop
         playsInline
-        className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none"
+        className="fixed top-0 left-0 w-full h-full object-contain z-0 opacity-40 pointer-events-none"
       >
         <source src="/images/eol-moving-background.mp4" type="video/mp4" />
       </video>
