@@ -94,13 +94,13 @@ export default function TheBloomPage() {
                 Meet The Host
               </h2>
 
-              {/* Part 1: Professional Bio */}
+              {/* Part 1: (Switched Path: the-bloom.png) */}
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
-                    src="/images/main-images/Cover Art/Diane Solo.png" 
-                    alt="Rev. Diane R. DeBiasi" 
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
+                    src="/images/jmc-edits-palettes/the-bloom.png" 
+                    alt="The Bloom Inspiration" 
+                    className="w-full h-full object-cover" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -119,12 +119,12 @@ export default function TheBloomPage() {
                 </div>
               </div>
 
-              {/* Part 2: The Inspiration */}
+              {/* Part 2: (Switched Path: Diane Solo.png) */}
               <div className="flex flex-col md:flex-row-reverse items-center gap-12">
-                <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black/40">
+                <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
-                    src="/images/jmc-edits-palettes/the-bloom.png" 
-                    alt="The Bloom Inspiration" 
+                    src="/images/main-images/Cover Art/Diane Solo.png" 
+                    alt="Rev. Diane R. DeBiasi" 
                     className="w-full h-full object-cover" 
                   />
                 </div>
