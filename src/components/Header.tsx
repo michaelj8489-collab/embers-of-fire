@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,55 +8,36 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [userTier, setUserTier] = useState<string>('seeker'); // Defaults to seeker
-  
+  const [userTier, setUserTier] = useState('seeker'); // Defaults to seeker
+
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     setIsMounted(true);
-
-    const checkSession = async () => {
+    const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
-
-      // If they are logged in, find out what tier room they belong in!
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('subscription_tier')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (profile && profile.subscription_tier) {
-          setUserTier(profile.subscription_tier);
-        }
-      }
     };
-
-    checkSession();
+    checkUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
-      if (event === 'SIGNED_IN') {
-        checkSession(); // Re-check tier on fresh login
-      }
     });
 
     return () => {
-      authListener.subscription.unsubscribe();
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, [supabase.auth]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setIsLoggedIn(false);
-    setUserTier('seeker');
     router.push('/login');
   };
 
-  // Added TypeScript definition so it knows to expect the optional 'isComingSoon' flag
-  const shows: { name: string; href: string; isComingSoon?: boolean }[] = [
+  const shows = [
     { name: "The Bloom", href: "/dashboard/the-bloom" },
     { name: "The Messengers", href: "/dashboard/the-messengers" },
     { name: "Brindle's Vision", href: "/dashboard/brindles-vision" },
@@ -66,90 +46,75 @@ export default function Header() {
     { name: "Illuminate", href: "/dashboard/illuminate" },
     { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
     { name: "Voices on the Rise", href: "/dashboard/voices-on-the-rise" },
-    { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
-    { name: "Mystic Mist", href: "/dashboard/mystic-mist", isComingSoon: true },
+    { name: "Defining Your Character", href: "/dashboard/defining-your-character" }
   ];
 
   return (
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
-      <div className="w-full px-6 md:px-10 py-4 flex items-center justify-between">
+      <div className="w-full px-6 py-4 flex items-center justify-between">
         
-        <Link href="/dashboard" className="flex items-center gap-3 shrink-0 group">
-          <img src="/images/rise-radio-logo.png" alt="Logo" className="h-10 w-10 rounded-full border border-orange-500 shadow-[0_0_10px_rgba(234,88,12,0.3)] group-hover:scale-110 transition-transform" />
-          <span className="font-cinzel text-lg font-bold text-orange-500 uppercase tracking-tighter hidden sm:inline-block">
-            Embers of Light
+        {/* LOGO */}
+        <Link href="/" className="flex items-center shrink-0">
+          <span className="font-cinzel-decorative text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]">
+            <span className="hidden sm:inline-block">Embers of Light</span>
+            <span className="sm:hidden">EOL</span>
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-10">
-          {isMounted && isLoggedIn && (
-            <>
-              {/* DYNAMIC SANCTUARY LINK */}
-              <Link href={`/sanctuary/${userTier}`} className="font-cinzel text-orange-400 hover:text-orange-300 font-bold text-sm uppercase tracking-widest transition-colors">
-                My Sanctuary
-              </Link>
-
-              <div className="relative group">
-                <button className="font-cinzel text-gray-300 hover:text-orange-400 uppercase tracking-widest text-sm flex items-center gap-1">
-                  Shows ▾
-                </button>
-                <div className="absolute top-full left-0 w-64 bg-black border border-orange-900/50 p-2 hidden group-hover:flex flex-col gap-1 shadow-2xl rounded-b-lg">
-                  {shows.map((show) => (
-                    <Link key={show.href} href={show.href} className="text-gray-400 hover:text-orange-400 p-2 text-xs uppercase tracking-widest transition-all hover:bg-orange-900/20">
-                      {show.name}
-                      {show.isComingSoon && (
-                        <span className="text-orange-500 text-[10px] italic ml-1 normal-case tracking-normal">(Coming Soon)</span>
-                      )}
-                    </Link>
-                  ))}
-                </div>
+        {/* DESKTOP NAVIGATION (Only visible if logged in) */}
+        {isMounted && isLoggedIn && (
+          <nav className="hidden lg:flex items-center gap-8">
+            <div className="relative group">
+              <button className="text-orange-500 font-cinzel font-bold uppercase tracking-widest hover:text-orange-400 transition-colors">
+                Shows
+              </button>
+              <div className="absolute top-full left-0 mt-2 w-64 bg-black/90 border border-orange-900/50 backdrop-blur-md hidden group-hover:flex flex-col py-2 z-50">
+                <Link href={`/sanctuary/${userTier}`} className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30">
+                  My Sanctuary
+                </Link>
+                {shows.map((show) => (
+                  <Link key={show.href} href={show.href} className="px-4 py-2 text-gray-300 hover:text-orange-400 hover:bg-orange-900/20 font-cinzel text-sm uppercase tracking-widest">
+                    {show.name}
+                  </Link>
+                ))}
               </div>
-              
-              
-            </>
-          )}
-          
-          {isMounted && isLoggedIn && (
-            <button onClick={handleSignOut} className="border border-orange-600 text-orange-500 px-8 py-2 rounded-md text-xs font-cinzel font-bold hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_15px_rgba(234,88,12,0.1)]">
-              SIGN OUT
+            </div>
+            <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-600/20 px-4 py-2 rounded transition-colors">
+              Sign Out
             </button>
-          )}
-          {isMounted && !isLoggedIn && (
-            <Link href="/login" className="bg-gradient-to-r from-orange-700 to-orange-500 text-white px-8 py-2 rounded-md text-xs font-cinzel font-bold hover:from-orange-600 hover:to-orange-400 transition-all shadow-[0_0_15px_rgba(234,88,12,0.4)]">
-              LOG IN
-            </Link>
-          )}
-        </nav>
+          </nav>
+        )}
 
+        {/* MOBILE HAMBURGER BUTTON */}
         <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-orange-500 p-2">
-          {isOpen ? <span className="text-2xl">✕</span> : <span className="text-2xl">☰</span>}
+          {isOpen ? '✕' : '☰'}
         </button>
       </div>
 
+      {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
-        <div className="lg:hidden bg-black border-t border-orange-900/50 p-8 flex flex-col gap-6">
+        <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-6 py-4 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
           {isMounted && isLoggedIn && (
             <>
-              {/* MOBILE DYNAMIC SANCTUARY LINK */}
-              <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4">
+              <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
                 My Sanctuary
               </Link>
               {shows.map((show) => (
-                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block">
+                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel py-2">
                   {show.name}
-                  {show.isComingSoon && (
-                    <span className="text-orange-500 text-[10px] italic ml-2 normal-case tracking-normal">(Coming Soon)</span>
-                  )}
                 </Link>
               ))}
+              <button onClick={() => { setIsOpen(false); handleSignOut(); }} className="text-left text-gray-300 uppercase text-sm font-cinzel tracking-widest pt-4 border-t border-orange-900/20">
+                Sign Out
+              </button>
             </>
           )}
-          
-          {isMounted && isLoggedIn && (
-            <button onClick={handleSignOut} className="text-left text-orange-500 uppercase text-sm font-bold pt-4 border-t border-orange-900/20">Sign Out</button>
-          )}
+
+          {/* MOBILE LOG IN BUTTON - FIXED FONT */}
           {isMounted && !isLoggedIn && (
-            <Link href="/login" onClick={() => setIsOpen(false)} className="text-left text-orange-500 uppercase text-sm font-bold pt-4 border-t border-orange-900/20">Log In</Link>
+            <Link href="/login" onClick={() => setIsOpen(false)} className="text-left text-orange-500 uppercase text-sm font-bold font-cinzel pt-4 border-t border-orange-900/20">
+              Log In
+            </Link>
           )}
         </div>
       )}
