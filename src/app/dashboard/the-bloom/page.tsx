@@ -75,7 +75,7 @@ export default function TheBloomPage() {
                   </div>
                 ) : (
                   <div className="w-full h-full aspect-video">
-                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLKmO6Km32njQ46KfUQgXQ0wnE3_PEtZwK" className="w-full h-full" frameBorder="0" allowFullScreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/videoseries?list=PL5HonD7o0fAr54cEg5wGM5gCBmx5agBEW" className="w-full h-full" frameBorder="0" allowFullScreen></iframe>
                   </div>
                 )}
               </div>
