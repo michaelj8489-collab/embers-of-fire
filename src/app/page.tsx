@@ -125,11 +125,11 @@ export default function HomePage() {
       {/* Main Content */}
       <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-24 md:pt-32 pb-20 text-center">
         
-        <h1 className="text-3xl sm:text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)] px-2">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)] px-4 py-2 sm:px-2 sm:py-0">
           EMBERS OF LIGHT
         </h1>
         
-        <p className="text-sm sm:text-lg md:text-2xl font-cormorant text-gray-300 italic mb-10 md:mb-16 tracking-[0.2em] md:tracking-widest uppercase px-4">
+        <p className="text-sm sm:text-lg md:text-2xl font-cormorant text-gray-300 italic mb-8 md:mb-16 tracking-normal sm:tracking-[0.2em] md:tracking-widest uppercase px-4">
           Fuel the Journey • Enter the Sanctuary
         </p>
 
