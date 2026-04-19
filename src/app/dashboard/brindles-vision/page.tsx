@@ -187,7 +187,7 @@ export default function BrindlesVisionPage() {
                     <img
                       src="/images/jmc-edits-palettes/brindle-bio-pic.png" 
                       alt="Michka Grant"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
+                      className="w-full h-full object-contain"
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent"></div>
                   </div>

@@ -212,7 +212,7 @@ export default function HonkyTonkPage() {
                    <img 
                      src="/images/jmc-edits-palettes/will-bio-pic.png" 
                      alt="Will Iommi - Host of Honky Tonk Heaven" 
-                     className="w-full h-full object-cover" 
+                     className="w-full h-full object-contain" 
                    />
                  </div>
                  <h4 className="font-cinzel text-orange-400 mb-2 uppercase tracking-widest font-bold text-xl">Meet the Host</h4>

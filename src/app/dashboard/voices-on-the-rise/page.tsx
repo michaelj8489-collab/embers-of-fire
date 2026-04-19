@@ -218,7 +218,7 @@ export default function VoicesOnRisePage() {
                     <img
                       src="/images/jmc-edits-palettes/hathery-bio-pic.png" 
                       alt="Hathery"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   <div className="mt-6">

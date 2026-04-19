@@ -98,7 +98,7 @@ export default function TheMessengersPage() {
                   <img 
                     src="/images/jmc-edits-palettes/messengers-steampunk.png" 
                     alt="Welcome to The Messengers" 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -122,7 +122,7 @@ export default function TheMessengersPage() {
                   <img 
                     src="/images/brindle-lunaria-profile.png" 
                     alt="The Spark of 2023" 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">

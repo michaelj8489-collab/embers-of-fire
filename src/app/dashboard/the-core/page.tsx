@@ -206,7 +206,7 @@ export default function TheCorePage() {
                   <img 
                     src="/images/jmc-edits-palettes/the-core-bio-2.png" 
                     alt="The CORE Origin" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">

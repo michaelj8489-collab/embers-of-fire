@@ -87,7 +87,7 @@ export default function MysticMistPage() {
                     <img
                       src="/images/misc/amanda-bio.jpg" 
                       alt="Amanda (Papaduck78)"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   <div className="mt-6">

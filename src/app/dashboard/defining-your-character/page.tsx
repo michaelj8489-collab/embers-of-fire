@@ -219,7 +219,7 @@ export default function DefiningYourCharacterPage() {
                     <img
                       src="/images/jmc-edits-palettes/michael-j-bio.png" 
                       alt="Michael J Cox"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
+                      className="w-full h-full object-contain "
                     />
                   </div>
                   <div className="mt-6">

@@ -170,7 +170,7 @@ export default function PhoenixTalksPage() {
                   <img 
                     src="/images/jmc-edits-palettes/pheonix-talks-bio.png" 
                     alt="The History of Phoenix Talks" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
 
