@@ -98,9 +98,9 @@ export default function TheBloomPage() {
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
-                    src="/images/main-images/Cover Art/Diane Solo.png" 
+                    src="/images/jmc-edits-palettes/bloom-bio-pic.png" 
                     alt="Rev. Diane R. DeBiasi" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"  
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -125,7 +125,7 @@ export default function TheBloomPage() {
                   <img 
                     src="/images/jmc-edits-palettes/the-bloom.png" 
                     alt="The Bloom Inspiration" 
-                    className="w-full h-full object-contain" 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"  
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">

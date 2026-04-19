@@ -180,7 +180,7 @@ export default function TheCorePage() {
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
-                    src="/images/main-images/Cover Art/The CORE new.jpg" 
+                    src="/images/jmc-edits-palettes/the-core-3-in-1.png" 
                     alt="Welcome to The CORE" 
                     className="w-full h-full object-cover" 
                   />

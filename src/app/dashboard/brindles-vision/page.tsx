@@ -185,7 +185,7 @@ export default function BrindlesVisionPage() {
                 <div className="flex flex-col items-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.1)]">
                     <img
-                      src="/images/brindle-bio.JPG" 
+                      src="/images/jmc-edits-palettes/brindle-bio-pic.png" 
                       alt="Michka Grant"
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
                     />

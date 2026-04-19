@@ -210,7 +210,7 @@ export default function HonkyTonkPage() {
               <div className="bg-black/40 border border-orange-500/20 p-8 rounded-xl flex flex-col items-center text-center shadow-lg">
                  <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-orange-500 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                    <img 
-                     src="/images/misc/Will.jpg" 
+                     src="/images/jmc-edits-palettes/will-bio-pic.png" 
                      alt="Will Iommi - Host of Honky Tonk Heaven" 
                      className="w-full h-full object-cover" 
                    />

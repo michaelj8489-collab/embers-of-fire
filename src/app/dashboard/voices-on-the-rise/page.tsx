@@ -216,7 +216,7 @@ export default function VoicesOnRisePage() {
                 <div className="flex flex-col items-center text-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-2xl">
                     <img
-                      src="/images/misc/Hathery.jpg" 
+                      src="/images/jmc-edits-palettes/hathery-bio-pic.png" 
                       alt="Hathery"
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
                     />
