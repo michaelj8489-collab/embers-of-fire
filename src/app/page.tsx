@@ -67,13 +67,11 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleSubscription = async (tierName: string, price: string) => {
-    // 1. If it's the free tier, just go to signup
     if (price === "0" || tierName === "Seeker") {
       router.push('/signup');
       return;
     }
 
-    // 2. Otherwise, trigger Stripe Checkout
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -90,7 +88,6 @@ export default function HomePage() {
 
       const stripe = await getStripe();
       if (stripe && resData.sessionId) {
-        // The @ts-ignore below prevents Vercel from crashing during build
         // @ts-ignore
         const { error } = await stripe.redirectToCheckout({
           sessionId: resData.sessionId,
@@ -126,62 +123,57 @@ export default function HomePage() {
       <Header />
 
       {/* Main Content */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 pt-32 pb-20 text-center">
-        <h1 className="text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)]">
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-24 md:pt-32 pb-20 text-center">
+        
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)] px-2">
           EMBERS OF LIGHT
         </h1>
-        <p className="text-xl md:text-2xl font-cormorant text-gray-300 italic mb-16 tracking-widest uppercase">
+        
+        <p className="text-sm sm:text-lg md:text-2xl font-cormorant text-gray-300 italic mb-10 md:mb-16 tracking-[0.2em] md:tracking-widest uppercase px-4">
           Fuel the Journey • Enter the Sanctuary
         </p>
 
         {/* TIERS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20 px-2 sm:px-0">
           {subscriptionTiers.map((tier) => (
             <div
               key={tier.name}
               className="relative flex flex-col bg-black/80 rounded-2xl border border-orange-900/40 shadow-2xl transition-all duration-500 hover:border-orange-500/60 group hover:shadow-[0_0_40px_rgba(255,100,0,0.15)] overflow-hidden"
             >
-              {/* Image Layer */}
               <div 
                 className="absolute inset-0 bg-cover bg-center opacity-55 transition-opacity duration-500 group-hover:opacity-75 z-0"
                 style={{ backgroundImage: `url('${tier.image}')` }}
               ></div>
 
-              {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-[#0a0a0a] z-0"></div>
 
-              {/* Content Wrapper */}
-              <div className="relative z-10 p-8 flex flex-col h-full">
+              <div className="relative z-10 p-5 sm:p-8 flex flex-col h-full">
                 
-                {/* Header Section */}
                 <div className="mb-6">
-                  <h3 className="text-2xl font-cinzel font-bold text-orange-500 mb-1 tracking-wider uppercase">{tier.name}</h3>
+                  <h3 className="text-xl sm:text-2xl font-cinzel font-bold text-orange-500 mb-1 tracking-wider uppercase">{tier.name}</h3>
                   <div className="flex items-baseline justify-center gap-1 mb-2">
-                    <span className="text-4xl font-bold text-white">${tier.price}</span>
-                    <span className="text-gray-400 font-cormorant">/month</span>
+                    <span className="text-3xl sm:text-4xl font-bold text-white">${tier.price}</span>
+                    <span className="text-gray-400 font-cormorant text-sm sm:text-base">/month</span>
                   </div>
-                  <p className="text-orange-300 font-cormorant italic text-sm border-t border-orange-900/30 pt-2">{tier.intro}</p>
+                  <p className="text-orange-300 font-cormorant italic text-xs sm:text-sm border-t border-orange-900/30 pt-2">{tier.intro}</p>
                 </div>
 
-                {/* Description */}
-                <p className="text-gray-300 font-cormorant text-lg mb-8 leading-relaxed italic">
+                <p className="text-gray-300 font-cormorant text-base sm:text-lg mb-8 leading-relaxed italic">
                   {tier.description}
                 </p>
 
-                {/* Perks List */}
-                <ul className="flex-grow mb-8 border-t border-orange-900/30 pt-6 space-y-3">
+                <ul className="flex-grow mb-8 border-t border-orange-900/30 pt-6 space-y-2 sm:space-y-3">
                   {tier.perks.map((perk, index) => (
-                    <li key={index} className="flex items-start gap-3 leading-tight text-gray-300 font-cormorant text-lg">
-                      <span className="text-orange-500 font-bold mt-1.5 text-xs">◆</span>
+                    <li key={index} className="flex items-start gap-3 leading-tight text-gray-300 font-cormorant text-base sm:text-lg">
+                      <span className="text-orange-500 font-bold mt-1.5 text-[10px]">◆</span>
                       <span className="text-left">{perk}</span>
                     </li>
                   ))}
                 </ul>
 
-                {/* ACTION BUTTON */}
                 <button
                   onClick={() => handleSubscription(tier.name, tier.price)}
-                  className={`block w-full py-4 text-center text-white text-lg font-cinzel font-bold rounded-lg transition-all transform hover:-translate-y-1 bg-gradient-to-br ${tier.color} shadow-lg hover:shadow-orange-500/20`}
+                  className={`block w-full py-3 sm:py-4 text-center text-white text-base sm:text-lg font-cinzel font-bold rounded-lg transition-all transform hover:-translate-y-1 bg-gradient-to-br ${tier.color} shadow-lg hover:shadow-orange-500/20 active:scale-95`}
                 >
                   Unlock {tier.name}
                 </button>
