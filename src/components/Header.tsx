@@ -8,7 +8,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [userTier, setUserTier] = useState('seeker'); // Defaults to seeker
+  const [userTier, setUserTier] = useState('seeker');
 
   const router = useRouter();
   const supabase = createClient();
@@ -61,32 +61,39 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* DESKTOP NAVIGATION (Only visible if logged in) */}
-        {isMounted && isLoggedIn && (
-          <nav className="hidden lg:flex items-center gap-8">
-            <div className="relative group">
-              <button className="text-orange-500 font-cinzel font-bold uppercase tracking-widest hover:text-orange-400 transition-colors">
-                Shows
-              </button>
-              <div className="absolute top-full left-0 mt-2 w-64 bg-black/90 border border-orange-900/50 backdrop-blur-md hidden group-hover:flex flex-col py-2 z-50">
-                <Link href={`/sanctuary/${userTier}`} className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30">
-                  My Sanctuary
-                </Link>
-                {shows.map((show) => (
-                  <Link key={show.href} href={show.href} className="px-4 py-2 text-gray-300 hover:text-orange-400 hover:bg-orange-900/20 font-cinzel text-sm uppercase tracking-widest">
-                    {show.name}
+        {/* DESKTOP NAVIGATION */}
+        <nav className="hidden lg:flex items-center gap-8">
+          {isMounted && isLoggedIn ? (
+            <>
+              <div className="relative group">
+                <button className="text-orange-500 font-cinzel font-bold uppercase tracking-widest hover:text-orange-400 transition-colors">
+                  Shows
+                </button>
+                <div className="absolute top-full right-0 mt-2 w-64 bg-black/90 border border-orange-900/50 backdrop-blur-md hidden group-hover:flex flex-col py-2 z-50">
+                  <Link href={`/sanctuary/${userTier}`} className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30">
+                    My Sanctuary
                   </Link>
-                ))}
+                  {shows.map((show) => (
+                    <Link key={show.href} href={show.href} className="px-4 py-2 text-gray-300 hover:text-orange-400 hover:bg-orange-900/20 font-cinzel text-sm uppercase tracking-widest">
+                      {show.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-            <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-600/20 px-4 py-2 rounded transition-colors">
-              Sign Out
-            </button>
-          </nav>
-        )}
+              <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-600/20 px-4 py-2 rounded transition-colors">
+                Sign Out
+              </button>
+            </>
+          ) : (
+            /* DESKTOP LOG IN FOR GUESTS */
+            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase tracking-widest hover:text-orange-400 transition-colors">
+              Log In
+            </Link>
+          )}
+        </nav>
 
         {/* MOBILE HAMBURGER BUTTON */}
-        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-orange-500 p-2">
+        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-orange-500 p-2 text-2xl">
           {isOpen ? '✕' : '☰'}
         </button>
       </div>
@@ -94,7 +101,7 @@ export default function Header() {
       {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
         <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-6 py-4 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
-          {isMounted && isLoggedIn && (
+          {isMounted && isLoggedIn ? (
             <>
               <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
                 My Sanctuary
@@ -108,10 +115,7 @@ export default function Header() {
                 Sign Out
               </button>
             </>
-          )}
-
-          {/* MOBILE LOG IN BUTTON - FIXED FONT */}
-          {isMounted && !isLoggedIn && (
+          ) : (
             <Link href="/login" onClick={() => setIsOpen(false)} className="text-left text-orange-500 uppercase text-sm font-bold font-cinzel pt-4 border-t border-orange-900/20">
               Log In
             </Link>
