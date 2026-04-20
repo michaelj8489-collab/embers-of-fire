@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cinzel_Decorative, Cinzel, Cormorant } from "next/font/google";
 import "./globals.css";
 import Script from 'next/script'; // Added this import
+import BottomNav from '@/components/BottomNav';
 
 const cinzelDec = Cinzel_Decorative({
   weight: ['400', '700', '900'],
@@ -58,6 +59,7 @@ export default function RootLayout({
       </head>
       <body className={`${cinzelDec.variable} ${cinzel.variable} ${cormorant.variable} antialiased bg-black text-white`}>
         {children}
+        <BottomNav /> {/* 🚀 The new App Navigation! */}
       </body>
     </html>
   );
