@@ -51,11 +51,12 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
-      <div className="w-full px-6 py-4 flex items-center justify-between">
+      {/* THE CONTAINER: max-w-7xl mx-auto keeps logo/login from drifting too far left/right */}
+      <div className="max-w-7xl mx-auto w-full px-6 py-4 flex items-center justify-between">
         
-        {/* LOGO */}
+        {/* LOGO - FIXED FONT TO MATCH CARDS */}
         <Link href="/" className="flex items-center shrink-0">
-          <span className="font-cinzel-decorative text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]">
+          <span className="font-cinzel text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] uppercase tracking-wider">
             <span className="hidden sm:inline-block">Embers of Light</span>
             <span className="sm:hidden">EOL</span>
           </span>
@@ -85,8 +86,8 @@ export default function Header() {
               </button>
             </>
           ) : (
-            /* DESKTOP LOG IN FOR GUESTS */
-            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase tracking-widest hover:text-orange-400 transition-colors">
+            /* DESKTOP LOG IN - NOW INSIDE THE CONTAINER BOUNDARIES */
+            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-widest hover:text-orange-400 transition-colors">
               Log In
             </Link>
           )}
@@ -100,14 +101,14 @@ export default function Header() {
 
       {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
-        <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-6 py-4 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+        <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-6 py-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto shadow-2xl">
           {isMounted && isLoggedIn ? (
             <>
               <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
                 My Sanctuary
               </Link>
               {shows.map((show) => (
-                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel py-2">
+                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel">
                   {show.name}
                 </Link>
               ))}
@@ -116,7 +117,7 @@ export default function Header() {
               </button>
             </>
           ) : (
-            <Link href="/login" onClick={() => setIsOpen(false)} className="text-left text-orange-500 uppercase text-sm font-bold font-cinzel pt-4 border-t border-orange-900/20">
+            <Link href="/login" onClick={() => setIsOpen(false)} className="text-left text-orange-500 uppercase text-sm font-bold font-cinzel pt-4 border-t border-orange-900/20 tracking-widest">
               Log In
             </Link>
           )}
