@@ -9,8 +9,8 @@ export default function LivePage() {
   const PARENT_DOMAINS = "&parent=embersoflight.net&parent=localhost";
 
   // Using the exact Zeno widget format from your working desktop version
-  const STREAM_1_WIDGET = "https://ms-radio.net/cp/widgets/player/single/?p=https://zeno.fm/player/4wd4w83qgy8uv";
-  const STREAM_2_WIDGET = "https://ms-radio.net/cp/widgets/player/single/?p=https://zeno.fm/player/hvh0vw6jdowtv";
+  const STREAM_1_WIDGET = "https://stream.zeno.fm/4wd4w83qgy8uv";
+  const STREAM_2_WIDGET = "https://stream.zeno.fm/hvh0vw6jdowtv";
 
   return (
     <main className="min-h-screen bg-black pt-24 pb-24 px-4 flex flex-col items-center">
