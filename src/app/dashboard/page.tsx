@@ -59,8 +59,8 @@ export default function UnifiedDashboard() {
 
         <main className="flex-grow flex flex-col items-center pt-28 md:pt-40 pb-12 px-4 md:px-12 w-full">
           
-          {/* HERO SECTION - SQUARE CARDS */}
-          <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-20">
+          {/* HERO SECTION - WIDESCREEN CARDS */}
+          <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-24">
             
             {/* THE SANCTUARY */}
             <Link href={isLoggedIn ? `/sanctuary/${userTier}` : '/login'} className="flex-1 group">
@@ -68,8 +68,8 @@ export default function UnifiedDashboard() {
                 <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
                   <source src="/images/eol-come-alive.mp4" type="video/mp4" />
                 </video>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 md:p-10">
-                  <h2 className="font-cinzel text-2xl md:text-4xl text-orange-400 tracking-[0.2em] uppercase">The Sanctuary</h2>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12">
+                  <h2 className="font-cinzel text-3xl md:text-5xl text-orange-400 tracking-[0.2em] uppercase">The Sanctuary</h2>
                   <p className="text-orange-500/60 font-cinzel text-xs md:text-sm tracking-widest mt-2 uppercase">Step into your room</p>
                 </div>
               </div>
@@ -81,77 +81,72 @@ export default function UnifiedDashboard() {
                 <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
                   <source src="/images/jmc-edits-palettes/rise-radio-bg.mp4" type="video/mp4" />
                 </video>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 md:p-10">
-                  <h2 className="font-cinzel text-2xl md:text-4xl text-red-600 tracking-[0.2em] uppercase">The Station</h2>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12">
+                  <h2 className="font-cinzel text-3xl md:text-5xl text-red-600 tracking-[0.2em] uppercase">The Station</h2>
                   <p className="text-red-600/60 font-cinzel text-xs md:text-sm tracking-widest mt-2 uppercase">Tune in live</p>
                 </div>
               </div>
             </Link>
           </div>
 
-          {/* EXPLANATION BOX */}
-          <div className="w-full max-w-5xl mx-auto mb-20 bg-black/60 backdrop-blur-xl border border-orange-500/20 p-8 md:p-16 rounded-[2.5rem] text-center">
-            <h3 className="font-cinzel text-2xl md:text-4xl text-orange-400 mb-6 tracking-widest uppercase">The Sanctuary Experience</h3>
-            <p className="text-lg md:text-2xl text-gray-300 font-cormorant leading-relaxed max-w-3xl mx-auto mb-4">
-              Your dashboard is the lobby, but <strong className="text-orange-500">The Sanctuary</strong> is your private room. 
-              Depending on your tier, unlock exclusive community boards, direct transmissions, and behind-the-scenes content.
-            </p>
-          </div>
-
-          {/* SPARK & FREQUENCIES */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-20 w-full max-w-6xl">
-            <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-8 md:p-12 rounded-3xl flex flex-col justify-between">
-              <div>
-                <h3 className="font-cinzel text-orange-500 text-xl md:text-2xl mb-6 tracking-widest uppercase">The Spark</h3>
-                <p className="text-gray-200 mb-8 italic text-xl md:text-2xl font-bold leading-tight">
+          {/* STACKED CONTENT SECTION - REMOVED DEAD SPACE */}
+          <div className="w-full max-w-5xl flex flex-col gap-12 mb-24">
+            
+            {/* THE SPARK */}
+            <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
+                <h3 className="font-cinzel text-orange-500 text-xl md:text-2xl mb-8 tracking-widest uppercase">The Spark</h3>
+                <p className="text-gray-200 mb-8 italic text-2xl md:text-4xl font-bold leading-tight max-w-4xl">
                   "RISE Radio isn't just a station. It's a community where singers come to be heard, feel something, and connect through music."
                 </p>
-              </div>
-              <div className="border-l-2 border-orange-600 pl-6 py-2">
-                <p className="text-gray-400 text-xs md:text-sm tracking-widest uppercase font-cinzel">Fueling the fire of independent connection.</p>
-              </div>
+                <p className="text-gray-400 text-lg md:text-xl font-cinzel tracking-widest uppercase">Fueling the fire of independent connection.</p>
             </div>
 
-            <div className="bg-black/60 backdrop-blur-md border border-red-900/30 p-8 md:p-12 rounded-3xl">
-              <h3 className="font-cinzel text-red-500 text-xl md:text-2xl mb-8 tracking-widest uppercase text-center md:text-left">Frequencies</h3>
-              <div className="space-y-10">
-                <div>
-                  <h4 className="font-cinzel text-white text-[10px] md:text-xs tracking-[0.3em] uppercase mb-4 opacity-50">Rise Radio: The Signal</h4>
-                  <iframe src="https://zeno.fm/player/rise-radio-woqo" width="100%" height="180" frameBorder="0" scrolling="no" className="rounded-2xl"></iframe>
+            {/* FREQUENCIES - NOW FULL WIDTH BELOW SPARK */}
+            <div className="bg-black/60 backdrop-blur-md border border-red-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl">
+              <h3 className="font-cinzel text-red-500 text-xl md:text-2xl mb-12 tracking-widest uppercase">Frequencies</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="w-full">
+                  <h4 className="font-cinzel text-white text-xs tracking-[0.3em] uppercase mb-6 opacity-50">Rise Radio: The Signal</h4>
+                  <iframe src="https://zeno.fm/player/rise-radio-woqo" width="100%" height="180" frameBorder="0" scrolling="no" className="rounded-2xl bg-orange-900/5"></iframe>
                 </div>
-                <div>
-                  <h4 className="font-cinzel text-white text-[10px] md:text-xs tracking-[0.3em] uppercase mb-4 opacity-50">Rise Awakenings: The Core</h4>
-                  <iframe src="https://zeno.fm/player/rise-awakenings" width="100%" height="180" frameBorder="0" scrolling="no" className="rounded-2xl"></iframe>
+                <div className="w-full">
+                  <h4 className="font-cinzel text-white text-xs tracking-[0.3em] uppercase mb-6 opacity-50">Rise Awakenings: The Core</h4>
+                  <iframe src="https://zeno.fm/player/rise-awakenings" width="100%" height="180" frameBorder="0" scrolling="no" className="rounded-2xl bg-red-900/5"></iframe>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SCHEDULE */}
-          <div className="w-full max-w-5xl mx-auto mb-20">
-            <h2 className="text-3xl font-cinzel-decorative font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-10">
+          {/* SCHEDULE - LARGER ON DESKTOP, SMALL ON MOBILE */}
+          <div className="w-full max-w-7xl mx-auto mb-24 px-4">
+            <h2 className="text-4xl md:text-6xl font-cinzel-decorative font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-16 drop-shadow-[0_0_15px_rgba(255,0,0,0.3)] uppercase tracking-tighter">
               Network Schedule
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {schedule.map((show, index) => (
-                <Link key={index} href={show.href} className="bg-black/40 border border-orange-900/30 p-5 rounded-2xl hover:border-orange-500/50 transition-colors">
-                  <h3 className="font-cinzel font-bold text-orange-400 text-lg mb-2">{show.name}</h3>
-                  <div className="text-sm text-gray-400 font-cormorant flex flex-col gap-1">
-                    <span>📅 {show.day}</span>
-                    <span>⏰ {show.time}</span>
+                <Link 
+                  key={index} 
+                  href={show.href} 
+                  className="bg-black/40 border border-orange-900/30 p-6 md:p-10 rounded-3xl hover:border-orange-500/50 hover:bg-orange-900/10 transition-all duration-500 group"
+                >
+                  <h3 className="font-cinzel font-bold text-orange-400 text-xl md:text-3xl mb-4 group-hover:text-orange-300 transition-colors uppercase tracking-wider">{show.name}</h3>
+                  <div className="text-base md:text-xl text-gray-400 font-cormorant flex flex-col gap-2 italic">
+                    <span className="flex items-center gap-3">📅 {show.day}</span>
+                    <span className="flex items-center gap-3">⏰ {show.time}</span>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* SUBSCRIBE - FIXED BUTTON OVERFLOW */}
-          <section className="w-full max-w-6xl bg-gradient-to-b from-orange-950/20 to-black/80 border border-orange-900/40 py-16 px-6 text-center rounded-[3rem] mb-20 shadow-2xl">
-            <h3 className="font-cinzel text-3xl md:text-5xl text-orange-500 mb-6 uppercase tracking-widest">Ascend the Embers</h3>
-            <p className="text-lg md:text-2xl italic text-gray-300 mb-10 max-w-3xl mx-auto font-cormorant leading-relaxed">
+          {/* SUBSCRIBE SECTION */}
+          <section className="w-full max-w-7xl bg-gradient-to-b from-orange-950/20 to-black/80 border border-orange-900/40 py-20 px-8 text-center rounded-[4rem] mb-24 shadow-2xl">
+            <h3 className="font-cinzel text-4xl md:text-7xl text-orange-500 mb-8 uppercase tracking-widest">Ascend the Embers</h3>
+            <p className="text-xl md:text-3xl italic text-gray-300 mb-14 max-w-4xl mx-auto font-cormorant leading-relaxed">
               Unlock the secrets of the Sanctuary and fuel independent voices.
             </p>
-            <Link href="/dashboard/donate" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 text-white px-10 md:px-20 py-4 md:py-6 rounded-full font-cinzel text-lg md:text-xl tracking-[0.2em] transition-all hover:scale-105 active:scale-95 uppercase font-bold shadow-[0_0_40px_rgba(234,88,12,0.3)]">
+            <Link href="/dashboard/donate" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 text-white px-12 md:px-24 py-5 md:py-8 rounded-full font-cinzel text-xl md:text-3xl tracking-[0.2em] transition-all hover:scale-105 active:scale-95 uppercase font-bold shadow-[0_0_50px_rgba(234,88,12,0.3)]">
               Become a Subscriber
             </Link>
           </section>
