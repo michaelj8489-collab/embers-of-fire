@@ -21,7 +21,9 @@ const cormorant = Cormorant({
 
 export const metadata: Metadata = {
   title: 'Rise Radio Network | Embers of Light Hub',
+  manifest: '/manifest.json', // 🚀 Add this line right here
   description: 'The exclusive sanctuary and hub for the Rise Radio community. Join the awareness.',
+  // ... leave the rest as is
   openGraph: {
     title: 'Rise Radio Network | Embers of Light Hub',
     description: 'Join the sanctuary. Fuel the journey.',
