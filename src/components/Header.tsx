@@ -51,12 +51,11 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
-      {/* NO MAX-WIDTH: This div now stretches to the absolute edges of the screen */}
       <div className="w-full px-8 py-4 flex items-center justify-between">
         
-        {/* LOGO - RESTORED CINZEL DECORATIVE */}
+        {/* LOGO - FORCED TO font-cinzel (WHICH WE KNOW WORKS) */}
         <Link href="/" className="flex items-center shrink-0">
-          <span className="font-cinzel-decorative text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] uppercase tracking-widest">
+          <span className="font-cinzel text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] uppercase tracking-[0.2em]">
             <span className="hidden sm:inline-block">Embers of Light</span>
             <span className="sm:hidden">EOL</span>
           </span>
@@ -70,7 +69,7 @@ export default function Header() {
                 <button className="text-orange-500 font-cinzel font-bold uppercase tracking-[0.2em] hover:text-orange-400 transition-colors">
                   Shows
                 </button>
-                <div className="absolute top-full right-0 mt-2 w-64 bg-black/90 border border-orange-900/50 backdrop-blur-md hidden group-hover:flex flex-col py-2 z-50">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-black/90 border border-orange-900/50 backdrop-blur-md hidden group-hover:flex flex-col py-2 z-50 shadow-2xl">
                   <Link href={`/sanctuary/${userTier}`} className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30">
                     My Sanctuary
                   </Link>
@@ -86,7 +85,6 @@ export default function Header() {
               </button>
             </>
           ) : (
-            /* DESKTOP LOG IN - SPREAD TO THE FAR RIGHT */
             <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-[0.3em] hover:text-orange-400 transition-colors">
               Log In
             </Link>
@@ -108,7 +106,7 @@ export default function Header() {
                 My Sanctuary
               </Link>
               {shows.map((show) => (
-                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel">
+                <Link key={show.href} href={show.href} onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel py-2">
                   {show.name}
                 </Link>
               ))}
