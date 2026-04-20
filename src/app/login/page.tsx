@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -106,6 +107,14 @@ export default function LoginPage() {
               required
             />
           </div>
+          {/* Forgot Password Link - Only shows in Login mode */}
+          {!isSignUp && (
+          <div className="flex justify-end mt-1">
+            <Link href="/forgot-password" className="text-xs font-cinzel text-gray-500 hover:text-orange-400 transition-colors duration-300 uppercase tracking-tighter">
+             Forgot the spark?
+            </Link>
+          </div>
+)}
 
           {/* Dynamic Submit Button */}
           <button
