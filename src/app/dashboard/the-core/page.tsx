@@ -68,7 +68,6 @@ export default function TheCorePage() {
     }
   }, []);
 
-  // Helper for the separating lines
   const SectionDivider = () => (
     <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-16"></div>
   );
@@ -78,27 +77,25 @@ export default function TheCorePage() {
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
       style={{ backgroundImage: "url('/images/main-images/Cover Art/core-bg.jpg')" }}
     >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
-          <div className="w-full max-w-7xl">
+          <div className="w-full max-w-7xl mx-auto">
             
-            {/* Standard Nav Link Fix */}
             <div className="mb-12">
               <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
                 <span>←</span> BACK TO DASHBOARD
               </Link>
             </div>
 
-            {/* Show Title */}
             <div className="text-center mb-12">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-200">
                 The CORE
               </h1>
-              <p className="font-cinzel text-xl text-orange-200/80 italic">
+              <p className="font-cinzel text-xl text-orange-200/80 italic tracking-widest uppercase">
                 Stripping away the layers.
               </p>
             </div>
@@ -125,17 +122,19 @@ export default function TheCorePage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full md:h-[600px]">
-                    <div className="flex-grow h-full bg-black">
+                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
+                    <div className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full bg-black">
                       {parentDomain && (
                         <iframe
                           src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
-                          className="w-full h-full"
-                          frameBorder="0"
+                          className="w-full h-full" 
+                          frameBorder="0" 
                           allowFullScreen={true}
                         />
                       )}
                     </div>
-                    <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
+                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
+                    <div className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       {parentDomain && (
                         <iframe
                           src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&darkpopout`}
@@ -163,20 +162,15 @@ export default function TheCorePage() {
 
             <SectionDivider />
 
-            {/* --- MERCH GALLERY (Standardized Bridge) --- */}
             <MerchGallery showName="The CORE" products={coreProducts} />
 
             <SectionDivider />
 
-            {/* --- SHOW BIO SECTION --- */}
             <section className="w-full mb-24">
-              
-              {/* Heading stretched across container */}
               <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-200 uppercase tracking-widest mb-12">
                 Welcome to The CORE!
               </h2>
 
-              {/* Part 1: Content with pic on left */}
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
@@ -200,7 +194,6 @@ export default function TheCorePage() {
                 </div>
               </div>
 
-              {/* Part 2: How We Began (Bumped up against Part 1) */}
               <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 

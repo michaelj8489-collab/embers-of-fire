@@ -61,7 +61,6 @@ export default function PhoenixTalksPage() {
     }
   }, []);
 
-  // Section divider helper for consistent layout
   const SectionDivider = () => (
     <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-16"></div>
   );
@@ -98,7 +97,7 @@ export default function PhoenixTalksPage() {
 
             <SectionDivider />
 
-            {/* --- SMART PLAYER & CHAT SECTION --- */}
+            {/* Player Section */}
             <div className="mb-12 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button 
@@ -118,25 +117,19 @@ export default function PhoenixTalksPage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-2xl bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full h-full">
-                    <div className="flex-grow h-full bg-black">
-                      {parentDomain && (
-                        <iframe
-                          src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
-                          className="w-full h-full" 
-                          frameBorder="0" 
-                          allowFullScreen={true}
-                        />
-                      )}
-                    </div>
-                    <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
-                      {parentDomain && (
-                        <iframe
-                          src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&darkpopout`}
-                          className="w-full h-full"
-                          frameBorder="0"
-                        />
-                      )}
-                    </div>
+                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
+                    <iframe 
+                      src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
+                      className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
+                      frameBorder="0" 
+                      allowFullScreen
+                    ></iframe>
+                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
+                    <iframe 
+                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                      className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
+                      frameBorder="0"
+                    ></iframe>
                   </div>
                 ) : (
                   <div className="w-full h-full aspect-video">
@@ -153,19 +146,16 @@ export default function PhoenixTalksPage() {
 
             <SectionDivider />
 
-            {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Phoenix Talks" products={phoenixProducts} />
 
             <SectionDivider />
 
-            {/* --- SHOW BIO SECTION --- */}
             <section className="w-full mb-24">
               <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-200 uppercase tracking-widest mb-12">
                 The Story of Phoenix Talks
               </h2>
 
               <div className="flex flex-col md:flex-row items-center gap-12">
-                {/* Bio Photo */}
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
                     src="/images/jmc-edits-palettes/pheonix-talks-bio.png" 
@@ -174,7 +164,6 @@ export default function PhoenixTalksPage() {
                   />
                 </div>
 
-                {/* Bio Content */}
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
                   <div className="font-cormorant text-xl text-gray-300 space-y-6 leading-relaxed">
                     <p>

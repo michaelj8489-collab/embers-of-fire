@@ -23,7 +23,6 @@ export default function TheMessengersPage() {
     if (typeof window !== 'undefined') { setParentDomain(window.location.hostname); }
   }, []);
 
-  // Consistent divider for all show pages
   const SectionDivider = () => (
     <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-900/40 to-transparent my-16"></div>
   );
@@ -41,14 +40,12 @@ export default function TheMessengersPage() {
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl mx-auto">
             
-            {/* Standard Nav Link Fix */}
             <div className="mb-12">
               <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
                 <span>←</span> BACK TO DASHBOARD
               </Link>
             </div>
 
-            {/* Show Title */}
             <div className="text-center mb-12">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-orange-400">
                 The Messengers
@@ -58,7 +55,6 @@ export default function TheMessengersPage() {
 
             <SectionDivider />
 
-            {/* Smart Player Section */}
             <div className="mb-12 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button onClick={() => setActiveView('live')} className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}>🔴 Live Stream</button>
@@ -68,8 +64,19 @@ export default function TheMessengersPage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full h-full">
-                    <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} className="flex-grow h-full" frameBorder="0" allowFullScreen></iframe>
-                    <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-l border-orange-900/30" frameBorder="0"></iframe>
+                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
+                    <iframe 
+                      src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
+                      className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
+                      frameBorder="0" 
+                      allowFullScreen
+                    ></iframe>
+                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
+                    <iframe 
+                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                      className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
+                      frameBorder="0"
+                    ></iframe>
                   </div>
                 ) : (
                   <div className="w-full h-full aspect-video">
@@ -81,18 +88,15 @@ export default function TheMessengersPage() {
 
             <SectionDivider />
 
-            {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="The Messengers" products={messengerProducts} />
 
             <SectionDivider />
 
-            {/* --- SHOW BIO SECTION --- */}
             <section className="w-full mb-24">
               <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-16">
                 Meet The Messengers
               </h2>
 
-              {/* Part 1: Sanctuary of Intuition */}
               <div className="flex flex-col md:flex-row items-center gap-12 mb-16">
                 <div className="w-full md:w-1/2 relative aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] group">
                   <img 
@@ -116,7 +120,6 @@ export default function TheMessengersPage() {
                 </div>
               </div>
 
-              {/* Part 2: The Origin Story */}
               <div className="flex flex-col md:flex-row-reverse items-center gap-12 mb-16">
                 <div className="w-full md:w-1/2 relative aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] group">
                   <img 
@@ -143,7 +146,6 @@ export default function TheMessengersPage() {
                 </div>
               </div>
 
-              {/* Final Quote Box */}
               <div className="bg-black/60 backdrop-blur-sm p-10 rounded-[2rem] border border-orange-900/30 text-center max-w-4xl mx-auto shadow-2xl mt-12">
                 <p className="font-cormorant text-xl md:text-2xl text-orange-200 italic leading-relaxed">
                   "When you watch The Messengers, you are witnessing the original flame that started it all—a unified dream to help people find inner peace through music, tarot, and creative connection."

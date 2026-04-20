@@ -51,8 +51,19 @@ export default function IlluminatePage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-2xl bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full h-full">
-                    <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} className="flex-grow h-full" frameBorder="0" allowFullScreen></iframe>
-                    <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-l border-orange-900/30" frameBorder="0"></iframe>
+                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
+                    <iframe 
+                      src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
+                      className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
+                      frameBorder="0" 
+                      allowFullScreen
+                    ></iframe>
+                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
+                    <iframe 
+                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                      className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
+                      frameBorder="0"
+                    ></iframe>
                   </div>
                 ) : (
                   <div className="w-full h-full aspect-video"><iframe src="https://www.youtube.com/embed/Aqw4_0Cl2J8" className="w-full h-full" frameBorder="0" allowFullScreen></iframe></div>

@@ -8,7 +8,7 @@ import MerchGallery from '@/components/MerchGallery';
 
 const bloomProducts = [
   { id: 1, name: "Low Profile Baseball Cap", price: "$17.36", image: "https://images-api.printify.com/mockup/69cec66addebb5f8370786f2/104280/53890/the-bloom-low-profile-baseball-cap.jpg?camera_label=front&revision=1775159095182&s=2048", link: "https://embers-of-light.printify.me/product/27752482" },
-  { id: 2, name: "Unisex Heavy Cotton Tee", price: "$31.35", image: "https://images-api.printify.com/mockup/69c3ee43f4a6bbf9820c5657/12100/92570/the-bloom-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077503615&s=2048", link: "https://embers-of-light.printify.me/product/27560397" },
+  { id: 2, name: "Unisex Heavy Cotton Tee", price: "$31.35", image: "https://images-api.printify.com/mockup/69c3ee43f4a6bbf9820c5812/12100/92570/the-bloom-unisex-heavy-cotton-tee.jpg?camera_label=front&revision=1775077503615&s=2048", link: "https://embers-of-light.printify.me/product/27560397" },
   { id: 3, name: "Ceramic Mug (11oz, 15oz)", price: "$9.44", image: "https://images-api.printify.com/mockup/69c3ed039003cbb4a4052fdc/104692/101750/the-bloom-ceramic-mug-11oz-15oz.jpg?camera_label=front&revision=1775077354876&s=2048", link: "https://embers-of-light.printify.me/product/27560337" },
   { id: 4, name: "Cotton Canvas Tote Bag", price: "$18.68", image: "https://images-api.printify.com/mockup/69c3f631451dae57710f9abb/101409/93895/the-bloom-cotton-canvas-tote-bag.jpg?camera_label=front&revision=1775077686552&s=400", link: "https://embers-of-light.printify.me/product/27560885" },
   { id: 5, name: "Heavy Blend™ Hooded Sweatshirt", price: "$30.92", image: "https://images-api.printify.com/mockup/69c425bf7a696940f8027bf3/32912/98425/the-bloom-unisex-heavy-blend-hooded-sweatshirt.jpg?camera_label=back&revision=1775077355722&s=2048", link: "https://embers-of-light.printify.me/product/27564745" },
@@ -70,8 +70,19 @@ export default function TheBloomPage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-2xl bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full h-full">
-                    <iframe src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} className="flex-grow h-full" frameBorder="0" allowFullScreen></iframe>
-                    <iframe src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-l border-orange-900/30" frameBorder="0"></iframe>
+                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
+                    <iframe 
+                      src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
+                      className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
+                      frameBorder="0" 
+                      allowFullScreen
+                    ></iframe>
+                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
+                    <iframe 
+                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                      className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
+                      frameBorder="0"
+                    ></iframe>
                   </div>
                 ) : (
                   <div className="w-full h-full aspect-video">
@@ -94,7 +105,6 @@ export default function TheBloomPage() {
                 Meet The Host
               </h2>
 
-              {/* Part 1: (Diane Solo returned to top) */}
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
@@ -119,7 +129,6 @@ export default function TheBloomPage() {
                 </div>
               </div>
 
-              {/* Part 2: (the-bloom.png at bottom with object-contain to prevent cutting off text) */}
               <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black/40">
                   <img 

@@ -95,14 +95,12 @@ export default function BrindlesVisionPage() {
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl mx-auto">
             
-            {/* Standard Nav Link Fix */}
             <div className="mb-12">
               <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
                 <span>←</span> BACK TO DASHBOARD
               </Link>
             </div>
 
-            {/* Show Title */}
             <div className="text-center mb-16 border-b border-orange-900/30 pb-12">
               <h1 className="font-cinzel-decorative font-bold text-center text-5xl md:text-7xl mb-4 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-orange-400">
                 Brindle's Vision
@@ -112,7 +110,6 @@ export default function BrindlesVisionPage() {
               </p>
             </div>
 
-            {/* --- SMART PLAYER & CHAT SECTION --- */}
             <div className="mb-16 relative">
               <div className="flex justify-center gap-4 mb-8">
                 <button 
@@ -132,7 +129,7 @@ export default function BrindlesVisionPage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-2xl bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full h-full">
-                    <div className="flex-grow h-full bg-black">
+                    <div className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full bg-black">
                       {parentDomain && (
                         <iframe
                           src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
@@ -142,7 +139,7 @@ export default function BrindlesVisionPage() {
                         />
                       )}
                     </div>
-                    <div className="w-full md:w-[350px] h-[400px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
+                    <div className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       {parentDomain && (
                         <iframe
                           src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&darkpopout`}
@@ -171,10 +168,8 @@ export default function BrindlesVisionPage() {
               </p>
             </div>
 
-            {/* --- MERCH GALLERY --- */}
             <MerchGallery showName="Brindle's Vision" products={brindleProducts} />
 
-            {/* --- MEET THE HOST SECTION --- */}
             <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">
                 Meet The Host
