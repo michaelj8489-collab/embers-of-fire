@@ -54,7 +54,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
       <div className="w-full px-8 py-4 flex items-center justify-between">
         
-        {/* LOGO - REINFORCED FONT STYLING */}
+        {/* LOGO */}
         <Link href="/" className="flex items-center shrink-0">
           <span className="font-cinzel text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] uppercase tracking-[0.2em]">
             <span className="hidden sm:inline-block">Embers of Light</span>
@@ -66,7 +66,10 @@ export default function Header() {
         <nav className="hidden lg:flex items-center gap-10">
           {isMounted && isLoggedIn ? (
             <>
-              {/* CLICK DRIVEN DROPDOWN */}
+              <Link href="/chat" className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors">
+                Chat
+              </Link>
+
               <div className="relative">
                 <button 
                   onClick={() => setShowsOpen(!showsOpen)}
@@ -123,8 +126,11 @@ export default function Header() {
               <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
                 My Sanctuary
               </Link>
+
+              <Link href="/chat" onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest font-cinzel">
+                Chat Sanctuary
+              </Link>
               
-              {/* MOBILE SHOWS TOGGLE */}
               <button 
                 onClick={() => setShowsOpen(!showsOpen)}
                 className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-widest flex items-center justify-between"

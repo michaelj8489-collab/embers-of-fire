@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-// Using the standard client that worked before
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/client';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<any[]>([]);
@@ -10,12 +9,7 @@ export default function ChatPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   
-  // Directly creating the client using your environment variables
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-  
+  const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,7 +18,6 @@ export default function ChatPage() {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
-        console.error("User session not found:", userError);
         setLoading(false);
         return;
       }
@@ -39,7 +32,7 @@ export default function ChatPage() {
         .limit(50);
 
       if (error) {
-        alert("Database Error: " + error.message);
+        console.error("Database Error:", error.message);
       } else if (data) {
         setMessages(data);
       }
@@ -48,7 +41,7 @@ export default function ChatPage() {
 
     setupChat();
 
-    // 3. Real-time subscription (This makes it feel alive)
+    // 3. Real-time subscription
     const channel = supabase
       .channel('public:chat_messages')
       .on('postgres_changes', { 
@@ -63,7 +56,7 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []); // Keep dependency array empty to prevent re-renders
+  }, [supabase]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -72,14 +65,8 @@ export default function ChatPage() {
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      alert("You must be logged in to chat, Keeper.");
-      return;
-    }
+    if (!user || !newMessage.trim()) return;
 
-    if (!newMessage.trim()) return;
-
-    // 4. The actual send command
     const { error } = await supabase
       .from('chat_messages')
       .insert({
@@ -88,17 +75,16 @@ export default function ChatPage() {
       });
 
     if (error) {
-      // THIS will tell us exactly why it's failing
       alert("Send Failed: " + error.message);
     } else {
-      setNewMessage(''); // Clear the input on success
+      setNewMessage('');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-pulse text-orange-500 font-cinzel tracking-widest">Opening the Sanctuary...</div>
+      <div className="min-h-screen bg-black flex items-center justify-center font-cinzel text-orange-500 tracking-widest animate-pulse">
+        Opening the Sanctuary...
       </div>
     );
   }
