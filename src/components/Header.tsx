@@ -51,23 +51,23 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
-      {/* THE CONTAINER: max-w-7xl mx-auto keeps logo/login from drifting too far left/right */}
-      <div className="max-w-7xl mx-auto w-full px-6 py-4 flex items-center justify-between">
+      {/* NO MAX-WIDTH: This div now stretches to the absolute edges of the screen */}
+      <div className="w-full px-8 py-4 flex items-center justify-between">
         
-        {/* LOGO - FIXED FONT TO MATCH CARDS */}
+        {/* LOGO - RESTORED CINZEL DECORATIVE */}
         <Link href="/" className="flex items-center shrink-0">
-          <span className="font-cinzel text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] uppercase tracking-wider">
+          <span className="font-cinzel-decorative text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] uppercase tracking-widest">
             <span className="hidden sm:inline-block">Embers of Light</span>
             <span className="sm:hidden">EOL</span>
           </span>
         </Link>
 
         {/* DESKTOP NAVIGATION */}
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-10">
           {isMounted && isLoggedIn ? (
             <>
               <div className="relative group">
-                <button className="text-orange-500 font-cinzel font-bold uppercase tracking-widest hover:text-orange-400 transition-colors">
+                <button className="text-orange-500 font-cinzel font-bold uppercase tracking-[0.2em] hover:text-orange-400 transition-colors">
                   Shows
                 </button>
                 <div className="absolute top-full right-0 mt-2 w-64 bg-black/90 border border-orange-900/50 backdrop-blur-md hidden group-hover:flex flex-col py-2 z-50">
@@ -81,13 +81,13 @@ export default function Header() {
                   ))}
                 </div>
               </div>
-              <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-600/20 px-4 py-2 rounded transition-colors">
+              <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 hover:bg-orange-600/20 px-4 py-2 rounded transition-colors">
                 Sign Out
               </button>
             </>
           ) : (
-            /* DESKTOP LOG IN - NOW INSIDE THE CONTAINER BOUNDARIES */
-            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-widest hover:text-orange-400 transition-colors">
+            /* DESKTOP LOG IN - SPREAD TO THE FAR RIGHT */
+            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-[0.3em] hover:text-orange-400 transition-colors">
               Log In
             </Link>
           )}
@@ -101,7 +101,7 @@ export default function Header() {
 
       {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
-        <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-6 py-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto shadow-2xl">
+        <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-8 py-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto shadow-2xl">
           {isMounted && isLoggedIn ? (
             <>
               <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
