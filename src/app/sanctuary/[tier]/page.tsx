@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useRouter } from 'next/navigation';
 
 const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color: string, perks: string[], image: string }> = {
   "seeker": {
@@ -13,35 +14,35 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
     image: "/images/misc/wolf-and-raven.jpg",
     perks: ["Public Show Archives", "Basic Community Forum", "Main Live Stream Access"]
   },
-  "keepers": { // Matches DB 'keepers'
+  "keepers": { 
     title: "THE KEEPERS SANCTUARY",
     subtitle: "Fueling the eternal flame.",
     color: "from-orange-500 to-orange-700",
     image: "/images/jmc-edits-palettes/keepers-of-the-embers.png",
     perks: ["Digital Supporter Recognition", "Ember Keeper Identity Badge", "Community Posts Feed"]
   },
-  "bearers": { // Matches DB 'bearers'
+  "bearers": { 
     title: "THE BEARERS SANCTUARY",
     subtitle: "Guiding the community fire.",
     color: "from-orange-400 to-red-600",
     image: "/images/jmc-edits-palettes/flame-bearers.png",
     perks: ["Exclusive 'Awareness Insights'", "Priority Voting on Themes", "Ad-Free Show Archives"]
   },
-  "circle": { // Matches DB 'circle'
+  "circle": { 
     title: "THE PHOENIX CIRCLE",
     subtitle: "Direct impact. Deep awareness.",
     color: "from-yellow-400 to-orange-500",
     image: "/images/jmc-edits-palettes/phoenix-circle.png",
     perks: ["Monthly 'Fireside' Livestream", "Monthly On-Air Shout-out", "Zoom Workshop Access"]
   },
-  "wings": { // Matches DB 'wings'
+  "wings": { 
     title: "THE WINGS SANCTUARY",
     subtitle: "Building the legacy infrastructure.",
     color: "from-red-500 to-orange-600",
     image: "/images/jmc-edits-palettes/wings-of-the-phoenix.png",
     perks: ["Quarterly Executive Council Calls", "Phoenix Vision Insight Letters", "Submission Priority"]
   },
-  "ascending": { // Matches DB 'ascending'
+  "ascending": { 
     title: "THE ASCENDING SANCTUARY",
     subtitle: "The highest vision realized.",
     color: "from-yellow-200 via-orange-400 to-red-700",
@@ -50,8 +51,18 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
   }
 };
 
+const TIER_RANKS: Record<string, number> = {
+  "seeker": 0,
+  "keepers": 1,
+  "bearers": 2,
+  "circle": 3,
+  "wings": 4,      
+  "ascending": 5   
+};
+
 export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: string }> }) {
   const { tier } = use(params); 
+  const router = useRouter();
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -62,18 +73,57 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
   useEffect(() => {
     const getData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-        setIsAdmin(profile?.role === 'admin');
+      
+      // 1. Check Login
+      if (!user) {
+        router.push('/login');
+        return;
       }
-      const { data: messages } = await supabase.from('broadcasts').select('*').eq('target_tier', tier).order('created_at', { ascending: false });
+
+      // 2. Check Admin Status
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      const userIsAdmin = profile?.role === 'admin';
+      setIsAdmin(userIsAdmin);
+
+      // 3. Security Check (Admins bypass this)
+      if (!userIsAdmin) {
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select(`
+            status,
+            tier_definitions ( rank )
+          `)
+          .eq('user_id', user.id)
+          .single();
+
+        const REQUIRED_RANK = TIER_RANKS[tier] ?? 0; 
+        // @ts-ignore - Handle potential nesting in subData
+        const userRank = subData?.tier_definitions?.rank ?? 0;
+        const isActive = subData?.status === 'active';
+
+        if (!isActive || userRank < REQUIRED_RANK) {
+          router.push('/'); 
+          return;
+        }
+      }
+
+      // 4. Load Data
+      const { data: messages } = await supabase
+        .from('broadcasts')
+        .select('*')
+        .eq('target_tier', tier)
+        .order('created_at', { ascending: false });
+        
       setBroadcasts(messages || []);
       setLoading(false);
     };
-    getData();
-  }, [tier, supabase]);
 
-  if (loading) return <div className="min-h-screen bg-black text-white p-10 font-cinzel text-center pt-40 text-orange-500 animate-pulse uppercase tracking-[0.3em]">Synchronizing Sanctuary...</div>;
+    getData();
+  }, [tier, supabase, router]);
+
+  if (loading) {
+    return <div className="min-h-screen bg-black text-white p-10 font-cinzel text-center pt-40 text-orange-500 animate-pulse uppercase tracking-[0.3em]">Synchronizing Sanctuary...</div>;
+  }
 
   return (
     <main className="relative min-h-screen w-full flex flex-col bg-black overflow-x-hidden">
@@ -81,9 +131,14 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
       <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-10 pointer-events-none"></div>
 
       <Header />
+      
       <div className="relative z-20 max-w-5xl mx-auto pt-32 px-6 pb-20">
-        <h1 className={`text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r ${decoration.color} mb-2 uppercase tracking-tighter drop-shadow-lg`}>{decoration.title}</h1>
-        <p className="text-xl md:text-2xl font-cormorant text-gray-300 italic mb-12 tracking-widest uppercase">{decoration.subtitle}</p>
+        <h1 className={`text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r ${decoration.color} mb-2 uppercase tracking-tighter drop-shadow-lg`}>
+          {decoration.title}
+        </h1>
+        <p className="text-xl md:text-2xl font-cormorant text-gray-300 italic mb-12 tracking-widest uppercase">
+          {decoration.subtitle}
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
           {decoration.perks.map((perk, index) => (
