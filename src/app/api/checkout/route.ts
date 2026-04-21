@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   try {
     const { tierName } = await req.json();
 
-    // These are your real Stripe Price IDs mapped to your frontend names
+    // Mapping frontend names to your specific Stripe Price IDs
     const priceMap: Record<string, string> = {
       "Keepers of the Embers": "price_1TKYLtBAi5oU9zpeG6IJz4Zf", 
       "Flame Bearers": "price_1TKYUrBAi5oU9zpegt6H0RNl",
@@ -28,12 +28,13 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      // After paying, the user is sent back to the dashboard
+      // Return user to dashboard on success, or home on cancel
       success_url: `${req.headers.get('origin')}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/`,
       metadata: {
-        // This "hidden note" tells your Webhook exactly which tier to unlock in Supabase
-        tier_name: tierName.toLowerCase().replace(/ /g, '-'), 
+        // FIXED: Now sends the exact name (e.g., "Keepers of the Embers") 
+        // instead of "keepers-of-the-embers"
+        tier_name: tierName, 
       },
     });
 
