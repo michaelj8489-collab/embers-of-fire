@@ -56,6 +56,7 @@ export async function POST(req: Request) {
           .from('profiles')
           .update({ 
             subscription_tier: newTier,
+            subscription_status: 'active', // <-- ADDED THIS: Unlocks the account
             updated_at: new Date().toISOString()
           })
           .eq('id', userData.id);
@@ -89,7 +90,26 @@ export async function POST(req: Request) {
   if (event.type === 'customer.subscription.deleted' || event.type === 'invoice.payment_failed') {
     const subscription = event.data.object as Stripe.Subscription;
     
-    // Deactivate their access in the database
+    // 1. Find the user attached to this failing subscription
+    const { data: subData } = await supabaseAdmin
+      .from('subscriptions')
+      .select('user_id')
+      .eq('stripe_subscription_id', subscription.id)
+      .single();
+
+    if (subData?.user_id) {
+      // 2. Downgrade their profile access back to base level
+      await supabaseAdmin
+        .from('profiles')
+        .update({ 
+          subscription_tier: 'Seeker',    // <-- Downgrades them
+          subscription_status: 'inactive', // <-- Locks premium content
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subData.user_id);
+    }
+
+    // 3. Deactivate their receipt in the subscriptions table
     await supabaseAdmin
       .from('subscriptions')
       .update({ status: 'inactive' })

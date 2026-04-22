@@ -11,6 +11,7 @@ import { getStripe } from '@/utils/stripe/client';
 function DashboardContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTier, setUserTier] = useState<string>('seeker'); 
+  const [userEmail, setUserEmail] = useState<string | null>(null); // <-- 1. ADDED STATE
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
   const router = useRouter();
@@ -23,6 +24,8 @@ function DashboardContent() {
       setIsLoggedIn(!!session);
 
       if (session?.user) {
+        setUserEmail(session.user.email ?? null); // <-- 2. CAPTURE THE EMAIL
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('subscription_tier')
@@ -42,8 +45,8 @@ function DashboardContent() {
   useEffect(() => {
     const triggerCheckout = async () => {
       const tierSlug = searchParams.get('trigger_checkout');
-      // Wait until we know who the user is before launching Stripe
-      if (!tierSlug || loading || !isLoggedIn) return;
+      // Wait until we know who the user is (and have their email) before launching Stripe
+      if (!tierSlug || loading || !isLoggedIn || !userEmail) return; // <-- 3. CHECK FOR EMAIL
 
       const tierMap: Record<string, string> = {
         'keepers-of-the-embers': 'Keepers of the Embers',
@@ -60,24 +63,25 @@ function DashboardContent() {
         const response = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tierName }),
+          // 4. INJECT THE EMAIL INTO THE API CALL
+          body: JSON.stringify({ tierName, userEmail }), 
         });
 
         const resData = await response.json();
         const stripe = await getStripe();
         
        if (stripe && resData.sessionId) {
-          // @ts-ignore - Stripe's types here often conflict with Next.js client components
-          const { error } = await stripe.redirectToCheckout({ sessionId: resData.sessionId });
-          if (error) console.error("Stripe redirect error:", error);
-        }
+         // @ts-ignore - Stripe's types here often conflict with Next.js client components
+         const { error } = await stripe.redirectToCheckout({ sessionId: resData.sessionId });
+         if (error) console.error("Stripe redirect error:", error);
+       }
       } catch (err) {
         console.error("Auto-checkout failed:", err);
       }
     };
 
     triggerCheckout();
-  }, [loading, isLoggedIn, searchParams]);
+  }, [loading, isLoggedIn, searchParams, userEmail]); // <-- 5. ADDED TO DEPENDENCY ARRAY
 
   const schedule = [
     { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},

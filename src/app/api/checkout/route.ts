@@ -8,7 +8,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export async function POST(req: Request) {
   try {
-    const { tierName } = await req.json();
+    // 1. ADDED userEmail HERE so the API knows to look for it
+    const { tierName, userEmail } = await req.json();
 
     // 1. Map the Tier to the correct price in cents
     let priceInCents = 0;
@@ -25,6 +26,8 @@ export async function POST(req: Request) {
 
     // 2. Create the Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
+      // 2. ADDED THIS LINE: Locks the user's email into the Stripe checkout
+      customer_email: userEmail, 
       line_items: [
         {
           price_data: {
