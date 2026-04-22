@@ -3,14 +3,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-// The list of public channels
+// Added shortName for the mobile bottom navigation
 const PUBLIC_CHANNELS = [
-  { id: 'global', name: 'Global Sanctuary', desc: 'Main community chat' },
-  { id: 'smule-joins', name: 'Smule Joins (OC)', desc: 'Share your open calls' },
-  { id: 'the-messengers', name: 'The Messengers', desc: 'Song submissions' },
-  { id: 'brindles-vision', name: 'Brindle\'s Vision', desc: 'Song submissions' },
-  { id: 'honkytonk-heaven', name: 'Honkytonk Heaven', desc: 'Song submissions' },
-  { id: 'defining-your-character', name: 'Defining Your Character', desc: 'Song submissions' }
+  { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
+  { id: 'smule-joins', name: 'Smule Joins (OC)', shortName: 'SMULE', desc: 'Share your open calls' },
+  { id: 'the-messengers', name: 'The Messengers', shortName: 'MSNGRS', desc: 'Song submissions' },
+  { id: 'brindles-vision', name: 'Brindle\'s Vision', shortName: 'BRINDLE', desc: 'Song submissions' },
+  { id: 'honkytonk-heaven', name: 'Honkytonk Heaven', shortName: 'HONKY', desc: 'Song submissions' },
+  { id: 'defining-your-character', name: 'Defining Your Character', shortName: 'DYC', desc: 'Song submissions' }
 ];
 
 export default function ChatPage() {
@@ -24,13 +24,11 @@ export default function ChatPage() {
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 1. Initial Setup: Get User and Role
   useEffect(() => {
     const initSetup = async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (!error && user) {
         setUser(user);
-        // Check if Admin
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
@@ -43,27 +41,33 @@ export default function ChatPage() {
     initSetup();
   }, [supabase]);
 
-  // 2. Fetch Messages and Listen for changes whenever the room changes
   useEffect(() => {
     if (loading) return;
 
+    // THE FIX: Instantly wipe the chat screen when a new tab is clicked
+    setMessages([]);
+
     const fetchRoomMessages = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('chat_messages')
         .select(`
           id, content, created_at, user_id, room_name,
           profiles ( full_name, username )
         `)
-        .eq('room_name', activeRoom) // Filter by the active room!
+        .eq('room_name', activeRoom) 
         .order('created_at', { ascending: true })
         .limit(100);
 
-      if (data) setMessages(data);
+      // SAFETY CATCH: Make sure empty rooms actually show as empty
+      if (data) {
+        setMessages(data);
+      } else {
+        setMessages([]);
+      }
     };
 
     fetchRoomMessages();
 
-    // Subscribe to realtime changes FOR THIS ROOM ONLY
     const channel = supabase
       .channel(`chat_${activeRoom}`)
       .on('postgres_changes', { 
@@ -74,7 +78,6 @@ export default function ChatPage() {
       }, async (payload: any) => {
         const incomingMsg = payload.new;
         
-        // Fetch sender identity for the new message
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, username')
@@ -104,7 +107,7 @@ export default function ChatPage() {
       .insert({
         content: newMessage,
         user_id: user.id,
-        room_name: activeRoom, // Tag message with the current room
+        room_name: activeRoom, 
       });
 
     if (error) alert("Send Failed: " + error.message);
@@ -115,17 +118,17 @@ export default function ChatPage() {
     return <div className="min-h-screen bg-black flex items-center justify-center font-cinzel text-orange-500 tracking-[0.3em] animate-pulse text-xl">IGNITING THE SANCTUARY...</div>;
   }
 
-  const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }]
+  const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat', shortName: 'ADMIN' }]
     .find(c => c.id === activeRoom)?.name || 'Unknown Room';
 
   return (
-    <main className="min-h-screen bg-black pt-20 pb-6 md:pt-28 md:pb-12 px-2 md:px-4 flex justify-center overflow-x-hidden">
+    <main className="min-h-screen bg-black pt-16 md:pt-28 pb-0 md:pb-12 flex justify-center overflow-hidden">
       
-      {/* Main App Container */}
-      <div className="w-full max-w-6xl flex flex-col md:flex-row gap-4 h-[80vh] md:h-[85vh]">
+      {/* Container - Full height on mobile, boxed on desktop */}
+      <div className="w-full max-w-6xl flex flex-col md:flex-row md:gap-4 h-[calc(100vh-64px)] md:h-[85vh] px-0 md:px-4">
         
-        {/* SIDEBAR: Channels List */}
-        <div className="w-full md:w-1/3 lg:w-1/4 bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
+        {/* DESKTOP SIDEBAR (Hidden on mobile) */}
+        <div className="hidden md:flex w-full md:w-1/3 lg:w-1/4 bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
           <div className="p-4 bg-gradient-to-b from-orange-950/40 to-transparent border-b border-orange-900/30">
             <h2 className="font-cinzel text-xl text-orange-500 uppercase tracking-widest">Frequencies</h2>
           </div>
@@ -141,7 +144,6 @@ export default function ChatPage() {
               </button>
             ))}
 
-            {/* ADMIN ONLY CHANNEL */}
             {isAdmin && (
               <button
                 onClick={() => setActiveRoom('admin-chat')}
@@ -155,7 +157,7 @@ export default function ChatPage() {
         </div>
 
         {/* MAIN CHAT AREA */}
-        <div className="flex-1 bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
+        <div className="flex-1 bg-gray-900/40 md:border border-orange-900/30 md:rounded-3xl flex flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
           
           <div className="p-4 md:p-6 border-b border-orange-900/30 bg-gradient-to-r from-orange-950/40 to-black flex justify-between items-end">
             <div>
@@ -165,7 +167,7 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scrollbar-hide">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 [&::-webkit-scrollbar]:hidden">
             {!user && (
               <div className="bg-orange-900/20 border border-orange-500/50 p-4 rounded-xl text-center text-orange-200 font-cormorant italic">
                 Please log in to join the conversation.
@@ -174,9 +176,9 @@ export default function ChatPage() {
             
             {messages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                {/* IDENTITY FIX */}
+                {/* PRIORITY USERNAME FIX: Username first, then full_name, then Anonymous */}
                 <span className="text-[10px] md:text-xs font-cinzel text-orange-500/70 mb-1 tracking-widest uppercase px-1">
-                  {msg.profiles?.full_name || msg.profiles?.username || 'Anonymous Seeker'}
+                  {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                 </span>
                 <div className={`max-w-[90%] md:max-w-[70%] p-3 md:p-5 rounded-2xl md:rounded-3xl text-sm md:text-lg font-cormorant leading-relaxed shadow-lg ${
                   msg.user_id === user?.id 
@@ -201,6 +203,35 @@ export default function ChatPage() {
               SEND
             </button>
           </form>
+        </div>
+
+        {/* MOBILE BOTTOM TABS (Hidden on Desktop) */}
+        <div className="md:hidden flex-none bg-black border-t border-orange-900/50 flex overflow-x-auto items-center p-2 gap-2 [&::-webkit-scrollbar]:hidden pb-4">
+          {PUBLIC_CHANNELS.map(ch => (
+            <button
+              key={ch.id}
+              onClick={() => setActiveRoom(ch.id)}
+              className={`flex-shrink-0 px-4 py-2 rounded-full font-cinzel text-xs tracking-widest transition-all ${
+                activeRoom === ch.id
+                  ? 'bg-orange-600 text-white border border-orange-500 shadow-lg'
+                  : 'bg-gray-900 text-gray-400 border border-orange-900/50 hover:text-orange-400'
+              }`}
+            >
+              {ch.shortName}
+            </button>
+          ))}
+          {isAdmin && (
+            <button
+              onClick={() => setActiveRoom('admin-chat')}
+              className={`flex-shrink-0 px-4 py-2 rounded-full font-cinzel text-xs tracking-widest transition-all ${
+                activeRoom === 'admin-chat'
+                  ? 'bg-red-800 text-white border border-red-500 shadow-[0_0_10px_rgba(220,38,38,0.5)]'
+                  : 'bg-red-950/20 text-red-500 border border-red-900/50'
+              }`}
+            >
+              ADMIN
+            </button>
+          )}
         </div>
 
       </div>
