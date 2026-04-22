@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-// Added shortName for the mobile bottom navigation
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
   { id: 'smule-joins', name: 'Smule Joins (OC)', shortName: 'SMULE', desc: 'Share your open calls' },
@@ -14,7 +13,8 @@ const PUBLIC_CHANNELS = [
 ];
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<any[]>([]);
+  // THE SMART CACHE: Maps arrays of messages to their specific room IDs
+  const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
   const [newMessage, setNewMessage] = useState('');
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -23,6 +23,9 @@ export default function ChatPage() {
   
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Derived state: Pull only the active room's messages from the cache
+  const currentMessages = messagesByRoom[activeRoom] || [];
 
   useEffect(() => {
     const initSetup = async () => {
@@ -44,30 +47,31 @@ export default function ChatPage() {
   useEffect(() => {
     if (loading) return;
 
-    // THE FIX: Instantly wipe the chat screen when a new tab is clicked
-    setMessages([]);
-
     const fetchRoomMessages = async () => {
-      const { data, error } = await supabase
+      // THE 14-DAY TIME MACHINE
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+      const { data } = await supabase
         .from('chat_messages')
         .select(`
           id, content, created_at, user_id, room_name,
           profiles ( full_name, username )
         `)
         .eq('room_name', activeRoom) 
+        .gte('created_at', twoWeeksAgo.toISOString()) 
         .order('created_at', { ascending: true })
-        .limit(100);
+        .limit(2000); 
 
-      // SAFETY CATCH: Make sure empty rooms actually show as empty
       if (data) {
-        setMessages(data);
-      } else {
-        setMessages([]);
+        // Update ONLY this room's cache
+        setMessagesByRoom((prev) => ({ ...prev, [activeRoom]: data }));
       }
     };
 
     fetchRoomMessages();
 
+    // Listen for new messages only for the active room
     const channel = supabase
       .channel(`chat_${activeRoom}`)
       .on('postgres_changes', { 
@@ -78,6 +82,7 @@ export default function ChatPage() {
       }, async (payload: any) => {
         const incomingMsg = payload.new;
         
+        // Fetch sender identity
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, username')
@@ -85,7 +90,11 @@ export default function ChatPage() {
           .single();
 
         const msgWithProfile = { ...incomingMsg, profiles: profile };
-        setMessages((current) => [...current, msgWithProfile]);
+        
+        setMessagesByRoom((prev) => {
+          const existingRoomMessages = prev[activeRoom] || [];
+          return { ...prev, [activeRoom]: [...existingRoomMessages, msgWithProfile] };
+        });
       })
       .subscribe();
 
@@ -94,9 +103,10 @@ export default function ChatPage() {
     };
   }, [supabase, activeRoom, loading]);
 
+  // Auto-scroll whenever messages in the current room change
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [currentMessages]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,10 +134,9 @@ export default function ChatPage() {
   return (
     <main className="min-h-screen bg-black pt-16 md:pt-28 pb-0 md:pb-12 flex justify-center overflow-hidden">
       
-      {/* Container - Full height on mobile, boxed on desktop */}
       <div className="w-full max-w-6xl flex flex-col md:flex-row md:gap-4 h-[calc(100vh-64px)] md:h-[85vh] px-0 md:px-4">
         
-        {/* DESKTOP SIDEBAR (Hidden on mobile) */}
+        {/* DESKTOP SIDEBAR */}
         <div className="hidden md:flex w-full md:w-1/3 lg:w-1/4 bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
           <div className="p-4 bg-gradient-to-b from-orange-950/40 to-transparent border-b border-orange-900/30">
             <h2 className="font-cinzel text-xl text-orange-500 uppercase tracking-widest">Frequencies</h2>
@@ -174,9 +183,9 @@ export default function ChatPage() {
               </div>
             )}
             
-            {messages.map((msg) => (
+            {currentMessages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                {/* PRIORITY USERNAME FIX: Username first, then full_name, then Anonymous */}
+                {/* PRIORITY USERNAME: Username first, then full name as backup */}
                 <span className="text-[10px] md:text-xs font-cinzel text-orange-500/70 mb-1 tracking-widest uppercase px-1">
                   {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                 </span>
@@ -205,7 +214,7 @@ export default function ChatPage() {
           </form>
         </div>
 
-        {/* MOBILE BOTTOM TABS (Hidden on Desktop) */}
+        {/* MOBILE BOTTOM TABS */}
         <div className="md:hidden flex-none bg-black border-t border-orange-900/50 flex overflow-x-auto items-center p-2 gap-2 [&::-webkit-scrollbar]:hidden pb-4">
           {PUBLIC_CHANNELS.map(ch => (
             <button
