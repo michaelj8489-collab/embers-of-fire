@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
 
+// 1. EXACT URL SLUGS
 const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color: string, perks: string[], image: string }> = {
   "seeker": {
     title: "THE SEEKER SANCTUARY",
@@ -14,35 +15,35 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
     image: "/images/misc/wolf-and-raven.jpg",
     perks: ["Public Show Archives", "Basic Community Forum", "Main Live Stream Access"]
   },
-  "keepers": { 
+  "keepers-of-the-embers": { 
     title: "THE KEEPERS SANCTUARY",
     subtitle: "Fueling the eternal flame.",
     color: "from-orange-500 to-orange-700",
     image: "/images/jmc-edits-palettes/keepers-of-the-embers.png",
     perks: ["Digital Supporter Recognition", "Ember Keeper Identity Badge", "Community Posts Feed"]
   },
-  "bearers": { 
+  "flame-bearers": { 
     title: "THE BEARERS SANCTUARY",
     subtitle: "Guiding the community fire.",
     color: "from-orange-400 to-red-600",
     image: "/images/jmc-edits-palettes/flame-bearers.png",
     perks: ["Exclusive 'Awareness Insights'", "Priority Voting on Themes", "Ad-Free Show Archives"]
   },
-  "circle": { 
+  "phoenix-circle": { 
     title: "THE PHOENIX CIRCLE",
     subtitle: "Direct impact. Deep awareness.",
     color: "from-yellow-400 to-orange-500",
     image: "/images/jmc-edits-palettes/phoenix-circle.png",
     perks: ["Monthly 'Fireside' Livestream", "Monthly On-Air Shout-out", "Zoom Workshop Access"]
   },
-  "wings": { 
+  "wings-of-the-phoenix": { 
     title: "THE WINGS SANCTUARY",
     subtitle: "Building the legacy infrastructure.",
     color: "from-red-500 to-orange-600",
     image: "/images/jmc-edits-palettes/wings-of-the-phoenix.png",
     perks: ["Quarterly Executive Council Calls", "Phoenix Vision Insight Letters", "Submission Priority"]
   },
-  "ascending": { 
+  "phoenix-ascending": { 
     title: "THE ASCENDING SANCTUARY",
     subtitle: "The highest vision realized.",
     color: "from-yellow-200 via-orange-400 to-red-700",
@@ -51,13 +52,24 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
   }
 };
 
+// 2. EXACT URL SLUGS
 const TIER_RANKS: Record<string, number> = {
   "seeker": 0,
-  "keepers": 1,
-  "bearers": 2,
-  "circle": 3,
-  "wings": 4,      
-  "ascending": 5   
+  "keepers-of-the-embers": 1,
+  "flame-bearers": 2,
+  "phoenix-circle": 3,
+  "wings-of-the-phoenix": 4,      
+  "phoenix-ascending": 5   
+};
+
+// 3. MAPPER FOR THE DATABASE QUERY
+const SLUG_TO_DB_NAME: Record<string, string> = {
+  "seeker": "Seeker",
+  "keepers-of-the-embers": "Keepers of the Embers",
+  "flame-bearers": "Flame Bearers",
+  "phoenix-circle": "Phoenix Circle",
+  "wings-of-the-phoenix": "Wings of the Phoenix",
+  "phoenix-ascending": "Phoenix Ascending"
 };
 
 export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: string }> }) {
@@ -74,18 +86,15 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
     const getData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // 1. Check Login
       if (!user) {
         router.push('/login');
         return;
       }
 
-      // 2. Check Admin Status
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
       const userIsAdmin = profile?.role === 'admin';
       setIsAdmin(userIsAdmin);
 
-      // 3. Security Check (Admins bypass this)
       if (!userIsAdmin) {
         const { data: subData } = await supabase
           .from('subscriptions')
@@ -107,11 +116,13 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
         }
       }
 
-      // 4. Load Data
+      // 4. USE THE MAPPER HERE SO IT SEARCHES FOR THE PROPER DATABASE NAME
+      const dbTierName = SLUG_TO_DB_NAME[tier] || "Seeker";
+
       const { data: messages } = await supabase
         .from('broadcasts')
         .select('*')
-        .eq('target_tier', tier)
+        .eq('target_tier', dbTierName) 
         .order('created_at', { ascending: false });
         
       setBroadcasts(messages || []);

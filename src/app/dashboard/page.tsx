@@ -119,7 +119,8 @@ function DashboardContent() {
           <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-24">
             
             {/* THE SANCTUARY */}
-            <Link href={isLoggedIn ? `/sanctuary/${userTier}` : '/login'} className="flex-1 group">
+          <Link href={isLoggedIn ? `/sanctuary/${userTier.toLowerCase().replace(/ /g, '-')}` : '/login'} 
+            className="flex-1 group">
               <div className="relative aspect-square md:aspect-video rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-orange-500 group-hover:shadow-[0_0_50px_rgba(234,88,12,0.3)]">
                 <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
                   <source src="/images/eol-come-alive.mp4" type="video/mp4" />
