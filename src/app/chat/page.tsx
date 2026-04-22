@@ -24,6 +24,7 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentMessages = messagesByRoom[activeRoom] || [];
 
+  // 1. Initial Authentication & Role Check
   useEffect(() => {
     const initSetup = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -37,39 +38,67 @@ export default function ChatPage() {
     initSetup();
   }, [supabase]);
 
+  // 2. Data Fetching & Realtime Syncing
   useEffect(() => {
     if (loading) return;
+
     const fetchRoomMessages = async () => {
+      // 14-Day Time Machine
       const twoWeeksAgo = new Date();
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('chat_messages')
         .select(`id, content, created_at, user_id, room_name, profiles ( full_name, username )`)
         .eq('room_name', activeRoom) 
-        .gte('created_at', twoWeeksAgo.toISOString()) 
+        .gte('created_at', twoWeeksAgo.toISOString())
         .order('created_at', { ascending: true })
-        .limit(1000); 
+        .limit(2000); 
 
-      if (data) setMessagesByRoom((prev) => ({ ...prev, [activeRoom]: data }));
+      if (error) {
+        console.error("Chat Fetch Error:", error.message);
+      }
+
+      if (data) {
+        setMessagesByRoom((prev) => ({ ...prev, [activeRoom]: data }));
+      }
     };
+
+    // TRIGGER THE FETCH
     fetchRoomMessages();
 
+    // SETUP REALTIME LISTENER
     const channel = supabase.channel(`chat_${activeRoom}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `room_name=eq.${activeRoom}` }, 
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'chat_messages', 
+        filter: `room_name=eq.${activeRoom}` 
+      }, 
       async (payload: any) => {
         const incomingMsg = payload.new;
-        const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
+        
+        // Fetch the sender's profile for the new message
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, username')
+          .eq('id', incomingMsg.user_id)
+          .single();
+
         const msgWithProfile = { ...incomingMsg, profiles: profile };
+        
         setMessagesByRoom((prev) => {
           const existing = prev[activeRoom] || [];
           return { ...prev, [activeRoom]: [...existing, msgWithProfile] };
         });
       }).subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [supabase, activeRoom, loading]);
 
+  // 3. Auto-scroll to bottom on new messages
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentMessages]);
@@ -77,30 +106,38 @@ export default function ChatPage() {
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newMessage.trim()) return;
-    const { error } = await supabase.from('chat_messages').insert({ content: newMessage, user_id: user.id, room_name: activeRoom });
-    if (error) alert("Send Failed: " + error.message);
+
+    const { error } = await supabase.from('chat_messages').insert({
+      content: newMessage,
+      user_id: user.id,
+      room_name: activeRoom, 
+    });
+
+    if (error) alert("Message failed to fly: " + error.message);
     else setNewMessage('');
   };
 
-  if (loading) return <div className="h-screen bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-widest">Igniting...</div>;
+  if (loading) return (
+    <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em]">
+      Igniting the Sanctuary...
+    </div>
+  );
 
-  const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }].find(c => c.id === activeRoom)?.name || 'Unknown';
+  const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }]
+    .find(c => c.id === activeRoom)?.name || 'Unknown Room';
 
   return (
-    /* THE FLUID WRAPPER: 
-       'h-[100dvh]' is the key. It stands for Dynamic Viewport Height. 
-       It automatically subtracts the browser's URL bars on iPhone/Android.
-    */
+    /* FLUID RESPONSIVE WRAPPER */
     <main className="h-[100dvh] w-full bg-black flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0">
       
-      {/* 1. TOP HEADER (Stays a fixed size) */}
+      {/* HEADER SECTION */}
       <div className="flex-none p-4 bg-black/50 border-b border-orange-900/30 backdrop-blur-md">
          <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em]">{activeChannelName}</h1>
       </div>
 
       <div className="flex-1 flex overflow-hidden w-full max-w-7xl mx-auto">
         
-        {/* DESKTOP SIDEBAR (Responsive hidden) */}
+        {/* DESKTOP SIDEBAR */}
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto">
           {PUBLIC_CHANNELS.map(ch => (
             <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600 text-white' : 'text-gray-400 hover:text-orange-500'}`}>
@@ -114,17 +151,18 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* 2. CHAT CONTENT (This fills the rest of the screen) */}
-        <div className="flex-1 flex flex-col min-w-0 h-full relative">
+        {/* MAIN CHAT CONTENT */}
+        <div className="flex-1 flex flex-col min-w-0 h-full">
           
-          {/* Scrollable Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
+          {/* SCROLLABLE FEED */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden">
             {currentMessages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                <span className="text-[9px] font-cinzel text-orange-500/70 mb-1 uppercase">
-                    {msg.profiles?.username || msg.profiles?.full_name || 'Seeker'}
+                {/* IDENTITY: Username priority fix */}
+                <span className="text-[9px] font-cinzel text-orange-500/70 mb-1 tracking-widest uppercase">
+                    {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                 </span>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-lg ${msg.user_id === user?.id ? 'bg-orange-600 text-white rounded-tr-none' : 'bg-zinc-800 text-gray-200 rounded-tl-none'}`}>
+                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-lg ${msg.user_id === user?.id ? 'bg-orange-600 text-white rounded-tr-none shadow-orange-900/20' : 'bg-zinc-800 text-gray-200 rounded-tl-none border border-orange-900/10'}`}>
                     {msg.content}
                 </div>
               </div>
@@ -132,16 +170,25 @@ export default function ChatPage() {
             <div ref={scrollRef} />
           </div>
 
-          {/* 3. INPUT FORM (Stays at the bottom of the content) */}
+          {/* INPUT FORM */}
           <form onSubmit={sendMessage} className="flex-none p-3 bg-black border-t border-orange-900/30 flex gap-2">
-            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak..." className="flex-1 bg-zinc-900 border border-orange-900/30 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500 font-cormorant" />
-            <button type="submit" className="bg-orange-600 text-white px-5 py-2 rounded-full font-cinzel text-[10px] tracking-widest">SEND</button>
+            <input 
+              type="text" 
+              disabled={!user} 
+              value={newMessage} 
+              onChange={(e) => setNewMessage(e.target.value)} 
+              placeholder="Speak your truth..." 
+              className="flex-1 bg-zinc-950 border border-orange-900/30 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500 font-cormorant placeholder:italic placeholder:opacity-30" 
+            />
+            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-[10px] tracking-widest transition-colors">
+              SEND
+            </button>
           </form>
 
-          {/* 4. MOBILE SHOW TABS (Responsive Navigation) */}
-          <div className="md:hidden flex-none bg-black/80 border-t border-orange-900/20 flex overflow-x-auto p-2 gap-2">
+          {/* MOBILE SHOW TABS */}
+          <div className="md:hidden flex-none bg-black/90 border-t border-orange-900/20 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
-              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-[9px] tracking-tighter border ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-lg' : 'bg-zinc-900 text-gray-500 border-orange-900/20'}`}>
+              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-[9px] tracking-tighter border ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500' : 'bg-zinc-900 text-gray-500 border-orange-900/20'}`}>
                 {ch.shortName}
               </button>
             ))}
