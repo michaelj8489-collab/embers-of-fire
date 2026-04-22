@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
 
-// 1. EXACT URL SLUGS
+// 1. URL Slugs for visual matching
 const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color: string, perks: string[], image: string }> = {
   "seeker": {
     title: "THE SEEKER SANCTUARY",
@@ -52,7 +52,7 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
   }
 };
 
-// 2. EXACT URL SLUGS
+// 2. Rank Mapping (Matches the slug from the URL)
 const TIER_RANKS: Record<string, number> = {
   "seeker": 0,
   "keepers-of-the-embers": 1,
@@ -62,7 +62,7 @@ const TIER_RANKS: Record<string, number> = {
   "phoenix-ascending": 5   
 };
 
-// 3. MAPPER FOR THE DATABASE QUERY
+// 3. Mapper for DB query
 const SLUG_TO_DB_NAME: Record<string, string> = {
   "seeker": "Seeker",
   "keepers-of-the-embers": "Keepers of the Embers",
@@ -91,32 +91,30 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
         return;
       }
 
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      // THE FIX: We check PROFILES for both Role and Tier Access
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, subscription_tier, subscription_status')
+        .eq('id', user.id)
+        .single();
+
       const userIsAdmin = profile?.role === 'admin';
       setIsAdmin(userIsAdmin);
 
       if (!userIsAdmin) {
-        const { data: subData } = await supabase
-          .from('subscriptions')
-          .select(`
-            status,
-            tier_definitions ( rank )
-          `)
-          .eq('user_id', user.id)
-          .single();
+        // Find what rank the user's tier is
+        const userTierSlug = (profile?.subscription_tier || 'seeker').toLowerCase().replace(/ /g, '-');
+        const userRank = TIER_RANKS[userTierSlug] ?? 0;
+        const requiredRank = TIER_RANKS[tier] ?? 0;
+        const isActive = profile?.subscription_status === 'active';
 
-        const REQUIRED_RANK = TIER_RANKS[tier] ?? 0; 
-        // @ts-ignore - Handle potential nesting in subData
-        const userRank = subData?.tier_definitions?.rank ?? 0;
-        const isActive = subData?.status === 'active';
-
-        if (!isActive || userRank < REQUIRED_RANK) {
-          router.push('/'); 
+        // If they aren't active or don't have a high enough rank, kick them to dashboard
+        if (!isActive || userRank < requiredRank) {
+          router.push('/dashboard'); 
           return;
         }
       }
 
-      // 4. USE THE MAPPER HERE SO IT SEARCHES FOR THE PROPER DATABASE NAME
       const dbTierName = SLUG_TO_DB_NAME[tier] || "Seeker";
 
       const { data: messages } = await supabase
