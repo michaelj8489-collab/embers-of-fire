@@ -41,12 +41,20 @@ function DashboardContent() {
     checkSession();
   }, [supabase]);
 
-  // 2. THE AUTO-CHECKOUT LISTENER (The Memory Chain Link)
+  // 2. THE AUTO-CHECKOUT LISTENER
   useEffect(() => {
     const triggerCheckout = async () => {
       const tierSlug = searchParams.get('trigger_checkout');
-      // Wait until we know who the user is (and have their email) before launching Stripe
-      if (!tierSlug || loading || !isLoggedIn || !userEmail) return; // <-- 3. CHECK FOR EMAIL
+      
+      // MOBILE FIX: If we see the param but aren't logged in yet, 
+      // don't 'return' yet—wait for the session to load.
+      if (!tierSlug || loading) return; 
+      
+      // If the page loaded but auth failed, we don't trigger.
+      if (!isLoggedIn || !userEmail) {
+        console.log("Waiting for mobile session...");
+        return;
+      }
 
       const tierMap: Record<string, string> = {
         'keepers-of-the-embers': 'Keepers of the Embers',
@@ -60,21 +68,20 @@ function DashboardContent() {
       if (!tierName) return;
 
       try {
+        console.log("🚀 Triggering Stripe for:", userEmail);
         const response = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // 4. INJECT THE EMAIL INTO THE API CALL
           body: JSON.stringify({ tierName, userEmail }), 
         });
 
         const resData = await response.json();
         const stripe = await getStripe();
         
-       if (stripe && resData.sessionId) {
-         // @ts-ignore - Stripe's types here often conflict with Next.js client components
-         const { error } = await stripe.redirectToCheckout({ sessionId: resData.sessionId });
-         if (error) console.error("Stripe redirect error:", error);
-       }
+        if (stripe && resData.sessionId) {
+      const { error } = await (stripe as any).redirectToCheckout({ sessionId: resData.sessionId });
+          if (error) console.error("Stripe redirect error:", error);
+        }
       } catch (err) {
         console.error("Auto-checkout failed:", err);
       }

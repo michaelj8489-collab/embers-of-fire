@@ -28,7 +28,9 @@ export default function LoginPage() {
     if (loginError) {
       setError(loginError.message);
     } else {
-      router.push('/dashboard');
+      // THE FIX: This keeps the ?trigger_checkout=... attached 
+      // so the dashboard knows to open Stripe immediately.
+      router.push('/dashboard' + window.location.search);
     }
     setLoading(false);
   };
