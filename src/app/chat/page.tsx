@@ -3,51 +3,93 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
+// The list of public channels
+const PUBLIC_CHANNELS = [
+  { id: 'global', name: 'Global Sanctuary', desc: 'Main community chat' },
+  { id: 'smule-joins', name: 'Smule Joins (OC)', desc: 'Share your open calls' },
+  { id: 'the-messengers', name: 'The Messengers', desc: 'Song submissions' },
+  { id: 'brindles-vision', name: 'Brindle\'s Vision', desc: 'Song submissions' },
+  { id: 'honkytonk-heaven', name: 'Honkytonk Heaven', desc: 'Song submissions' },
+  { id: 'defining-your-character', name: 'Defining Your Character', desc: 'Song submissions' }
+];
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeRoom, setActiveRoom] = useState('global');
   const [loading, setLoading] = useState(true);
   
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // 1. Initial Setup: Get User and Role
   useEffect(() => {
-    const setupChat = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        setLoading(false);
-        return;
+    const initSetup = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (!error && user) {
+        setUser(user);
+        // Check if Admin
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile?.role === 'admin') setIsAdmin(true);
       }
-      setUser(user);
+      setLoading(false);
+    };
+    initSetup();
+  }, [supabase]);
 
+  // 2. Fetch Messages and Listen for changes whenever the room changes
+  useEffect(() => {
+    if (loading) return;
+
+    const fetchRoomMessages = async () => {
       const { data } = await supabase
         .from('chat_messages')
-        .select('*')
+        .select(`
+          id, content, created_at, user_id, room_name,
+          profiles ( full_name, username )
+        `)
+        .eq('room_name', activeRoom) // Filter by the active room!
         .order('created_at', { ascending: true })
         .limit(100);
 
       if (data) setMessages(data);
-      setLoading(false);
     };
 
-    setupChat();
+    fetchRoomMessages();
 
+    // Subscribe to realtime changes FOR THIS ROOM ONLY
     const channel = supabase
-      .channel('public:chat_messages')
+      .channel(`chat_${activeRoom}`)
       .on('postgres_changes', { 
         event: 'INSERT', 
         schema: 'public', 
-        table: 'chat_messages' 
-      }, (payload: any) => {
-        setMessages((current) => [...current, payload.new]);
+        table: 'chat_messages',
+        filter: `room_name=eq.${activeRoom}`
+      }, async (payload: any) => {
+        const incomingMsg = payload.new;
+        
+        // Fetch sender identity for the new message
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, username')
+          .eq('id', incomingMsg.user_id)
+          .single();
+
+        const msgWithProfile = { ...incomingMsg, profiles: profile };
+        setMessages((current) => [...current, msgWithProfile]);
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [supabase, activeRoom, loading]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,88 +104,105 @@ export default function ChatPage() {
       .insert({
         content: newMessage,
         user_id: user.id,
+        room_name: activeRoom, // Tag message with the current room
       });
 
-    if (error) {
-      alert("Send Failed: " + error.message);
-    } else {
-      setNewMessage('');
-    }
+    if (error) alert("Send Failed: " + error.message);
+    else setNewMessage('');
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center font-cinzel text-orange-500 tracking-[0.3em] animate-pulse text-lg md:text-xl">
-        IGNITING THE SANCTUARY...
-      </div>
-    );
+    return <div className="min-h-screen bg-black flex items-center justify-center font-cinzel text-orange-500 tracking-[0.3em] animate-pulse text-xl">IGNITING THE SANCTUARY...</div>;
   }
 
+  const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }]
+    .find(c => c.id === activeRoom)?.name || 'Unknown Room';
+
   return (
-    <main className="min-h-screen bg-black pt-20 pb-6 md:pt-28 md:pb-12 px-2 md:px-4 flex flex-col items-center overflow-x-hidden">
+    <main className="min-h-screen bg-black pt-20 pb-6 md:pt-28 md:pb-12 px-2 md:px-4 flex justify-center overflow-x-hidden">
       
-      {/* Container: Full width on mobile, max-5xl on desktop */}
-      <div className="w-full max-w-5xl bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex flex-col h-[75vh] md:h-[85vh] shadow-2xl overflow-hidden backdrop-blur-sm">
+      {/* Main App Container */}
+      <div className="w-full max-w-6xl flex flex-col md:flex-row gap-4 h-[80vh] md:h-[85vh]">
         
-        {/* Chat Header: Stacked on mobile if needed, spread on desktop */}
-        <div className="p-4 md:p-6 border-b border-orange-900/30 bg-gradient-to-r from-orange-950/40 to-black flex flex-col md:flex-row justify-between items-start md:items-end gap-2">
-          <div>
-            <h1 className="font-cinzel text-lg md:text-3xl text-orange-500 tracking-[0.1em] md:tracking-[0.2em] uppercase leading-none">
-              Global Sanctuary
-            </h1>
-            <p className="hidden md:block font-cormorant text-orange-300/60 text-sm mt-2 italic tracking-widest">The voice of the Keepers</p>
+        {/* SIDEBAR: Channels List */}
+        <div className="w-full md:w-1/3 lg:w-1/4 bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
+          <div className="p-4 bg-gradient-to-b from-orange-950/40 to-transparent border-b border-orange-900/30">
+            <h2 className="font-cinzel text-xl text-orange-500 uppercase tracking-widest">Frequencies</h2>
           </div>
-          <div className="text-[9px] md:text-xs font-cinzel text-gray-500 tracking-widest">
-            {user ? `AUTH // ${user.email}` : 'UNAUTHORIZED'}
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {PUBLIC_CHANNELS.map(ch => (
+              <button
+                key={ch.id}
+                onClick={() => setActiveRoom(ch.id)}
+                className={`w-full text-left px-4 py-3 rounded-xl transition-all ${activeRoom === ch.id ? 'bg-orange-600/20 border border-orange-500/50' : 'hover:bg-gray-800/50 border border-transparent'}`}
+              >
+                <div className={`font-cinzel text-sm uppercase tracking-wider ${activeRoom === ch.id ? 'text-orange-400' : 'text-gray-300'}`}>{ch.name}</div>
+                <div className="text-[10px] font-cormorant text-gray-500 italic mt-1">{ch.desc}</div>
+              </button>
+            ))}
+
+            {/* ADMIN ONLY CHANNEL */}
+            {isAdmin && (
+              <button
+                onClick={() => setActiveRoom('admin-chat')}
+                className={`w-full text-left px-4 py-3 rounded-xl transition-all mt-4 border border-red-900/50 ${activeRoom === 'admin-chat' ? 'bg-red-900/30 border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-red-950/10 hover:bg-red-900/20'}`}
+              >
+                <div className={`font-cinzel text-sm uppercase tracking-wider ${activeRoom === 'admin-chat' ? 'text-red-400' : 'text-red-600'}`}>Rise Admin Chat</div>
+                <div className="text-[10px] font-cormorant text-gray-500 italic mt-1">Command center encrypted</div>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Message Feed */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-10 space-y-4 md:space-y-6 scrollbar-hide">
-          {!user && (
-            <div className="bg-orange-900/20 border border-orange-500/50 p-4 rounded-xl text-center text-orange-200 font-cormorant text-base italic">
-              Please log in to join the conversation.
-            </div>
-          )}
+        {/* MAIN CHAT AREA */}
+        <div className="flex-1 bg-gray-900/40 border border-orange-900/30 rounded-2xl md:rounded-3xl flex flex-col overflow-hidden backdrop-blur-sm shadow-2xl">
           
-          {messages.map((msg) => (
-            <div 
-              key={msg.id} 
-              className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}
-            >
-              <div className={`max-w-[90%] md:max-w-[70%] p-3 md:p-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-cormorant leading-relaxed shadow-lg ${
-                msg.user_id === user?.id 
-                  ? 'bg-gradient-to-br from-orange-600 to-red-700 text-white rounded-tr-none' 
-                  : 'bg-gray-800/80 text-gray-200 rounded-tl-none border border-orange-900/10'
-              }`}>
-                {msg.content}
-              </div>
-              <span className="text-[9px] md:text-xs text-gray-600 mt-1 md:mt-2 uppercase tracking-tighter md:tracking-[0.2em] px-2 font-cinzel">
-                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
+          <div className="p-4 md:p-6 border-b border-orange-900/30 bg-gradient-to-r from-orange-950/40 to-black flex justify-between items-end">
+            <div>
+              <h1 className="font-cinzel text-lg md:text-3xl text-orange-500 tracking-[0.1em] uppercase leading-none">
+                {activeChannelName}
+              </h1>
             </div>
-          ))}
-          <div ref={scrollRef} />
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scrollbar-hide">
+            {!user && (
+              <div className="bg-orange-900/20 border border-orange-500/50 p-4 rounded-xl text-center text-orange-200 font-cormorant italic">
+                Please log in to join the conversation.
+              </div>
+            )}
+            
+            {messages.map((msg) => (
+              <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
+                {/* IDENTITY FIX */}
+                <span className="text-[10px] md:text-xs font-cinzel text-orange-500/70 mb-1 tracking-widest uppercase px-1">
+                  {msg.profiles?.full_name || msg.profiles?.username || 'Anonymous Seeker'}
+                </span>
+                <div className={`max-w-[90%] md:max-w-[70%] p-3 md:p-5 rounded-2xl md:rounded-3xl text-sm md:text-lg font-cormorant leading-relaxed shadow-lg ${
+                  msg.user_id === user?.id 
+                    ? 'bg-gradient-to-br from-orange-600 to-red-700 text-white rounded-tr-none' 
+                    : 'bg-gray-800/80 text-gray-200 rounded-tl-none border border-orange-900/10'
+                }`}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            <div ref={scrollRef} />
+          </div>
+
+          <form onSubmit={sendMessage} className="p-3 md:p-6 bg-black/60 border-t border-orange-900/30 flex gap-2">
+            <input
+              type="text" disabled={!user} value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder={user ? "Speak your truth..." : "Restricted..."}
+              className="flex-1 bg-gray-950 border border-orange-900/30 rounded-full px-4 md:px-6 py-2 md:py-3 text-gray-200 focus:outline-none focus:border-orange-500 font-cormorant disabled:opacity-50"
+            />
+            <button type="submit" disabled={!user} className="bg-orange-600 hover:bg-orange-500 text-white px-6 md:px-10 py-2 md:py-3 rounded-full font-cinzel text-[10px] md:text-sm tracking-widest transition-all">
+              SEND
+            </button>
+          </form>
         </div>
 
-        {/* Message Input: Smaller on mobile, beefy on desktop */}
-        <form onSubmit={sendMessage} className="p-3 md:p-8 bg-black/60 border-t border-orange-900/30 flex gap-2 md:gap-4">
-          <input
-            type="text"
-            disabled={!user}
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={user ? "Speak your truth..." : "Restricted..."}
-            className="flex-1 bg-gray-950 border border-orange-900/30 rounded-full px-4 md:px-8 py-2 md:py-4 text-gray-200 focus:outline-none focus:border-orange-500 text-sm md:text-lg font-cormorant disabled:opacity-50 transition-all shadow-inner"
-          />
-          <button 
-            type="submit"
-            disabled={!user}
-            className="bg-orange-600 hover:bg-orange-500 text-white px-5 md:px-14 py-2 md:py-4 rounded-full font-cinzel text-[10px] md:text-base tracking-widest transition-all shadow-lg"
-          >
-            SEND
-          </button>
-        </form>
       </div>
     </main>
   );
