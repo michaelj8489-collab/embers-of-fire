@@ -25,7 +25,6 @@ export async function POST(req: Request) {
 
     // 2. Create the Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
-      // Notice: payment_method_types is removed. Stripe automatically uses your Dashboard settings.
       line_items: [
         {
           price_data: {
@@ -34,9 +33,9 @@ export async function POST(req: Request) {
               name: tierName,
             },
             unit_amount: priceInCents,
-            // CRITICAL: Required by Stripe for 'subscription' mode
+            // THE FIX: We lock in the exact string literal so TypeScript doesn't panic
             recurring: {
-              interval: 'month',
+              interval: 'month' as 'month',
             },
           },
           quantity: 1,

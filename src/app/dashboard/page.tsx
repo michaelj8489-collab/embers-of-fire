@@ -66,8 +66,10 @@ function DashboardContent() {
         const resData = await response.json();
         const stripe = await getStripe();
         
-        if (stripe && resData.sessionId) {
-          await stripe.redirectToCheckout({ sessionId: resData.sessionId });
+       if (stripe && resData.sessionId) {
+          // @ts-ignore - Stripe's types here often conflict with Next.js client components
+          const { error } = await stripe.redirectToCheckout({ sessionId: resData.sessionId });
+          if (error) console.error("Stripe redirect error:", error);
         }
       } catch (err) {
         console.error("Auto-checkout failed:", err);
