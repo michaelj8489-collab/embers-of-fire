@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
 
-// 1. URL Slugs for visual matching
+// 1. visual matching for the UI
 const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color: string, perks: string[], image: string }> = {
   "seeker": {
     title: "THE SEEKER SANCTUARY",
@@ -62,16 +62,6 @@ const TIER_RANKS: Record<string, number> = {
   "phoenix-ascending": 5   
 };
 
-// 3. Mapper for DB query
-const SLUG_TO_DB_NAME: Record<string, string> = {
-  "seeker": "Seeker",
-  "keepers-of-the-embers": "Keepers of the Embers",
-  "flame-bearers": "Flame Bearers",
-  "phoenix-circle": "Phoenix Circle",
-  "wings-of-the-phoenix": "Wings of the Phoenix",
-  "phoenix-ascending": "Phoenix Ascending"
-};
-
 export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: string }> }) {
   const { tier } = use(params); 
   const router = useRouter();
@@ -91,7 +81,7 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
         return;
       }
 
-      // THE FIX: We check PROFILES for both Role and Tier Access
+      // 1. Check PROFILES for Role and Tier Access
       const { data: profile } = await supabase
         .from('profiles')
         .select('role, subscription_tier, subscription_status')
@@ -101,26 +91,24 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
       const userIsAdmin = profile?.role === 'admin';
       setIsAdmin(userIsAdmin);
 
+      // 2. The Bouncer (Higher tiers can see lower tiers)
       if (!userIsAdmin) {
-        // Find what rank the user's tier is
         const userTierSlug = (profile?.subscription_tier || 'seeker').toLowerCase().replace(/ /g, '-');
         const userRank = TIER_RANKS[userTierSlug] ?? 0;
         const requiredRank = TIER_RANKS[tier] ?? 0;
         const isActive = profile?.subscription_status === 'active';
 
-        // If they aren't active or don't have a high enough rank, kick them to dashboard
         if (!isActive || userRank < requiredRank) {
           router.push('/dashboard'); 
           return;
         }
       }
 
-      const dbTierName = SLUG_TO_DB_NAME[tier] || "Seeker";
-
+      // 3. FETCH BROADCASTS (Fixed: We query using the slug directly)
       const { data: messages } = await supabase
         .from('broadcasts')
         .select('*')
-        .eq('target_tier', dbTierName) 
+        .eq('target_tier', tier) // Match the URL slug to the DB record
         .order('created_at', { ascending: false });
         
       setBroadcasts(messages || []);
@@ -131,24 +119,30 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
   }, [tier, supabase, router]);
 
   if (loading) {
-    return <div className="min-h-screen bg-black text-white p-10 font-cinzel text-center pt-40 text-orange-500 animate-pulse uppercase tracking-[0.3em]">Synchronizing Sanctuary...</div>;
+    return (
+      <div className="min-h-screen bg-black text-white p-10 font-cinzel text-center pt-40 text-orange-500 animate-pulse uppercase tracking-[0.3em]">
+        Synchronizing Sanctuary...
+      </div>
+    );
   }
 
   return (
     <main className="relative min-h-screen w-full flex flex-col bg-black overflow-x-hidden">
+      {/* Background Video/Image Layer */}
       <div className="fixed top-0 left-0 w-full h-full bg-cover bg-center opacity-40 z-0 pointer-events-none" style={{ backgroundImage: `url('${decoration.image}')` }}></div>
       <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-10 pointer-events-none"></div>
 
       <Header />
       
       <div className="relative z-20 max-w-5xl mx-auto pt-32 px-6 pb-20">
-        <h1 className={`text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r ${decoration.color} mb-2 uppercase tracking-tighter drop-shadow-lg`}>
+        <h1 className={`text-5xl md:text-7xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r ${decoration.color} mb-2 uppercase tracking-tighter drop-shadow-lg`}>
           {decoration.title}
         </h1>
         <p className="text-xl md:text-2xl font-cormorant text-gray-300 italic mb-12 tracking-widest uppercase">
           {decoration.subtitle}
         </p>
 
+        {/* Perk Badges */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
           {decoration.perks.map((perk, index) => (
             <div key={index} className="p-4 bg-black/50 border border-orange-500/20 rounded-lg text-center backdrop-blur-md hover:border-orange-500 transition-colors">
@@ -158,13 +152,17 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
           ))}
         </div>
 
+        {/* Admin Shortcut */}
         {isAdmin && (
           <div className="mb-16 p-8 bg-zinc-900/60 border border-orange-500/30 rounded-2xl text-center backdrop-blur-xl shadow-xl">
             <h3 className="text-sm font-cinzel text-orange-400 mb-4 tracking-widest uppercase font-bold">Admin Authority Detected</h3>
-            <a href="/dashboard/admin" className="px-10 py-4 bg-gradient-to-r from-orange-600 to-red-800 text-white rounded-lg hover:scale-105 transition-all font-cinzel font-bold shadow-lg inline-block">Return to Command Center</a>
+            <button onClick={() => router.push('/dashboard/admin')} className="px-10 py-4 bg-gradient-to-r from-orange-600 to-red-800 text-white rounded-lg hover:scale-105 transition-all font-cinzel font-bold shadow-lg inline-block">
+              Return to Command Center
+            </button>
           </div>
         )}
 
+        {/* Transmission Feed */}
         <div className="space-y-12">
           <h2 className="text-sm font-cinzel text-orange-500/60 tracking-[0.4em] uppercase border-b border-orange-900/30 pb-4">Latest Transmissions</h2>
           {broadcasts.length > 0 ? (
@@ -175,7 +173,9 @@ export default function SanctuaryTierPage({ params }: { params: Promise<{ tier: 
               </div>
             ))
           ) : (
-            <div className="text-center py-24 border border-dashed border-zinc-800 rounded-2xl bg-black/30 font-cormorant text-xl text-gray-600">The Embers are quiet... No transmissions yet.</div>
+            <div className="text-center py-24 border border-dashed border-zinc-800 rounded-2xl bg-black/30 font-cormorant text-xl text-gray-600">
+              The Embers are quiet... No transmissions yet.
+            </div>
           )}
         </div>
       </div>

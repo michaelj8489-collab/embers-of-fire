@@ -7,11 +7,11 @@ import Header from '@/components/Header';
 // SYNCED NAMES: These match your Supabase database exactly
 const TIERS = [
   { id: 'seeker', label: 'Seeker' },
-  { id: 'keepers', label: 'Keepers' },
-  { id: 'bearers', label: 'Flame Bearers' },
-  { id: 'circle', label: 'Phoenix Circle' },
-  { id: 'wings', label: 'Wings' },
-  { id: 'ascending', label: 'Ascending' }
+  { id: 'keepers-of-the-embers', label: 'Keepers' },
+  { id: 'flame-bearers', label: 'Flame Bearers' },
+  { id: 'phoenix-circle', label: 'Phoenix Circle' },
+  { id: 'wings-of-the-phoenix', label: 'Wings' },
+  { id: 'phoenix-ascending', label: 'Ascending' }
 ];
 
 export default function AdminDashboard() {
