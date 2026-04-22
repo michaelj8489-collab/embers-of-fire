@@ -48,7 +48,8 @@ export async function POST(req: Request) {
         .single();
 
       if (userData?.id && !userError) {
-        // 2. Activate the subscription in the NEW table
+        
+        // 1. Keep the receipt: Log the billing data in the subscriptions table
         const { error: subError } = await supabaseAdmin
           .from('subscriptions')
           .upsert({ 
@@ -60,10 +61,19 @@ export async function POST(req: Request) {
             updated_at: new Date().toISOString()
           }, { onConflict: 'user_id' });
 
-        if (subError) {
-          console.error(`❌ Database Error: ${subError.message}`);
+        // 2. Hand them the VIP wristband: Update their profile for website access!
+        const { error: profileError } = await supabaseAdmin
+          .from('profiles')
+          .update({ 
+            subscription_tier: newTier,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userData.id);
+
+        if (subError || profileError) {
+          console.error(`❌ Database Error:`, subError || profileError);
         } else {
-          console.log(`✅ Success: ${customerEmail} is now a ${newTier}`);
+          console.log(`✅ Success: ${customerEmail} is now a ${newTier} and profile is unlocked!`);
         }
       } else {
         console.error(`❌ User not found for email: ${customerEmail}`);

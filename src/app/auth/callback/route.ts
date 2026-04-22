@@ -1,24 +1,42 @@
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  
-  // 🚀 NEW: Grab the "next" parameter from the URL (e.g., /reset-password)
-  // If it's not there, default to /dashboard
-  const next = searchParams.get('next') ?? '/dashboard'
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get('code')
+  const siteOrigin = requestUrl.origin
 
   if (code) {
-    const supabase = await createClient()
+    const cookieStore = await cookies()
+    const response = NextResponse.redirect(`${siteOrigin}/onboarding`)
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            // @ts-ignore
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            // @ts-ignore - Tells VS Code to ignore the 'cookies' error
+            response.cookies.set({ name, value, ...options })
+          },
+          remove(name: string, options: CookieOptions) {
+            // @ts-ignore - Tells VS Code to ignore the 'cookies' error
+            response.cookies.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
     if (!error) {
-      // 🚀 REDIRECT: Send them to the "next" page instead of a hardcoded one
-      return NextResponse.redirect(`${origin}${next}`)
+      return response
     }
   }
 
-  // If something goes wrong, send them to an error page or back to login
-  return NextResponse.redirect(`${origin}/login?error=auth-callback-failed`)
+  return NextResponse.redirect(`${siteOrigin}/login?error=auth_callback_failed`)
 }
