@@ -3,15 +3,13 @@
 import React, { useState, useEffect } from 'react';
 
 export default function LivePage() {
-  // Toggle this to true when you are actually broadcasting!
-  const [isLive, setIsLive] = useState(false); 
-  const [domain, setDomain] = useState('');
-
-  const TWITCH_CHANNEL = "riseradionetworks";
+  // Hardcoded to true so you can see it working immediately!
+  const [isLive, setIsLive] = useState(true); 
+  const [parentDomain, setParentDomain] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setDomain(window.location.hostname);
+      setParentDomain(window.location.hostname);
     }
   }, []);
 
@@ -20,9 +18,9 @@ export default function LivePage() {
 
   return (
     <main className="min-h-screen bg-black pt-24 pb-32 px-4 flex flex-col items-center overflow-x-hidden">
-      <div className="w-full max-w-5xl space-y-6">
+      <div className="w-full max-w-7xl mx-auto space-y-12">
         
-        {/* 1. ZENO PLAYERS (NOW AT THE TOP) */}
+        {/* 1. ZENO PLAYERS (Pinned at the top for quick audio access) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-900/50 p-4 rounded-2xl border border-orange-900/20">
             <h3 className="font-cinzel text-orange-500 text-[10px] mb-3 uppercase tracking-widest">Rise Radio Main</h3>
@@ -35,44 +33,33 @@ export default function LivePage() {
           </div>
         </div>
 
-        {/* 2. THE UNIFIED BROADCAST MODULE (VIDEO + CHAT BACK-TO-BACK) */}
-        <div className="w-full rounded-3xl overflow-hidden border border-orange-900/30 bg-black shadow-2xl flex flex-col">
-          
-          {/* TWITCH VIDEO (Top Half) */}
-          <div className="aspect-video w-full bg-black relative border-b border-orange-900/30">
-            {isLive && domain ? (
+        {/* 2. TWITCH BROADCAST (Exact clone of Phoenix Talks Layout) */}
+        <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-2xl bg-black relative md:h-[600px]">
+          {isLive ? (
+            <div className="flex flex-col md:flex-row w-full h-full">
+              {/* VIDEO */}
               <iframe 
-                src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${domain}&autoplay=true&muted=false`} 
-                className="absolute inset-0 w-full h-full" 
+                src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}&autoplay=true`} 
+                className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
+                frameBorder="0" 
                 allowFullScreen
               ></iframe>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                 <img src="/offline-banner.png" alt="Offline" className="w-full h-full object-cover opacity-30" />
-                 <div className="absolute font-cinzel text-orange-500 text-sm tracking-[0.4em] uppercase animate-pulse">Broadcast Resting</div>
-              </div>
-            )}
-          </div>
-
-          {/* TWITCH CHAT (Bottom Half - No space between) */}
-          <div className="h-[450px] flex flex-col bg-gray-900/40">
-            <div className="p-2 bg-orange-950/20 border-b border-orange-900/10 text-center font-cinzel text-orange-500 text-[9px] tracking-[0.2em] uppercase">
-              Sanctuary Live Feed
+              
+              {/* CHAT */}
+              <iframe 
+                src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                className="w-full h-[400px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
+                frameBorder="0"
+              ></iframe>
             </div>
-            <div className="flex-1">
-              {isLive && domain ? (
-                <iframe 
-                  src={`https://www.twitch.tv/embed/${TWITCH_CHANNEL}/chat?parent=${domain}&darkpopout`} 
-                  className="w-full h-full"
-                ></iframe>
-              ) : (
-                <div className="flex h-full items-center justify-center font-cormorant italic text-gray-600 px-10 text-center text-base">
-                  Chat will ignite when the broadcast begins.
-                </div>
-              )}
+          ) : (
+            <div className="w-full h-full aspect-video md:aspect-auto flex items-center justify-center bg-gradient-to-br from-orange-950/20 via-black to-black relative">
+               <div className="absolute w-64 h-64 bg-orange-600/5 rounded-full blur-[100px]"></div>
+               <div className="relative z-10 font-cinzel text-orange-500/80 text-sm md:text-xl tracking-[0.5em] uppercase animate-pulse text-center px-6">
+                  Broadcast Resting
+               </div>
             </div>
-          </div>
-
+          )}
         </div>
         
       </div>
