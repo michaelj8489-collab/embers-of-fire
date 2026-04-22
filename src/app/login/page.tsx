@@ -8,9 +8,6 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
-  // 🚀 NEW: State to track which "Mode" the user is looking at
-  const [isSignUp, setIsSignUp] = useState(false);
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,45 +15,20 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // 🚀 NEW: A unified submit handler that checks which mode we are in
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    if (isSignUp) {
-      // --- SIGN UP FLOW ---
-      if (password.length < 6) {
-        setError("Your password must be at least 6 characters long.");
-        setLoading(false);
-        return;
-      }
-
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      
-      if (signUpError) {
-        setError(signUpError.message);
-      } else {
-        alert('Success! Check your email for the confirmation link.');
-        // Optionally flip them back to the login screen
-        setIsSignUp(false);
-        setPassword('');
-      }
+    const { error: loginError } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password 
+    });
+    
+    if (loginError) {
+      setError(loginError.message);
     } else {
-      // --- LOGIN FLOW ---
-      const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (loginError) {
-        setError(loginError.message);
-      } else {
-        router.push('/dashboard');
-      }
+      router.push('/dashboard');
     }
     setLoading(false);
   };
@@ -72,14 +44,13 @@ export default function LoginPage() {
 
       <div className="relative z-20 flex flex-col items-center bg-black/60 p-8 sm:p-10 rounded-xl border border-orange-900/50 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-md mt-12 md:mt-16 mb-8 transition-all duration-500">
         
-        {/* Dynamic Title */}
         <h1 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-8 tracking-widest text-center uppercase">
-          {isSignUp ? 'Join the Frequency' : 'Start the Spark'}
+          Start the Spark
         </h1>
 
         {error && <p className="text-red-500 mb-4 font-cinzel tracking-wider uppercase text-sm text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+        <form onSubmit={handleLogin} className="w-full flex flex-col gap-5">
           <div className="flex flex-col text-left">
             <label className="block text-sm font-medium text-gray-400 mb-1 font-cinzel tracking-wider uppercase">
               Email
@@ -107,37 +78,30 @@ export default function LoginPage() {
               required
             />
           </div>
-          {/* Forgot Password Link - Only shows in Login mode */}
-          {!isSignUp && (
+
           <div className="flex justify-end mt-1">
-            <Link href="/forgot-password" className="text-xs font-cinzel text-gray-500 hover:text-orange-400 transition-colors duration-300 uppercase tracking-tighter">
-             Forgot the spark?
+            {/* SQUIGGLE KILLED: removed the 'disabled' attribute here */}
+            <Link href="/forgot-password" title="Forgot Password" className="text-xs font-cinzel text-gray-500 hover:text-orange-400 transition-colors duration-300 uppercase tracking-tighter">
+              Forgot the spark?
             </Link>
           </div>
-)}
 
-          {/* Dynamic Submit Button */}
           <button
             type="submit"
             disabled={loading}
             className="mt-6 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold py-3 md:py-4 rounded transition-all duration-300 font-cinzel tracking-[0.15em] uppercase disabled:opacity-50 shadow-[0_0_15px_rgba(234,88,12,0.3)]"
           >
-            {loading ? 'Processing...' : (isSignUp ? 'BECOME A KEEPER' : 'IGNITE THE SIGNAL')}
+            {loading ? 'Processing...' : 'IGNITE THE SIGNAL'}
           </button>
         </form>
 
         <div className="mt-8 flex flex-col items-center gap-2">
-          {/* The Toggle Button */}
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError(null); // Clear any existing errors when flipping modes
-            }}
+          <Link
+            href="/signup"
             className="text-gray-400 hover:text-orange-400 text-sm transition-colors duration-300 font-cinzel tracking-widest uppercase border-b border-transparent hover:border-orange-400 pb-1"
           >
-            {isSignUp ? 'Already a Keeper? Ignite the Signal' : 'First time? Join the Frequency'}
-          </button>
+            First time? Join the Frequency
+          </Link>
         </div>
       </div>
 
