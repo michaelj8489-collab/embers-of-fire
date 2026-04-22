@@ -4,7 +4,6 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getStripe } from '@/utils/stripe/client';
 
 const subscriptionTiers = [
   {
@@ -66,77 +65,28 @@ const subscriptionTiers = [
 export default function HomePage() {
   const router = useRouter();
 
-  const handleSubscription = async (tierName: string, price: string) => {
-    if (price === "0" || tierName === "Seeker") {
-      router.push('/signup');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tierName }),
-      });
-
-      const resData = await response.json();
-
-      if (resData.error) {
-        alert(`Error: ${resData.error}`);
-        return;
-      }
-
-      const stripe = await getStripe();
-      if (stripe && resData.sessionId) {
-        // @ts-ignore
-        const { error } = await stripe.redirectToCheckout({
-          sessionId: resData.sessionId,
-        });
-        
-        if (error) {
-          console.error("Stripe Redirect Error:", error.message);
-        }
-      }
-    } catch (err) {
-      console.error("Checkout flow error:", err);
-      alert("Something went wrong. Please try again.");
-    }
+  const handleSubscription = (tierName: string) => {
+    // We convert the name to a URL-friendly version (e.g. "Flame Bearers" -> "flame-bearers")
+    const tierSlug = tierName.toLowerCase().replace(/ /g, '-');
+    // Send to signup and "remember" the tier in the URL
+    router.push(`/signup?tier=${tierSlug}`);
   };
 
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center bg-black overflow-x-hidden">
-      
-      {/* 🖥️ DESKTOP & TABLET Background Video (Hidden on Mobile) */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none hidden md:block"
-      >
+      <video autoPlay muted loop playsInline className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none hidden md:block">
         <source src="/images/eol-moving-background.mp4" type="video/mp4" />
       </video>
-
-      {/* 📱 MOBILE Background Video (Hidden on Desktop & Tablet) */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none block md:hidden"
-      >
+      <video autoPlay muted loop playsInline className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none block md:hidden">
         <source src="/images/jmc-edits-palettes/mobile-background.mp4" type="video/mp4" />
       </video>
 
-      {/* Dark Overlay for Readability */}
       <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-10 pointer-events-none"></div>
 
       <Header />
 
-      {/* Main Content */}
       <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-24 md:pt-32 pb-20 text-center">
-        
-        <h1 className="text-3xl sm:text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)] px-4 py-2 sm:px-2 sm:py-0">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-cinzel-dec font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(255,100,0,0.4)] px-4 py-2 sm:px-2 sm:py-0 uppercase">
           EMBERS OF LIGHT
         </h1>
         
@@ -144,7 +94,6 @@ export default function HomePage() {
           Fuel the Journey • Enter the Sanctuary
         </p>
 
-        {/* TIERS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20 px-2 sm:px-0">
           {subscriptionTiers.map((tier) => (
             <div
@@ -159,7 +108,6 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-[#0a0a0a] z-0"></div>
 
               <div className="relative z-10 p-5 sm:p-8 flex flex-col h-full">
-                
                 <div className="mb-6">
                   <h3 className="text-xl sm:text-2xl font-cinzel font-bold text-orange-500 mb-1 tracking-wider uppercase">{tier.name}</h3>
                   <div className="flex items-baseline justify-center gap-1 mb-2">
@@ -183,18 +131,16 @@ export default function HomePage() {
                 </ul>
 
                 <button
-                  onClick={() => handleSubscription(tier.name, tier.price)}
+                  onClick={() => handleSubscription(tier.name)}
                   className={`block w-full py-3 sm:py-4 text-center text-white text-base sm:text-lg font-cinzel font-bold rounded-lg transition-all transform hover:-translate-y-1 bg-gradient-to-br ${tier.color} shadow-lg hover:shadow-orange-500/20 active:scale-95`}
                 >
                   Unlock {tier.name}
                 </button>
-              
               </div>
             </div>
           ))}
         </div>
       </div>
-      
       <Footer />
     </main>
   );

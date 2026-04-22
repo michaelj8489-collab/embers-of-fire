@@ -1,16 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { getStripe } from '@/utils/stripe/client';
 
-export default function UnifiedDashboard() {
+function DashboardContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTier, setUserTier] = useState<string>('seeker'); 
+  const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
+  // 1. SESSION & TIER DATA FETCHING
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -27,9 +33,49 @@ export default function UnifiedDashboard() {
           setUserTier(profile.subscription_tier);
         }
       }
+      setLoading(false);
     };
     checkSession();
   }, [supabase]);
+
+  // 2. THE AUTO-CHECKOUT LISTENER (The Memory Chain Link)
+  useEffect(() => {
+    const triggerCheckout = async () => {
+      const tierSlug = searchParams.get('trigger_checkout');
+      // Wait until we know who the user is before launching Stripe
+      if (!tierSlug || loading || !isLoggedIn) return;
+
+      const tierMap: Record<string, string> = {
+        'keepers-of-the-embers': 'Keepers of the Embers',
+        'flame-bearers': 'Flame Bearers',
+        'phoenix-circle': 'Phoenix Circle',
+        'wings-of-the-phoenix': 'Wings of the Phoenix',
+        'phoenix-ascending': 'Phoenix Ascending'
+      };
+
+      const tierName = tierMap[tierSlug];
+      if (!tierName) return;
+
+      try {
+        const response = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tierName }),
+        });
+
+        const resData = await response.json();
+        const stripe = await getStripe();
+        
+        if (stripe && resData.sessionId) {
+          await stripe.redirectToCheckout({ sessionId: resData.sessionId });
+        }
+      } catch (err) {
+        console.error("Auto-checkout failed:", err);
+      }
+    };
+
+    triggerCheckout();
+  }, [loading, isLoggedIn, searchParams]);
 
   const schedule = [
     { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
@@ -42,6 +88,10 @@ export default function UnifiedDashboard() {
     { name: "Voices on the Rise", day: "Fridays (biweekly)", time: "6:00 PM EST", href: "/dashboard/voices-on-the-rise" },
     { name: "Defining Your Character", day: "Saturdays", time: "6:00 PM EST", href: "/dashboard/defining-your-character"},
   ];
+
+  if (loading) {
+    return <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 font-cinzel text-xl animate-pulse">Entering the Sanctuary...</div>;
+  }
 
   return (
     <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
@@ -89,10 +139,7 @@ export default function UnifiedDashboard() {
             </Link>
           </div>
 
-          {/* STACKED CONTENT SECTION - REMOVED DEAD SPACE */}
           <div className="w-full max-w-5xl flex flex-col gap-12 mb-24">
-            
-            {/* THE SPARK */}
             <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
                 <h3 className="font-cinzel text-orange-500 text-xl md:text-2xl mb-8 tracking-widest uppercase">The Spark</h3>
@@ -102,7 +149,6 @@ export default function UnifiedDashboard() {
                 <p className="text-gray-400 text-lg md:text-xl font-cinzel tracking-widest uppercase">Fueling the fire of independent connection.</p>
             </div>
 
-            {/* FREQUENCIES - NOW FULL WIDTH BELOW SPARK */}
             <div className="bg-black/60 backdrop-blur-md border border-red-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl">
               <h3 className="font-cinzel text-red-500 text-xl md:text-2xl mb-12 tracking-widest uppercase">Frequencies</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -118,7 +164,6 @@ export default function UnifiedDashboard() {
             </div>
           </div>
 
-          {/* SCHEDULE - LARGER ON DESKTOP, SMALL ON MOBILE */}
           <div className="w-full max-w-7xl mx-auto mb-24 px-4">
             <h2 className="text-4xl md:text-6xl font-cinzel-decorative font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-16 drop-shadow-[0_0_15px_rgba(255,0,0,0.3)] uppercase tracking-tighter">
               Network Schedule
@@ -140,7 +185,6 @@ export default function UnifiedDashboard() {
             </div>
           </div>
 
-          {/* SUBSCRIBE SECTION */}
           <section className="w-full max-w-7xl bg-gradient-to-b from-orange-950/20 to-black/80 border border-orange-900/40 py-20 px-8 text-center rounded-[4rem] mb-24 shadow-2xl">
             <h3 className="font-cinzel text-4xl md:text-7xl text-orange-500 mb-8 uppercase tracking-widest">Ascend the Embers</h3>
             <p className="text-xl md:text-3xl italic text-gray-300 mb-14 max-w-4xl mx-auto font-cormorant leading-relaxed">
@@ -152,9 +196,17 @@ export default function UnifiedDashboard() {
           </section>
 
         </main>
-
         <Footer />
       </div>
     </div>
+  );
+}
+
+// 3. FINAL SUSPENSE WRAPPER (Prevents Build Errors)
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="bg-black min-h-screen" />}>
+      <DashboardContent />
+    </Suspense>
   );
 }

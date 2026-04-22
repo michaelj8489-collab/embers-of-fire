@@ -1,46 +1,58 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-03-25.dahlia', 
+// Initialize Stripe securely
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: '2023-10-16' as any, 
 });
 
 export async function POST(req: Request) {
   try {
     const { tierName } = await req.json();
 
-    // Mapping frontend names to your specific Stripe Price IDs
-    const priceMap: Record<string, string> = {
-      "Keepers of the Embers": "price_1TKYLtBAi5oU9zpeG6IJz4Zf", 
-      "Flame Bearers": "price_1TKYUrBAi5oU9zpegt6H0RNl",
-      "Phoenix Circle": "price_1TKYYoBAi5oU9zpeidMJTQsl",
-      "Wings of the Phoenix": "price_1TKYbuBAi5oU9zpeHr8quMGD",
-      "Phoenix Ascending": "price_1TKYeXBAi5oU9zpeDmB6wKpt",
-    };
-
-    const priceId = priceMap[tierName];
-
-    if (!priceId) {
-      return NextResponse.json({ error: 'Invalid tier selected' }, { status: 400 });
+    // 1. Map the Tier to the correct price in cents
+    let priceInCents = 0;
+    if (tierName === 'Keepers of the Embers') priceInCents = 500;
+    else if (tierName === 'Flame Bearers') priceInCents = 1500;
+    else if (tierName === 'Phoenix Circle') priceInCents = 3300;
+    else if (tierName === 'Wings of the Phoenix') priceInCents = 7500;
+    else if (tierName === 'Phoenix Ascending') priceInCents = 15000;
+    else {
+      return NextResponse.json({ error: 'Invalid Tier' }, { status: 400 });
     }
 
+    const origin = req.headers.get('origin') || 'https://www.embersoflight.net';
+
+    // 2. Create the Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{ price: priceId, quantity: 1 }],
+      // Notice: payment_method_types is removed. Stripe automatically uses your Dashboard settings.
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: tierName,
+            },
+            unit_amount: priceInCents,
+            // CRITICAL: Required by Stripe for 'subscription' mode
+            recurring: {
+              interval: 'month',
+            },
+          },
+          quantity: 1,
+        },
+      ],
       mode: 'subscription',
-      // Return user to dashboard on success, or home on cancel
-      success_url: `${req.headers.get('origin')}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin')}/`,
+      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/dashboard`,
       metadata: {
-        // FIXED: Now sends the exact name (e.g., "Keepers of the Embers") 
-        // instead of "keepers-of-the-embers"
-        tier_name: tierName, 
+        tier_name: tierName, // This is what your Webhook reads!
       },
     });
 
     return NextResponse.json({ sessionId: session.id });
   } catch (err: any) {
-    console.error("Stripe Session Error:", err);
+    console.error('Checkout Error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
