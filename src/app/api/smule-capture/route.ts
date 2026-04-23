@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const BROWSERLESS_KEY = process.env.BROWSERLESS_API_KEY;
     const SMULE_COOKIE = process.env.SMULE_COOKIE;
 
-    log(">>> [DEEP RECON START]");
+    log(">>> [VIDEO RECON START] Target: Smule Video Performance");
 
     browser = await chromium.connectOverCDP(`wss://chrome.browserless.io/chromium/stealth?token=${BROWSERLESS_KEY}`);
     const context = await browser.newContext({
@@ -31,49 +31,48 @@ export async function POST(req: Request) {
         };
       });
       await context.addCookies(cookieArray);
-      log("Cookies injected.");
+      log("Master Key Injected.");
     }
 
     const page = await context.newPage();
 
-    // The "Wide Net" Wiretap
+    // THE VIDEO WIRETAP
     page.on('request', request => {
       const rUrl = request.url();
-      if (rUrl.includes('smule')) {
-        interceptedUrls.push(rUrl);
+      // Specifically hunting for Video formats and Playlists
+      if (rUrl.match(/\.(mp4|m3u8|mov|m4v)/i) || rUrl.includes('video-recording')) {
+        if (!rUrl.includes('profile') && !rUrl.includes('google-analytics')) {
+          interceptedUrls.push(rUrl);
+        }
       }
     });
 
-    log("Navigating...");
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     
-    const pageTitle = await page.title();
-    log(`Page Title: ${pageTitle}`);
-
-    // HUMAN WOBBLE CLICK: Move to center over 1.5s, then click
-    log("Moving mouse with human behavior...");
+    log("Executing Human Wobble Click on Video Player...");
     await page.mouse.move(100, 100);
-    await page.mouse.move(640, 360, { steps: 20 }); 
+    await page.mouse.move(640, 360, { steps: 25 }); 
     await page.mouse.click(640, 360);
     
-    log("Waiting for signal...");
-    await page.waitForTimeout(9000); 
+    // Give video longer to buffer and reveal its URL
+    log("Snooping for high-bandwidth signals...");
+    await page.waitForTimeout(12000); 
 
     await browser.close();
 
-    // Priority hunt in our wide net
-    const bestLink = interceptedUrls.find(l => l.includes('.m4a')) || 
-                     interceptedUrls.find(l => l.includes('.mp4')) || 
-                     interceptedUrls.find(l => l.includes('.m3u8'));
+    // VIDEO PRIORITY: Flat MP4 > Master Playlist (m3u8) > Everything else
+    const bestLink = interceptedUrls.find(l => l.includes('.mp4')) || 
+                     interceptedUrls.find(l => l.includes('.m3u8')) || 
+                     interceptedUrls[0];
 
     if (bestLink) {
-      return NextResponse.json({ success: true, downloadUrl: bestLink, debug: debugLogs });
+      log(`>>> [VICTORY] Video Signal Intercepted: ${bestLink.split('?')[0]}`);
+      return NextResponse.json({ success: true, downloadUrl: bestLink.replace(/\\/g, ''), debug: debugLogs });
     }
 
     return NextResponse.json({ 
       success: false, 
-      error: 'Signal cloaked.', 
-      titleFound: pageTitle,
+      error: 'Video signal is ghosting us.', 
       snooped: interceptedUrls,
       debug: debugLogs 
     });
