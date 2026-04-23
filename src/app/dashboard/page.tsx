@@ -16,30 +16,33 @@ function DashboardContent() {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [userRole, setUserRole] = useState<string>('user');
 
-  // 1. SESSION & TIER DATA FETCHING
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
+  // 1. SESSION & DATA FETCHING
+useEffect(() => {
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setIsLoggedIn(!!session);
 
-      if (session?.user) {
-        setUserEmail(session.user.email ?? null); // <-- 2. CAPTURE THE EMAIL
+    if (session?.user) {
+      setUserEmail(session.user.email ?? null);
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('subscription_tier')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (profile && profile.subscription_tier) {
-          setUserTier(profile.subscription_tier);
-        }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier, role') // <-- UPDATE: Fetch both columns
+        .eq('id', session.user.id)
+        .single();
+        
+      if (profile) {
+        // Update both pieces of information
+        if (profile.subscription_tier) setUserTier(profile.subscription_tier);
+        if (profile.role) setUserRole(profile.role); // <-- NEW: Store the role
       }
-      setLoading(false);
-    };
-    checkSession();
-  }, [supabase]);
+    }
+    setLoading(false);
+  };
+  checkSession();
+}, [supabase]);
 
   // 2. THE AUTO-CHECKOUT LISTENER
   useEffect(() => {
@@ -154,10 +157,11 @@ const schedule = [
     </div>
   </Link>
 
-  {/* ADMIN ONLY: SIGNAL SNIFFER */}
-  {userTier.toLowerCase() === 'admin' && (
-    <Link href="/dashboard/admin/sniffer" className="flex-1 group">
-      <div className="relative aspect-square rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-orange-500 group-hover:shadow-[0_0_50px_rgba(234,88,12,0.3)]">
+        {/* ADMIN ONLY: SIGNAL SNIFFER */}
+        {/* ADMIN ONLY: SIGNAL SNIFFER */}
+        {userRole.toLowerCase() === 'admin' && (  
+        <Link href="/dashboard/admin/sniffer" className="flex-1 group">
+        <div className="relative aspect-square rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-orange-500 group-hover:shadow-[0_0_50px_rgba(234,88,12,0.3)]">
         <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
           <source src="/images/jmc-edits-palettes/smule-sniffer-button.mp4" type="video/mp4" />
         </video>
