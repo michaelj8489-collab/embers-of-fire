@@ -73,18 +73,24 @@ export default function IlluminatePage() {
             <MerchGallery showName="Illuminate" products={illuminateProducts} />
             <section className="w-full mt-24 mb-24 text-center border-t border-orange-900/20 pt-20">
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet Your Guide</h2>
-              <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-center gap-12 text-left mx-auto">
-                <img src="/images/jmc-edits-palettes/lunaria-bio-pic.png" alt="Karrie Lynne" className="w-full max-w-[300px] aspect-[4/5] object-contain" />
-                <div>
-                  <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-2">Karrie Lynne (Lunaria)</h3>
-                  <p className="font-cormorant text-xl text-orange-200/70 italic mb-6">Co-Founder of Rise Radio & Lead Host</p>
-                  <p className="font-cormorant text-gray-300 text-lg leading-relaxed text-justify">Known for her intuitive insight and compassionate nature, Lunaria is a listener, healer, reader, teacher, and guide—a gentle, caring soul who helps others find a little more love and light in their lives.</p>
-                </div>
+              <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-start gap-12         text-left mx-auto">
+               {/* THE PHOTO LANE */}
+                <img src="/images/jmc-edits-palettes/lunaria-bio-pic.png" alt="Karrie Lynne" className="w-full max-w-[300px] aspect-[4/5] object-contain rounded-xl border border-orange-900/20"/>
+                {/* THE TEXT LANE */}
+                 <div className="flex-1">
+                    <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-2"> Karrie Lynne (Lunaria) </h3>
+                      <p className="font-cormorant text-xl text-orange-200/70 italic mb-6"> Co-Founder of Rise Radio & Lead Host</p>
+                    <div className="space-y-4 font-cormorant text-gray-300 text-lg leading-relaxed text-justify">
+                      <p> Lunaria is the co-founder of The Rise Radio Network and a seasoned talk show host with over four years of experience inspiring and uplifting listeners. Her shows focus on healing, self-discovery, and learning to rise above life's traumas to create stronger, more meaningful relationships.</p>
+                      <p> Known for her intuitive insight and compassionate nature, Lunaria is a listener, healer, reader, teacher, and guide—a gentle, caring soul who helps others find a little more love and light in their lives.</p>
+                      <p>With her signature blend of wit, sass, and sincerity, she brings laughter and wisdom to every broadcast, guiding audiences toward peace, purpose, and personal empowerment.</p>
+                    </div>
+                  </div>
               </div>
             </section>
           </div>
         </main>
-        <Footer />
+       <Footer />
       </div>
     </div>
   );

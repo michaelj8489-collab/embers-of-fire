@@ -1,5 +1,6 @@
 'use client';
 
+import { supabase } from '@/utils/supabase';
 import React, { useState } from 'react';
 
 interface CaptureHistory {
@@ -13,7 +14,29 @@ export default function SmuleSniffer() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [label, setLabel] = useState('');
   const [history, setHistory] = useState<CaptureHistory[]>([]);
+
+  // This is the "Brain" — it runs once as soon as the page loads
+  React.useEffect(() => {
+    const loadVault = async () => {
+      // We grab the last 10 interceptions from the database
+      
+      const { data, error } = await supabase
+        .from('sniffer_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Vault access error:', error);
+      } else if (data) {
+        setHistory(data);
+      }
+    };
+
+    loadVault();
+  }, []);
 
   const handleCapture = async () => {
     if (!url) return;
@@ -22,10 +45,10 @@ export default function SmuleSniffer() {
 
     try {
       const response = await fetch('/api/smule-capture', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, label }) // <--- Make sure "label" is inside these braces
+    });
 
       const data = await response.json();
 
@@ -78,6 +101,18 @@ export default function SmuleSniffer() {
               Extract high-fidelity audio and video for the Rise Radio frequency.
             </p>
           </div>
+        </div>
+
+          <div className="flex flex-col gap-4">
+ 
+     {/* NEW: LABEL INPUT */}
+      <input
+    type="text"
+    className="w-full p-5 bg-black/40 border border-orange-900/40 rounded-2xl text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-orange-500 transition-all text-lg"
+    placeholder="Enter Song/Artist Name (e.g. Empty Memory)..."
+    value={label}
+    onChange={(e) => setLabel(e.target.value)}
+  />
 
           <div className="relative group">
             <input

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { chromium } from 'playwright-core';
+import { createClient } from '@supabase/supabase-js'; // <--- ADD THIS
 
 export async function POST(req: Request) {
   const startTime = Date.now();
@@ -7,7 +8,7 @@ export async function POST(req: Request) {
   let browser;
   
   try {
-    const { url } = await req.json();
+    const { url, label } = await req.json();
     const BROWSERLESS_KEY = process.env.BROWSERLESS_API_KEY;
     const SMULE_COOKIE = process.env.SMULE_COOKIE;
 
@@ -55,10 +56,25 @@ export async function POST(req: Request) {
     await browser.close();
 
     if (bestLink) {
+     // This cleans up your label so it doesn't have spaces that break files
+    const cleanLabel = label ? label.trim().replace(/\s+/g, '_') : 'Rise_Capture';
+    const fileName = `${cleanLabel}_${Date.now()}.mp4`;
+      
+      // --- START OF NEW LOGGER CODE ---
+      // This saves the data to your Supabase "vault" before sending it to your screen
+      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+      
+      await supabase.from('sniffer_logs').insert({
+        filename: fileName,
+        download_url: (bestLink as string).replace(/\\/g, ''),
+        original_smule_url: url,
+        captured_by_name: 'Michael J Cox' // Or Diane!
+      });
+      // --- END OF NEW LOGGER CODE ---
       return NextResponse.json({ 
         success: true, 
         downloadUrl: (bestLink as string).replace(/\\/g, ''),
-        suggestedName: `Rise_Radio_Capture_${Date.now()}.mp4` 
+        suggestedName: fileName 
       });
     }
 
