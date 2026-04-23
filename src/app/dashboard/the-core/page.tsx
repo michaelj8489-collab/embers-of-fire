@@ -208,7 +208,7 @@ export default function TheCorePage() {
                   </h2>
                   <div className="font-cormorant text-xl text-gray-300 space-y-5 leading-relaxed">
                     <p>
-                      The spark for this unique collaboration ignited entirely organically. It all started when Karrie guest-hosted an episode of <em className="text-orange-400 font-semibold">Phoenix Talks</em> with Michka. Michka's mother immediately saw the palpable magic between them and suggested they start a show as a trio.
+                      The spark for this unique collaboration ignited entirely organically. It all started when Karrie guest-hosted an episode of <em className="text-orange-400 font-semibold">Phoenix Talks</em> with Michka and Diane. Michka's mother immediately saw the palpable magic between them and suggested they start a show as a trio.
                     </p>
                     <blockquote className="border-l-4 border-orange-500/50 pl-5 py-3 my-4 italic text-orange-200/90 bg-orange-950/20 rounded-r-lg">
                       "You know, the three of you would do really well together... Why don't you guys think about starting a podcast where it's all three of you?"
