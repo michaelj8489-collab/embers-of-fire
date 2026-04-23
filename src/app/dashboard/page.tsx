@@ -90,17 +90,19 @@ function DashboardContent() {
     triggerCheckout();
   }, [loading, isLoggedIn, searchParams, userEmail]); // <-- 5. ADDED TO DEPENDENCY ARRAY
 
-  const schedule = [
-    { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
-    { name: "The Messengers", day: "Mondays", time: " 6:00 PM EST", href: "/dashboard/the-messengers"},
-    { name: "Brindle's Vision", day: "Tuesdays", time: "12:00 PM EST", href: "/dashboard/brindles-vision" },
-    { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
-    { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core" },
-    { name: "Honky Tonk Heaven", day: "Fridays", time: "8:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
-    { name: "Illuminate", day: "Fridays", time: "11:00 AM EST", href: "/dashboard/illuminate" },
-    { name: "Voices on the Rise", day: "Fridays (biweekly)", time: "6:00 PM EST", href: "/dashboard/voices-on-the-rise" },
-    { name: "Defining Your Character", day: "Saturdays", time: "6:00 PM EST", href: "/dashboard/defining-your-character"},
-  ];
+  // Find the 'schedule' array in your src/app/dashboard/page.tsx and replace it:
+const schedule = [
+  { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
+  { name: "The Messengers", day: "Mondays", time: " 6:00 PM EST", href: "/dashboard/the-messengers"},
+  { name: "Brindle's Vision", day: "Tuesdays", time: "12:00 PM EST", href: "/dashboard/brindles-vision" },
+  { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
+  { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core" },
+  { name: "Honky Tonk Heaven", day: "Fridays", time: "8:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
+  { name: "Illuminate", day: "Fridays", time: "11:00 AM EST", href: "/dashboard/illuminate" },
+  { name: "Voices on the Rise", day: "Fridays (biweekly)", time: "6:00 PM EST", href: "/dashboard/voices-on-the-rise" },
+  { name: "Defining Your Character", day: "Saturdays", time: "6:00 PM EST", href: "/dashboard/defining-your-character"},
+  { name: "Mystic Mist", day: "Sundays", time: "Coming May 10", href: "/dashboard/mystic-mist" },
+];
 
   if (loading) {
     return <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 font-cinzel text-xl animate-pulse">Entering the Sanctuary...</div>;
