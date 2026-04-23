@@ -7,40 +7,44 @@ export default function SmuleSniffer() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
- const handleCapture = async () => {
-  if (!url) return;
-  setLoading(true);
-  setMessage('Initializing Cloud Interception...');
+  const handleCapture = async () => {
+    if (!url) return;
+    setLoading(true);
+    setMessage('📡 Initiating Stealth Interception...');
 
-  try {
-    // NO MORE TUNNEL URL - We call our own API route directly
-    const response = await fetch('/api/smule-capture', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
+    try {
+      const response = await fetch('/api/smule-capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
 
-    const data = await response.json();
-    // ... rest of the code stays exactly the same
+      const data = await response.json();
 
       if (data.success) {
-        setMessage('BOOM! Signal caught. Starting download...');
+        setMessage('BOOM! Signal caught. Extracting media...');
         
-        // Use the local proxy to rename the file correctly
-        const proxyUrl = `/api/download?url=${encodeURIComponent(data.downloadUrl)}&filename=${encodeURIComponent(data.fileName)}`;
-        
+        // This is the "IT Specialist" magic: 
+        // We create an invisible link to trigger the browser download
         const link = document.createElement('a');
-        link.href = proxyUrl;
-        link.setAttribute('download', data.fileName);
+        link.href = data.downloadUrl;
+        
+        // We use the suggested name from our API (e.g., Smule_Capture_12345.mp4)
+        link.setAttribute('download', data.suggestedName || 'Smule_Recording.mp4');
+        link.setAttribute('target', '_blank'); // Safety for cross-origin signals
+        
         document.body.appendChild(link);
         link.click();
         link.remove();
+        
+        setMessage('SUCCESS: Asset safely stored in your local vault.');
       } else {
-        setMessage(`Error: ${data.error}`);
+        // If Smule ghosted us, we tell the user exactly what the spy heard
+        setMessage(`RECON FAILURE: ${data.error || 'Signal lost in transmission.'}`);
       }
     } catch (err) {
       console.error(err);
-      setMessage('The sniffer hit a snag. Is your local terminal running?');
+      setMessage('CRITICAL ERROR: Cloud frequency disconnected. Try hitting it again.');
     } finally {
       setLoading(false);
     }
@@ -48,7 +52,7 @@ export default function SmuleSniffer() {
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden font-cormorant">
-      {/* The Orange Accent Line from your dashboard */}
+      {/* The Iconic Rise Radio Orange Accent */}
       <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
 
       <div className="flex flex-col gap-8">
@@ -77,16 +81,18 @@ export default function SmuleSniffer() {
           disabled={loading}
           className={`w-full py-6 rounded-full font-cinzel text-xl tracking-[0.2em] transition-all uppercase font-bold shadow-[0_0_30px_rgba(234,88,12,0.2)] ${
             loading 
-              ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-orange-700 to-red-700 text-white hover:scale-[1.02] active:scale-95'
+              ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-50' 
+              : 'bg-gradient-to-r from-orange-700 to-red-700 text-white hover:scale-[1.02] active:scale-95 cursor-pointer'
           }`}
         >
-          {loading ? '🛰️ Intercepting Signal...' : 'Capture for Show'}
+          {loading ? '🛰️ Intercepting...' : 'Capture for Show'}
         </button>
 
         {message && (
-          <div className={`mt-4 p-4 rounded-xl text-center font-cinzel tracking-widest uppercase text-sm ${
-            message.includes('Error') || message.includes('snag') ? 'text-red-500 bg-red-950/20' : 'text-orange-400 bg-orange-950/20'
+          <div className={`mt-4 p-4 rounded-xl text-center font-cinzel tracking-widest uppercase text-sm animate-pulse ${
+            message.includes('ERROR') || message.includes('FAILURE') 
+              ? 'text-red-500 bg-red-950/20 border border-red-900/30' 
+              : 'text-orange-400 bg-orange-950/20 border border-orange-900/30'
           }`}>
             {message}
           </div>
