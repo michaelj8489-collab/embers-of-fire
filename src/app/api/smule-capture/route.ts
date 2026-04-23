@@ -17,40 +17,47 @@ export async function POST(req: Request) {
     
     const page = await context.newPage();
     
-    // THE WIRETAP: Listen for the actual file stream in the background
-    let interceptedUrl = '';
-    page.on('response', response => {
-      const contentType = response.headers()['content-type'];
-      const resUrl = response.url();
+    // 1. Go to the page and wait for the "State" to be injected
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    // 2. THE SURGERY: Pull the direct link out of the hidden Smule State
+    const mediaData = await page.evaluate(() => {
+      // Smule embeds the entire recording data in a script tag
+      const scripts = Array.from(document.querySelectorAll('script'));
+      const stateScript = scripts.find(s => s.innerText.includes('window.DataStore.state'));
       
-      // If we see a video/audio file or an mp4/m4a extension, grab that URL!
-      if (contentType?.includes('video/') || contentType?.includes('audio/') || resUrl.includes('.mp4') || resUrl.includes('.m4a')) {
-        if (!resUrl.includes('blob:')) {
-          interceptedUrl = resUrl;
-        }
+      if (stateScript) {
+        const content = stateScript.innerText;
+        // This regex hunts for the actual media URL hidden in the text
+        const videoMatch = content.match(/"video_url":"(https?:\/\/[^"]+)"/);
+        const audioMatch = content.match(/"media_url":"(https?:\/\/[^"]+)"/);
+        const titleMatch = content.match(/"title":"([^"]+)"/);
+
+        return {
+          url: videoMatch ? videoMatch[1].replace(/\\u002F/g, '/') : 
+               audioMatch ? audioMatch[1].replace(/\\u002F/g, '/') : null,
+          title: titleMatch ? titleMatch[1] : 'smule_capture'
+        };
       }
+      return { url: null, title: 'smule_capture' };
     });
 
-    // 1. Head to Smule
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-
-    // 2. TRIGGER THE SIGNAL: Scroll to force the player to actually start
-    await page.evaluate(() => window.scrollBy(0, 500));
-    await page.waitForTimeout(5000); 
-
-    const title = await page.title();
     await browser.close();
 
-    if (!interceptedUrl) {
-      return NextResponse.json({ success: false, error: 'Signal is encrypted or hidden. Try a different link!' });
+    if (!mediaData.url) {
+      return NextResponse.json({ success: false, error: 'Smule is cloaking this signal. Try a different performance!' });
     }
 
-    const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
+    const fileName = `${mediaData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
 
-    return NextResponse.json({ success: true, downloadUrl: interceptedUrl, fileName });
+    return NextResponse.json({ 
+      success: true, 
+      downloadUrl: mediaData.url, 
+      fileName 
+    });
 
   } catch (error: any) {
     if (browser) await browser.close();
-    return NextResponse.json({ success: false, error: `Interception Error: ${error.message}` });
+    return NextResponse.json({ success: false, error: `Cloud Failure: ${error.message}` });
   }
 }
