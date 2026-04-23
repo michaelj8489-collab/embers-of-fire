@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { chromium } from 'playwright-core';
 
 export async function POST(req: Request) {
+  const startTime = Date.now();
   const interceptedUrls: string[] = [];
   let browser;
   
@@ -26,7 +27,6 @@ export async function POST(req: Request) {
 
     const page = await context.newPage();
 
-    // THE SPEED TRAP: As soon as we see an mp4/m3u8, we stop everything!
     const signalFound = new Promise<string>((resolve) => {
       page.on('request', request => {
         const rUrl = request.url();
@@ -36,31 +36,33 @@ export async function POST(req: Request) {
       });
     });
 
-    // Fast load - don't wait for images or CSS
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    // MOVE: Wait for 'commit' instead of 'domcontentloaded' (Saves ~1-2 seconds)
+    await page.goto(url, { waitUntil: 'commit', timeout: 15000 });
     
-    // Immediate Click
+    // Immediate Blind Click (We don't wait for the button to appear, we just fire)
     await page.mouse.click(640, 360); 
 
-    // RACE: Wait for the signal OR a max of 7 seconds (to beat Vercel's 10s timer)
+    // CALCULATE REMAINING TIME: 
+    // Vercel kills us at 10s. We want to stop at 9.2s to be safe.
+    const elapsedSoFar = Date.now() - startTime;
+    const remainingTime = 9200 - elapsedSoFar; 
+
     const bestLink = await Promise.race([
       signalFound,
-      new Promise<null>(res => setTimeout(() => res(null), 7000))
+      new Promise<null>(res => setTimeout(() => res(null), Math.max(remainingTime, 2000)))
     ]);
 
     await browser.close();
 
     if (bestLink) {
-      // FIXING THE "UNDEFINED" FILENAME: 
-      // We send back a suggested filename in the JSON
       return NextResponse.json({ 
         success: true, 
         downloadUrl: (bestLink as string).replace(/\\/g, ''),
-        suggestedName: `Smule_Capture_${Date.now()}.mp4` 
+        suggestedName: `Rise_Radio_Capture_${Date.now()}.mp4` 
       });
     }
 
-    return NextResponse.json({ success: false, error: 'Signal cloaked. Try one more time.' });
+    return NextResponse.json({ success: false, error: 'Signal cloaked. The server was too slow—Try again immediately.' });
 
   } catch (error: any) {
     if (browser) await browser.close();
