@@ -1,51 +1,42 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+'use client';
+
+import React from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import SmuleSniffer from '@/components/SmuleSniffer';
 
-export default async function AdminSnifferPage() {
-  /* --- LOCAL BYPASS START ---*/
-  const cookieStore = await cookies();
-  
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-      },
-    }
-  );
-
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/login');
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
-
-  if (profile?.role !== 'admin') {
-    redirect('/dashboard');
-  }
-  /*--- LOCAL BYPASS END --- */
-
+export default function SnifferPage() {
   return (
-    <div className="container mx-auto py-12 px-4">
-      <div className="mb-8 text-center border-b border-zinc-800 pb-8">
-        <h1 className="text-4xl font-bold text-white">Admin Command Center</h1>
-        <p className="text-red-500 font-bold mt-2 uppercase tracking-widest">
-          ⚠️ Local Bypass Active
-        </p>
-      </div>
+    <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
       
-      <div className="mt-8">
-        <SmuleSniffer />
+      {/* FIXED PHOENIX BACKGROUND (Matching the Dashboard) */}
+      <div className="fixed inset-0 z-0">
+        <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-30">
+          <source src="/images/jmc-edits-palettes/phoenix-arriving.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+      </div>
+
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Header />
+
+        <main className="flex-grow flex flex-col items-center pt-32 md:pt-48 pb-24 px-4">
+          <div className="w-full max-w-7xl mx-auto text-center mb-16">
+            <h1 className="text-5xl md:text-7xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-tighter drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]">
+              The Signal Sniffer
+            </h1>
+            <p className="mt-4 text-orange-500/60 font-cinzel text-sm md:text-base tracking-[0.3em] uppercase">
+              Admin Interception Console
+            </p>
+          </div>
+
+          {/* THE SNIFFER COMPONENT */}
+          <SmuleSniffer />
+          
+        </main>
+
+        <Footer />
       </div>
     </div>
   );
 }
-  
