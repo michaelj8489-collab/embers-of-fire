@@ -47,7 +47,8 @@ export default function Header() {
     { name: "Illuminate", href: "/dashboard/illuminate" },
     { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
     { name: "Voices on the Rise", href: "/dashboard/voices-on-the-rise" },
-    { name: "Defining Your Character", href: "/dashboard/defining-your-character" }
+    { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
+    { name: "Mystic Mist", href: "/dashboard/mystic-mist" } // Added Mystic Mist
   ];
 
   return (
