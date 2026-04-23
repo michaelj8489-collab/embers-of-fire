@@ -7,23 +7,21 @@ export default function SmuleSniffer() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const handleCapture = async () => {
-    if (!url) return;
-    setLoading(true);
-    setMessage('Initializing Interception...');
+ const handleCapture = async () => {
+  if (!url) return;
+  setLoading(true);
+  setMessage('Initializing Cloud Interception...');
 
-    try {
-      // YOUR UNIQUE TUNNEL URL
-      const tunnelUrl = 'https://rise-radio-sniffer.loca.lt';
+  try {
+    // NO MORE TUNNEL URL - We call our own API route directly
+    const response = await fetch('/api/smule-capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
 
-      const response = await fetch(`${tunnelUrl}/api/smule-capture`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
-
-      // RESTORED: This is the line that was missing!
-      const data = await response.json();
+    const data = await response.json();
+    // ... rest of the code stays exactly the same
 
       if (data.success) {
         setMessage('BOOM! Signal caught. Starting download...');

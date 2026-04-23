@@ -1,65 +1,57 @@
-import { chromium } from 'playwright';
 import { NextResponse } from 'next/server';
+import { chromium } from 'playwright-core';
 
 export async function POST(req: Request) {
   try {
     const { url } = await req.json();
+    const BROWSERLESS_KEY = process.env.BROWSERLESS_API_KEY;
 
-    if (!url) {
-      return NextResponse.json({ error: 'No URL provided' }, { status: 400 });
+    if (!BROWSERLESS_KEY) {
+      return NextResponse.json({ success: false, error: 'Cloud API Key Missing' });
     }
 
-    console.log(`🕵️ Mission Started: ${url}`);
+    // Connect to the Cloud Browser in the Browserless data center
+    const browser = await chromium.connectOverCDP(
+      `wss://chrome.browserless.io?token=${BROWSERLESS_KEY}`
+    );
 
-    const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
     });
     
     const page = await context.newPage();
-    let capturedUrl = "";
+    
+    // Navigate to Smule
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 20000 });
 
-    // The Universal Sniffer Logic
-    page.on('request', request => {
-      const reqUrl = request.url();
-      const isMedia = reqUrl.includes('.mp4') || reqUrl.includes('.m4a');
-      const isSmule = reqUrl.includes('smu.le') || reqUrl.includes('smule.com');
-
-      if (isMedia && isSmule && !capturedUrl) {
-        const type = reqUrl.includes('.mp4') ? "VIDEO" : "AUDIO";
-        console.log(`✅ FOUND ${type} LINK: ${reqUrl.slice(0, 50)}...`);
-        capturedUrl = reqUrl;
-      }
+    // Sniff for the media link
+    const mediaData = await page.evaluate(() => {
+      const video = document.querySelector('video') as HTMLVideoElement;
+      const audio = document.querySelector('audio') as HTMLAudioElement;
+      const titleElement = document.querySelector('title');
+      
+      return {
+        url: video?.src || audio?.src || null,
+        title: titleElement?.innerText || 'smule_capture'
+      };
     });
 
-    // 1. Go to the page
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    
-    // 2. The Patient Wait
-    console.log("⏳ Waiting 10 seconds for media to trigger...");
-    await page.waitForTimeout(10000); 
-    
-    const pageTitle = await page.title();
     await browser.close();
 
-    if (capturedUrl) {
-      const cleanTitle = pageTitle.replace(/[^a-z0-9\s-_]/gi, '').trim();
-      
-      // Determine extension based on what was actually caught
-      const extension = capturedUrl.includes('.mp4') ? '.mp4' : '.m4a';
-      
-      return NextResponse.json({ 
-        success: true, 
-        downloadUrl: capturedUrl, 
-        fileName: `${cleanTitle.slice(0, 50)}${extension}` 
-      });
-    } else {
-      console.log("❌ Sniffer failed to find any media link.");
-      return NextResponse.json({ error: 'Media link not found' }, { status: 404 });
+    if (!mediaData.url) {
+      return NextResponse.json({ success: false, error: 'Could not find the signal on this page.' });
     }
 
-  } catch (error) {
-    console.error("🚨 API Error:", error);
-    return NextResponse.json({ error: 'The sniffer encountered a problem' }, { status: 500 });
+    const fileName = `${mediaData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
+
+    return NextResponse.json({ 
+      success: true, 
+      downloadUrl: mediaData.url, 
+      fileName 
+    });
+
+  } catch (error: any) {
+    console.error('Cloud Sniffer Error:', error);
+    return NextResponse.json({ success: false, error: error.message });
   }
 }
