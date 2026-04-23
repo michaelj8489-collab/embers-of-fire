@@ -16,37 +16,35 @@ export async function POST(req: Request) {
     
     const page = await context.newPage();
     
-    // 1. Navigate and wait for the page to settle
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // 1. Navigate and wait for the page to actually load
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
 
-    // 2. WAIT for the video/audio to actually show up (Max 10 seconds)
-    try {
-      await page.waitForSelector('video, audio, meta[property="og:video:url"]', { timeout: 10000 });
-    } catch (e) {
-      console.log("Waiting timed out, trying to sniff anyway...");
-    }
+    // 2. GIVE IT A SECOND: Smule players sometimes take a beat to inject the source
+    await page.waitForTimeout(3000); 
 
-    // 3. THE DEEP SNIFF
+    // 3. THE ULTRA SNIFF
     const mediaData = await page.evaluate(() => {
-      // Try finding the actual player tags first
-      const video = document.querySelector('video') as HTMLVideoElement;
-      const audio = document.querySelector('audio') as HTMLAudioElement;
+      const video = document.querySelector('video');
+      const audio = document.querySelector('audio');
+      // Look specifically for the internal source tag
+      const source = document.querySelector('video source, audio source');
       
-      // FALLBACK: Look for the secret Open Graph tags in the <head>
+      // Metadata fallbacks (The "Social Share" links)
       const ogVideo = document.querySelector('meta[property="og:video:url"]')?.getAttribute('content');
-      const ogAudio = document.querySelector('meta[property="og:audio:url"]')?.getAttribute('content');
+      const twitterStream = document.querySelector('meta[name="twitter:player:stream"]')?.getAttribute('content');
       const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
 
       return {
-        url: video?.src || audio?.src || ogVideo || ogAudio || null,
+        url: video?.src || audio?.src || source?.getAttribute('src') || ogVideo || twitterStream || null,
         title: ogTitle || document.querySelector('title')?.innerText || 'smule_capture'
       };
     });
 
     await browser.close();
 
-    if (!mediaData.url) {
-      return NextResponse.json({ success: false, error: 'Signal not found. Smule might be hiding it today!' });
+    // If the URL is just a blob or empty, we fail gracefully
+    if (!mediaData.url || mediaData.url.startsWith('blob:')) {
+      return NextResponse.json({ success: false, error: 'Signal is encrypted or hidden. Try a different performance link!' });
     }
 
     const fileName = `${mediaData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
