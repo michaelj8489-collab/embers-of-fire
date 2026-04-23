@@ -17,18 +17,18 @@ export async function POST(req: Request) {
     
     const page = await context.newPage();
     
-    // 1. Go to the page and wait for the "State" to be injected
+    // 1. Go to the page and wait for the "Blueprint" to arrive
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    // 2. THE SURGERY: Pull the direct link out of the hidden Smule State
+    // 2. THE SURGERY: Extract the direct URL from the hidden DataStore
     const mediaData = await page.evaluate(() => {
-      // Smule embeds the entire recording data in a script tag
       const scripts = Array.from(document.querySelectorAll('script'));
+      // Search for the specific script tag containing Smule's internal data
       const stateScript = scripts.find(s => s.innerText.includes('window.DataStore.state'));
       
       if (stateScript) {
         const content = stateScript.innerText;
-        // This regex hunts for the actual media URL hidden in the text
+        // Regex to hunt for video or audio URLs in the JSON blob
         const videoMatch = content.match(/"video_url":"(https?:\/\/[^"]+)"/);
         const audioMatch = content.match(/"media_url":"(https?:\/\/[^"]+)"/);
         const titleMatch = content.match(/"title":"([^"]+)"/);
@@ -45,19 +45,15 @@ export async function POST(req: Request) {
     await browser.close();
 
     if (!mediaData.url) {
-      return NextResponse.json({ success: false, error: 'Smule is cloaking this signal. Try a different performance!' });
+      return NextResponse.json({ success: false, error: 'This performance is locked. Smule requires a login to see this signal!' });
     }
 
     const fileName = `${mediaData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
 
-    return NextResponse.json({ 
-      success: true, 
-      downloadUrl: mediaData.url, 
-      fileName 
-    });
+    return NextResponse.json({ success: true, downloadUrl: mediaData.url, fileName });
 
   } catch (error: any) {
     if (browser) await browser.close();
-    return NextResponse.json({ success: false, error: `Cloud Failure: ${error.message}` });
+    return NextResponse.json({ success: false, error: `Extraction Failure: ${error.message}` });
   }
 }
