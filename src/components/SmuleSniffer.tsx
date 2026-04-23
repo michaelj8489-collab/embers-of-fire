@@ -14,7 +14,7 @@ export default function SmuleSniffer() {
 
     try {
       // YOUR UNIQUE TUNNEL URL
-      const tunnelUrl = 'https://twelve-carpets-sniff.loca.lt';
+      const tunnelUrl = 'https://rise-radio-sniffer.loca.lt';
 
       const response = await fetch(`${tunnelUrl}/api/smule-capture`, {
         method: 'POST',
