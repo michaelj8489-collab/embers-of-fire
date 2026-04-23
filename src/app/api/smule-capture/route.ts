@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { chromium } from 'playwright-core';
 
 export async function POST(req: Request) {
+  let browser;
   try {
     const { url } = await req.json();
     const BROWSERLESS_KEY = process.env.BROWSERLESS_API_KEY;
 
-    const browser = await chromium.connectOverCDP(
+    browser = await chromium.connectOverCDP(
       `wss://chrome.browserless.io?token=${BROWSERLESS_KEY}`
     );
 
@@ -16,43 +17,40 @@ export async function POST(req: Request) {
     
     const page = await context.newPage();
     
-    // 1. Navigate and wait for the page to actually load
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-
-    // 2. GIVE IT A SECOND: Smule players sometimes take a beat to inject the source
-    await page.waitForTimeout(3000); 
-
-    // 3. THE ULTRA SNIFF
-    const mediaData = await page.evaluate(() => {
-      const video = document.querySelector('video');
-      const audio = document.querySelector('audio');
-      // Look specifically for the internal source tag
-      const source = document.querySelector('video source, audio source');
+    // THE WIRETAP: Listen for the actual file stream in the background
+    let interceptedUrl = '';
+    page.on('response', response => {
+      const contentType = response.headers()['content-type'];
+      const resUrl = response.url();
       
-      // Metadata fallbacks (The "Social Share" links)
-      const ogVideo = document.querySelector('meta[property="og:video:url"]')?.getAttribute('content');
-      const twitterStream = document.querySelector('meta[name="twitter:player:stream"]')?.getAttribute('content');
-      const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
-
-      return {
-        url: video?.src || audio?.src || source?.getAttribute('src') || ogVideo || twitterStream || null,
-        title: ogTitle || document.querySelector('title')?.innerText || 'smule_capture'
-      };
+      // If we see a video/audio file or an mp4/m4a extension, grab that URL!
+      if (contentType?.includes('video/') || contentType?.includes('audio/') || resUrl.includes('.mp4') || resUrl.includes('.m4a')) {
+        if (!resUrl.includes('blob:')) {
+          interceptedUrl = resUrl;
+        }
+      }
     });
 
+    // 1. Head to Smule
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+
+    // 2. TRIGGER THE SIGNAL: Scroll to force the player to actually start
+    await page.evaluate(() => window.scrollBy(0, 500));
+    await page.waitForTimeout(5000); 
+
+    const title = await page.title();
     await browser.close();
 
-    // If the URL is just a blob or empty, we fail gracefully
-    if (!mediaData.url || mediaData.url.startsWith('blob:')) {
-      return NextResponse.json({ success: false, error: 'Signal is encrypted or hidden. Try a different performance link!' });
+    if (!interceptedUrl) {
+      return NextResponse.json({ success: false, error: 'Signal is encrypted or hidden. Try a different link!' });
     }
 
-    const fileName = `${mediaData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
+    const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
 
-    return NextResponse.json({ success: true, downloadUrl: mediaData.url, fileName });
+    return NextResponse.json({ success: true, downloadUrl: interceptedUrl, fileName });
 
   } catch (error: any) {
-    console.error('Cloud Sniffer Error:', error);
-    return NextResponse.json({ success: false, error: error.message });
+    if (browser) await browser.close();
+    return NextResponse.json({ success: false, error: `Interception Error: ${error.message}` });
   }
 }
