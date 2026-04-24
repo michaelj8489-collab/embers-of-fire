@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from '@/utils/supabase';
+import { createClient } from '@/utils/supabase/client';
 import React, { useState } from 'react';
 
 interface CaptureHistory {
@@ -11,6 +11,7 @@ interface CaptureHistory {
 }
 
 export default function SmuleSniffer() {
+  const supabase = createClient();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
