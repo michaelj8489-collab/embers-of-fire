@@ -90,11 +90,11 @@ export default function SmuleSniffer() {
     <div className="flex flex-col gap-8 w-full max-w-3xl mx-auto">
       {/* THE MAIN SNIFFER BOX */}
       <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden font-cormorant">
-        <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
+        <div className="absolute top-0 left-0 w-0 h-full bg-orange-600"></div>
 
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-10">
           <div className="space-y-2">
-            <h3 className="font-cinzel text-orange-500 text-xl md:text-2xl tracking-widest uppercase">
+            <h3 className="font-cinzel text-orange-500 text-xxl md:text-2xl tracking-widest uppercase">
               Signal Sniffer
             </h3>
             {/* --- UPDATED PROTOCOL INSTRUCTIONS --- */}
@@ -104,12 +104,12 @@ export default function SmuleSniffer() {
                   <h4 className="font-cinzel text-orange-500 text-sm tracking-[0.2em] uppercase font-bold"> Signal Interception Protocol</h4>
               </div>
   
-              <div className="font-cormorant text-gray-300 space-y-3 text-lg italic leading-tight">
+              <div className="font-cormorant text-gray-300 space-y-3 text-xl italic leading-tight">
                 <p>1. Enter the <span className="text-orange-400">Song Name</span>, then paste the Smule link. </p>
                 <p>2. If the signal is "Cloaked," hit the button again. This "primes" the server.</p>
                 <p> 3. <span className="text-white font-bold underline">Maximum Attempts: 5.</span> If the file does not appear in the Archive after 5 clicks, the signal may be heavily encrypted.</p>
                 <div className="pt-4 border-t border-orange-900/20">
-                <p className="text-xs not-italic text-zinc-500 uppercase tracking-[0.1em]"> Failed after 5 attempts? Contact <span className="text-zinc-300">Michael J.</span> for Admin Support.</p>
+                <p className="text-lg italic text-zinc-500 uppercase tracking-[0.1em]"> Failed after 5 attempts? Contact <span className="text-zinc-300">Michael J.</span> for Admin Support.</p>
                 </div>
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function SmuleSniffer() {
         <div className="flex flex-col gap-4">
         
               {/* NEW: LABEL INPUT */}
-                <input type="text" className="w-full p-5 bg-black/40 border border-orange-900/40 rounded-2xl text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-orange-500 transition-all text-lg" placeholder="Enter Song/Artist Name (e.g. Empty Memory)..." value={label} onChange={(e) => setLabel(e.target.value)}/>
+                <input type="text" className="w-full p-5 bg-black/40 border border-orange-900/40 rounded-2xl text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-orange-500 transition-all text-lg" placeholder="Enter Song Title/Singer Name (e.g. Empty Memory)..." value={label} onChange={(e) => setLabel(e.target.value)}/>
 
           <div className="relative group">
             <input
@@ -183,7 +183,8 @@ export default function SmuleSniffer() {
             ))}
           </div>
         </div>
-      )}
-    </div>
+      )}    
+    
+       </div>
   );
-}
+} 
