@@ -28,14 +28,34 @@ export async function POST(req: Request) {
 
     const page = await context.newPage();
 
-    const signalFound = new Promise<string>((resolve) => {
-      page.on('request', request => {
-        const rUrl = request.url();
-        if (rUrl.match(/\.(mp4|m3u8|m4a)/i) && !rUrl.includes('profile')) {
-          resolve(rUrl);
-        }
-      });
-    });
+      // NITRO BOOST: Block unnecessary assets to save time/bandwidth
+        await page.route('**/*', (route) => {
+            const type = route.request().resourceType();
+               if (['image', 'font', 'stylesheet', 'media'].includes(type) && !route.request().url().includes('.mp4'))
+                 {
+    
+                return route.abort();
+          }
+                    route.continue();
+});
+
+const signalFound = new Promise<string>((resolve) => {
+  page.on('request', request => {
+    const rUrl = request.url();
+    // Aggressive filtering for the specific media types we want
+    if (rUrl.match(/\.(mp4|m4a|m3u8)/i) && !rUrl.includes('profile')) {
+      resolve(rUrl);
+    }
+  });
+});
+
+// Use 'commit' for maximum speed - we don't need the page to render, just start
+await page.goto(url, { waitUntil: 'commit', timeout: 10000 });
+
+// Blind click to trigger the stream immediately
+await page.mouse.click(640, 360); 
+
+// ... rest of your logic ...
 
     // MOVE: Wait for 'commit' instead of 'domcontentloaded' (Saves ~1-2 seconds)
     await page.goto(url, { waitUntil: 'commit', timeout: 15000 });
