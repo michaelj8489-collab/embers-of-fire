@@ -11,8 +11,14 @@ export async function POST(req: Request) {
     const { url, label } = await req.json();
     const SMULE_COOKIE = process.env.SMULE_COOKIE;
 
-    browser = await chromium.launch({ 
-  args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+    browser = await chromium.launch({
+  executablePath: '/home/opc/.cache/ms-playwright/chromium_headless_shell-1217/chrome-linux64/chrome-headless-shell',
+  args: [
+    '--no-sandbox', 
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage', // Added this to help with the 24GB RAM management
+    '--single-process'         // This helps on Oracle Linux specifically
+  ]
 });
 
     const context = await browser.newContext({
