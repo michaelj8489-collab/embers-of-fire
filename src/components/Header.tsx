@@ -48,7 +48,7 @@ export default function Header() {
     { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
     { name: "Voices on the Rise", href: "/dashboard/voices-on-the-rise" },
     { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
-    { name: "Mystic Mist", href: "/dashboard/mystic-mist" } // Added Mystic Mist
+    { name: "Mystic Mist", href: "/dashboard/mystic-mist" }
   ];
 
   return (
@@ -81,6 +81,14 @@ export default function Header() {
                 
                 {showsOpen && (
                   <div className="absolute top-full right-0 mt-4 w-64 bg-black/95 border border-orange-900/50 backdrop-blur-xl flex flex-col py-2 z-50 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
+                    {/* DASHBOARD LINK ADDED HERE */}
+                    <Link 
+                      href="/dashboard" 
+                      onClick={() => setShowsOpen(false)}
+                      className="px-4 py-3 text-orange-400 font-cinzel text-sm font-bold uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30"
+                    >
+                      Dashboard
+                    </Link>
                     <Link 
                       href={`/sanctuary/${userTier}`} 
                       onClick={() => setShowsOpen(false)}
@@ -124,6 +132,11 @@ export default function Header() {
         <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-8 py-6 flex flex-col gap-6 max-h-[85vh] overflow-y-auto shadow-2xl">
           {isMounted && isLoggedIn ? (
             <>
+              {/* DASHBOARD LINK ADDED HERE */}
+              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
+                Dashboard
+              </Link>
+              
               <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
                 My Sanctuary
               </Link>
