@@ -5,9 +5,11 @@ import React, { useState } from 'react';
 
 interface CaptureHistory {
   id: string;
-  name: string;
-  url: string;
-  timestamp: string;
+  filename: string;      // Changed from name
+  download_url: string;  // Changed from url
+  created_at: string;    // Changed from timestamp
+  original_smule_url?: string;
+  captured_by_name?: string;
 }
 
 export default function SmuleSniffer() {
@@ -68,12 +70,13 @@ export default function SmuleSniffer() {
         link.remove();
 
         // Update the "Trophy Room"
-        const newCapture = {
-          id: Math.random().toString(36).substr(2, 9),
-          name: fileName,
-          url: data.downloadUrl,
-          timestamp: new Date().toLocaleTimeString(),
-        };
+// Update the list immediately so the user sees it pop up
+const newCapture: CaptureHistory = {
+  id: Math.random().toString(),
+  filename: fileName,         // Updated from name
+  download_url: data.downloadUrl,  // Updated from url
+  created_at: new Date().toISOString(), // Updated from timestamp
+};
         setHistory((prev) => [newCapture, ...prev]);
         
         setMessage('SUCCESS: Asset safely stored.');
@@ -162,26 +165,26 @@ export default function SmuleSniffer() {
             Recent Interceptions
           </h4>
           <div className="space-y-4">
-            {history.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-zinc-950/50 rounded-xl border border-zinc-900 hover:border-orange-900/30 transition-colors group">
-                <div className="flex flex-col">
-                  <span className="text-zinc-300 font-medium truncate max-w-[200px] md:max-w-md">
-                    {item.name}
-                  </span>
-                  <span className="text-zinc-600 text-xs uppercase tracking-tighter">
-                    Logged at {item.timestamp}
-                  </span>
-                </div>
-                <a 
-                  href={item.url} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="text-orange-600 hover:text-orange-400 text-xs font-cinzel uppercase tracking-widest transition-colors"
-                >
-                  Re-Download
-                </a>
-              </div>
-            ))}
+           {history.map((item) => (
+  <div key={item.id} className="flex items-center justify-between p-4 bg-zinc-950/50 rounded-xl border border-zinc-800 hover:border-orange-900/30 transition-colors group">
+    <div className="flex flex-col">
+      <span className="text-zinc-300 font-medium truncate max-w-[200px] md:max-w-md">
+        {item.filename}
+      </span>
+      <span className="text-zinc-600 text-xs uppercase tracking-tighter">
+        Logged at {new Date(item.created_at).toLocaleString()}
+      </span>
+    </div>
+    <a
+      href={item.download_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-orange-500 hover:text-orange-400 font-cinzel text-xs tracking-widest uppercase transition-colors"
+    >
+      RE-DOWNLOAD
+    </a>
+  </div>
+))}
           </div>
         </div>
       )}    

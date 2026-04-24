@@ -9,10 +9,12 @@ export async function POST(req: Request) {
   
   try {
     const { url, label } = await req.json();
-    const BROWSERLESS_KEY = process.env.BROWSERLESS_API_KEY;
     const SMULE_COOKIE = process.env.SMULE_COOKIE;
 
-    browser = await chromium.connectOverCDP(`wss://chrome.browserless.io/chromium/stealth?token=${BROWSERLESS_KEY}`);
+    browser = await chromium.launch({ 
+  executablePath: '/usr/bin/google-chrome',
+  args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+});
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
