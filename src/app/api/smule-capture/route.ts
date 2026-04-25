@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const SMULE_COOKIE = process.env.SMULE_COOKIE;
 
   browser = await chromium.launch({
-  executablePath: '/home/opc/scripts/smule_engine.py',
+  executablePath: '/scripts/smule_engine.py',
   args: [
     '--no-sandbox', 
     '--disable-setuid-sandbox',
