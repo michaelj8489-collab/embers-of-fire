@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const SMULE_COOKIE = process.env.SMULE_COOKIE;
 
   browser = await chromium.launch({
-  executablePath: '/home/opc/sniffer-chrome',
+  executablePath: '/home/opc//home/opc/chrome-files/chromium-1217/chrome-linux64/chrome',
   args: [
     '--no-sandbox', 
     '--disable-setuid-sandbox',
