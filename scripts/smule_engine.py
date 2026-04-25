@@ -13,7 +13,7 @@ def run_smule_mission(url):
         print("Launching Ghost Browser...")
         # POINT TO THE SHORTCUT WE CREATED
         browser = p.chromium.launch(
-         executable_path='/home/opc/chrome-files/chromium-1217/chrome-linux64/chrome',
+         executable_path='scripts/smule_engine.py',
             headless=True,
             args=['--no-sandbox', '--disable-setuid-sandbox']
         )
