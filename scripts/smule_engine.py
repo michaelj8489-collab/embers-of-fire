@@ -1,4 +1,5 @@
 import re
+import sys  # <--- Add this right here
 from playwright.sync_api import sync_playwright
 
 # --- 1. THE TOOLS ---
@@ -67,7 +68,7 @@ def run_smule_mission(url):
 # --- 2. THE MISSION ---
 
 # Replace with any Smule recording link
-target_link = "https://www.smule.com/sing-recording/3196017727_5198083471_1663808" 
+target_link = sys.argv[1] 
 
 if "PASTE" in target_link:
     print("Don't forget to paste the link!")
