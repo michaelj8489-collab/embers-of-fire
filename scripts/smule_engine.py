@@ -1,5 +1,5 @@
 import re
-import sys  # <--- Add this right here
+import sys
 from playwright.sync_api import sync_playwright
 
 # --- 1. THE TOOLS ---
@@ -11,9 +11,8 @@ def run_smule_mission(url):
     """
     with sync_playwright() as p:
         print("Launching Ghost Browser...")
-        # POINT TO THE SHORTCUT WE CREATED
+        # Let Playwright use its default internal Chromium
         browser = p.chromium.launch(
-         executable_path='scripts/smule_engine.py',
             headless=True,
             args=['--no-sandbox', '--disable-setuid-sandbox']
         )
