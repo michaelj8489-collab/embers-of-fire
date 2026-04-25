@@ -1,7 +1,6 @@
 import re
 from playwright.sync_api import sync_playwright
 
-
 # --- 1. THE TOOLS ---
 
 def run_smule_mission(url):
@@ -13,7 +12,7 @@ def run_smule_mission(url):
         print("Launching Ghost Browser...")
         # POINT TO THE SHORTCUT WE CREATED
         browser = p.chromium.launch(
-            executable_path='/home/opc/sniffer-chrome',
+         executable_path='/home/opc/chrome-files/chromium-1217/chrome-linux64/chrome',
             headless=True,
             args=['--no-sandbox', '--disable-setuid-sandbox']
         )
