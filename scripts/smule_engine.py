@@ -1,75 +1,112 @@
+import os
 import re
-import sys
+import json
 from playwright.sync_api import sync_playwright
 
-# --- 1. THE TOOLS ---
+def get_smule_data(target_url):
+    """
+    SEAL TEAM SIX - MASTER EDITION
+    1. Camouflage (Custom Cookies & Headers)
+    2. Wire Tapper (Network Sniffing)
+    3. The Trigger (Clicking Play)
+    4. Metadata Scrape (OG Tags)
+    5. JSON Hunter (Internal Variables)
+    6. Brute Force (Regex Scan)
+    """
+    
+    # --- 1. THE CAMOUFLAGE ---
+    # Paste that giant cookie string from your browser between the quotes below
+    SMULE_COOKIE = "PLACEHOLDER_FOR_YOUR_SMULE_COOKIE_STRING"
 
-def run_smule_mission(url):
-    """
-    The Rockstar Engine: Sniffs the link, grabs the song title, 
-    cleans the name, and downloads it in one go.
-    """
     with sync_playwright() as p:
-        print("Launching Ghost Browser...")
-        # Let Playwright use its default internal Chromium
+        print(f"Deploying Seal Team Six to: {target_url}")
+        
         browser = p.chromium.launch(
             headless=True,
-            args=['--no-sandbox', '--disable-setuid-sandbox']
+            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
         )
-        context = browser.new_context()
+        
+        # This makes the Oracle Server look exactly like your laptop in Brunswick
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            extra_http_headers={
+                "Cookie": SMULE_COOKIE,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Sec-Fetch-Site": "same-origin",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Dest": "document"
+            }
+        )
         page = context.new_page()
 
-        captured_url = {"url": None}
+        captured_data = {"url": None, "title": "Unknown Song"}
 
-        # The Sniffer: Listen for the media file
+        # --- 2. THE WIRE TAPPER ---
         def handle_request(request):
             if '.mp4' in request.url and ("smu.le" in request.url or "smule.com" in request.url):
-                if not captured_url["url"]:
-                    captured_url["url"] = request.url
+                if not captured_data["url"]:
+                    captured_data["url"] = request.url
+                    print("✅ Wire Tapper caught the signal!")
 
         page.on("request", handle_request)
 
         try:
-            print(f"Investigating: {url}")
-            page.goto(url, wait_until="networkidle", timeout=60000)
-            print("Listening for media signals...")
-            page.wait_for_timeout(5000) 
-
-            # 1. Grab the Song Title
-            page_title = page.title()
+            # Head to the song page
+            page.goto(target_url, wait_until="domcontentloaded", timeout=60000)
             
-            # 2. Clean the Title for Windows (removes stars, emojis, etc.)
-            clean_title = "".join([c for c in page_title if c.isalnum() or c in (' ', '-', '_')]).strip()
-            final_filename = f"{clean_title[:50]}.mp4"
+            # --- 3. THE TRIGGER ---
+            print("Deploying The Trigger (Clicking Play)...")
+            try:
+                # Attempt to click the main play button overlay
+                page.click('div[class*="PlayButton"]', timeout=5000)
+                page.wait_for_timeout(2000)
+            except:
+                print("⚠️ Trigger delayed - trying backup click.")
+                page.mouse.click(500, 500) # Click the center of the screen
 
-            if captured_url["url"]:
-                target_url = captured_url["url"]
-                print(f"BOOM! Link Caught: {target_url}")
-                
-                # 3. Download the file using the secure context
-                print(f"Downloading as: {final_filename}...")
-                response = context.request.get(target_url)
-                
-                if response.status == 200:
-                    with open(final_filename, "wb") as f:
-                        f.write(response.body())
-                    print(f"Success! '{final_filename}' is in your project folder.")
-                else:
-                    print(f"Download failed: {response.status}")
+            # --- 4. METADATA SCRAPE ---
+            if not captured_data["url"]:
+                print("Scanning Metadata...")
+                video_meta = page.locator('meta[property="og:video:url"]').get_attribute("content")
+                if video_meta:
+                    captured_data["url"] = video_meta
+                    print("✅ Metadata Scrape successful!")
+
+            # --- 5. JSON HUNTER ---
+            if not captured_data["url"]:
+                print("Deploying JSON Hunter...")
+                content = page.content()
+                json_match = re.search(r'window\.Smule\s*=\s*({.*?});', content)
+                if json_match:
+                    try:
+                        smule_data = json.loads(json_match.group(1))
+                        url = smule_data.get('recording', {}).get('media_url')
+                        if url:
+                            captured_data["url"] = url
+                            print("✅ JSON Hunter found the hidden link!")
+                    except:
+                        pass
+
+            # --- 6. BRUTE FORCE ---
+            if not captured_data["url"]:
+                print("Running Brute Force Regex...")
+                brute_match = re.search(r'https?://[^"\'\s]+\.mp4[^"\'\s]*', page.content())
+                if brute_match:
+                    captured_data["url"] = brute_match.group(0)
+                    print("✅ Brute Force extracted the URL!")
+
+            # Final Cleanup: Get the Song Name
+            page_title = page.title()
+            captured_data["title"] = "".join([c for c in page_title if c.isalnum() or c in (' ', '-', '_')]).strip()
+            
+            browser.close()
+            
+            if captured_data["url"]:
+                return captured_data
             else:
-                print("Total lockout. The player never sent the file link.")
+                return {"error": "All 6 Seal Team members missed the target."}
 
-            browser.close()
         except Exception as e:
-            print(f"Mission Error: {e}")
-            browser.close()
-
-# --- 2. THE MISSION ---
-
-# Replace with any Smule recording link
-target_link = sys.argv[1] 
-
-if "PASTE" in target_link:
-    print("Don't forget to paste the link!")
-else:
-    run_smule_mission(target_link)
+            if browser: browser.close()
+            return {"error": str(e)}
