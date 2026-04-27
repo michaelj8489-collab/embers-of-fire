@@ -157,8 +157,8 @@ export default function ChatPage() {
   const currentBackground = ROOM_BACKGROUNDS[activeRoom] || ROOM_BACKGROUNDS['global'];
 
   return (
-    <main 
-      className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-cover bg-center bg-fixed relative transition-all duration-500"
+   <main 
+      className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-contain bg-no-repeat bg-center bg-black bg-fixed relative transition-all duration-500"
       style={{ backgroundImage: `url('${currentBackground}')` }}
     >
       {/* BACKGROUND OVERLAY: Darkens the image so chat text remains highly readable */}
