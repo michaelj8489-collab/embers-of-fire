@@ -25,7 +25,8 @@ export default function Footer() {
               The Sanctuary
             </h4>
             <Link href="/" className="hover:text-orange-400 transition-colors duration-300">Home</Link>
-            <Link href="/schedule" className="hover:text-orange-400 transition-colors duration-300">Live Schedule</Link>
+            {/* 🚀 UPDATED LINK: Now points directly to your Dashboard Show Calendar */}
+            <Link href="/dashboard" className="hover:text-orange-400 transition-colors duration-300">Show Calendar</Link>
             <Link href="/login" className="hover:text-orange-400 transition-colors duration-300">Patron Login</Link>
           </div>
 
