@@ -158,7 +158,7 @@ export default function ChatPage() {
 
   return (
     <main 
-      className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-fit bg-center bg-fixed relative transition-all duration-500"
+      className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-cover bg-center bg-fixed relative transition-all duration-500"
       style={{ backgroundImage: `url('${currentBackground}')` }}
     >
       {/* BACKGROUND OVERLAY: Darkens the image so chat text remains highly readable */}
