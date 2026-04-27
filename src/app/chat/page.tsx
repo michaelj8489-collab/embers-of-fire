@@ -25,7 +25,7 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
   'brindles-vision': '/images/main-images/Cover Art/brindles-vision-bg.png',
   'honkytonk-heaven': '/images/media-4/honky-tonk-heaven.jpg',
   'defining-your-character': '/images/jmc-edits-palettes/defining-your-character.jpg',
-  'mystic-mist': '/images/main-images/Cover Art/mystic-mist.jpg', // Check this path if it doesn't load!
+  'mystic-mist': '/images/main-images/Cover Art/mystic-mist.jpg', 
   'admin-chat': '/images/rise-radio-logo.png' 
 };
 
@@ -157,14 +157,13 @@ export default function ChatPage() {
   const currentBackground = ROOM_BACKGROUNDS[activeRoom] || ROOM_BACKGROUNDS['global'];
 
   return (
-   <main 
+    <main 
       className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-contain bg-no-repeat bg-center bg-black bg-fixed relative transition-all duration-500"
       style={{ backgroundImage: `url('${currentBackground}')` }}
     >
       {/* BACKGROUND OVERLAY: Darkens the image so chat text remains highly readable */}
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
-      {/* Z-10 added below to ensure content stays ABOVE the overlay */}
       <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative">
          <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">{activeChannelName}</h1>
       </div>
@@ -207,7 +206,7 @@ export default function ChatPage() {
                 </div>
 
                 {currentSong && (
-                  <div className="w-full aspect-video md:aspect-[21/9] max-h-[30vh] bg-black rounded-lg border border-gray-800 overflow-hidden relative shadow-lg">
+                  <div className="w-full h-[160px] md:h-[180px] shrink-0 bg-black rounded-lg border border-gray-800 overflow-hidden relative shadow-lg">
                     <iframe 
                       src={currentSong} 
                       className="w-full h-full absolute top-0 left-0"
