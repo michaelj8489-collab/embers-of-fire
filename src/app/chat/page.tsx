@@ -3,16 +3,31 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-// Replace the PUBLIC_CHANNELS array in your src/app/chat/page.tsx:
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
   { id: 'smule-joins', name: 'Smule Joins (OC)', shortName: 'SMULE', desc: 'Share your open calls' },
-  { id: 'the-messengers', name: 'The Messengers', shortName: 'MSNGRS', desc: 'Song submissions' },
-  { id: 'brindles-vision', name: 'Brindle\'s Vision', shortName: 'BRINDLE', desc: 'Song submissions' },
-  { id: 'honkytonk-heaven', name: 'Honkytonk Heaven', shortName: 'HONKY', desc: 'Song submissions' },
-  { id: 'defining-your-character', name: 'Defining Your Character', shortName: 'DYC', desc: 'Song submissions' },
-  { id: 'mystic-mist', name: 'Mystic Mist', shortName: 'MIST', desc: 'Song submissions' }
+  { id: 'group-songs', name: 'Group Songs', shortName: 'SONGS', desc: 'Plan and share group songs' },
+  { id: 'voices-on-the-rise', name: 'Voices on the Rise', shortName: 'VOICES', desc: 'Show chat' },
+  { id: 'the-messengers', name: 'The Messengers', shortName: 'MSNGRS', desc: 'Show chat' },
+  { id: 'brindles-vision', name: 'Brindle\'s Vision', shortName: 'BRINDLE', desc: 'Show chat' },
+  { id: 'honkytonk-heaven', name: 'Honkytonk Heaven', shortName: 'HONKY', desc: 'Show chat' },
+  { id: 'defining-your-character', name: 'Defining Your Character', shortName: 'DYC', desc: 'Show chat' },
+  { id: 'mystic-mist', name: 'Mystic Mist', shortName: 'MIST', desc: 'Show chat' }
 ];
+
+// --- DYNAMIC BACKGROUND MAPPING ---
+const ROOM_BACKGROUNDS: Record<string, string> = {
+  'global': '/images/rise-radio-logo.png',
+  'smule-joins': '/icon-maskable-512x512.png',
+  'group-songs': '/images/group-songs-room-background.png',
+  'voices-on-the-rise': '/images/media-4/voices-on-the-rise.jpg',
+  'the-messengers': '/images/main-images/Cover Art/messengers-new.jpg',
+  'brindles-vision': '/images/main-images/Cover Art/brindles-vision-bg.png',
+  'honkytonk-heaven': '/images/media-4/honky-tonk-heaven.jpg',
+  'defining-your-character': '/images/jmc-edits-palettes/defining-your-character.jpg',
+  'mystic-mist': '/images/main-images/Cover Art/mystic-mist.jpg', // Check this path if it doesn't load!
+  'admin-chat': '/images/rise-radio-logo.png' 
+};
 
 export default function ChatPage() {
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
@@ -22,11 +37,13 @@ export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState('global');
   const [loading, setLoading] = useState(true);
   
+  const [currentSong, setCurrentSong] = useState('');
+  const [inputLink, setInputLink] = useState('');
+  
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentMessages = messagesByRoom[activeRoom] || [];
 
-  // --- HELPER: Detects URLs and turns them into clickable links ---
   const renderMessageContent = (content: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = content.split(urlRegex);
@@ -47,6 +64,17 @@ export default function ChatPage() {
       }
       return part;
     });
+  };
+
+  const handleLoadSong = () => {
+    if (inputLink.includes('smule.com')) {
+      const cleanLink = inputLink.split('?')[0]; 
+      const embedLink = cleanLink.endsWith('/frame') ? cleanLink : `${cleanLink}/frame`;
+      setCurrentSong(embedLink);
+      setInputLink(''); 
+    } else {
+      alert("Please enter a valid Smule URL.");
+    }
   };
 
   useEffect(() => {
@@ -126,38 +154,79 @@ export default function ChatPage() {
   if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em]">Igniting...</div>;
 
   const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }].find(c => c.id === activeRoom)?.name || 'Unknown Room';
+  const currentBackground = ROOM_BACKGROUNDS[activeRoom] || ROOM_BACKGROUNDS['global'];
 
   return (
-    <main className="h-[100dvh] w-full bg-black flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0">
+    <main 
+      className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-cover bg-center bg-fixed relative transition-all duration-500"
+      style={{ backgroundImage: `url('${currentBackground}')` }}
+    >
+      {/* BACKGROUND OVERLAY: Darkens the image so chat text remains highly readable */}
+      <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
-      <div className="flex-none p-4 bg-black/50 border-b border-orange-900/30 backdrop-blur-md">
-         <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em]">{activeChannelName}</h1>
+      {/* Z-10 added below to ensure content stays ABOVE the overlay */}
+      <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative">
+         <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">{activeChannelName}</h1>
       </div>
 
-      <div className="flex-1 flex overflow-hidden w-full max-w-7xl mx-auto">
+      <div className="flex-1 flex overflow-hidden w-full max-w-7xl mx-auto z-10 relative">
         
-        <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto">
+        <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
           {PUBLIC_CHANNELS.map(ch => (
-            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600 text-white' : 'text-gray-400 hover:text-orange-500'}`}>
+            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'}`}>
               {ch.name}
             </button>
           ))}
           {isAdmin && (
-            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/20'}`}>
+            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
               Admin Chat
             </button>
           )}
         </div>
 
         <div className="flex-1 flex flex-col min-w-0 h-full">
+          
+          {/* --- CONDITIONAL SMULE JUKEBOX --- */}
+          {activeRoom === 'group-songs' && (
+            <div className="flex-none bg-black/60 border-b border-orange-900/30 p-4 shrink-0 backdrop-blur-md">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex gap-2 mb-3">
+                  <input 
+                    type="text" 
+                    placeholder="Paste Smule link to play..."
+                    value={inputLink}
+                    onChange={(e) => setInputLink(e.target.value)}
+                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-sm font-cormorant transition-colors"
+                  />
+                  <button 
+                    onClick={handleLoadSong}
+                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-xs tracking-widest rounded-lg transition-all shadow-md shrink-0"
+                  >
+                    LOAD
+                  </button>
+                </div>
+
+                {currentSong && (
+                  <div className="w-full aspect-video md:aspect-[21/9] max-h-[30vh] bg-black rounded-lg border border-gray-800 overflow-hidden relative shadow-lg">
+                    <iframe 
+                      src={currentSong} 
+                      className="w-full h-full absolute top-0 left-0"
+                      frameBorder="0"
+                      allow="autoplay; fullscreen"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden">
             {currentMessages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                <span className="text-[9px] font-cinzel text-orange-500/70 mb-1 tracking-widest uppercase">
+                <span className="text-[9px] font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
                     {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                 </span>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-lg ${msg.user_id === user?.id ? 'bg-orange-600 text-white rounded-tr-none' : 'bg-zinc-800 text-gray-200 rounded-tl-none border border-orange-900/10'}`}>
-                    {/* TRIGGER: The link detector runs here */}
+                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-xl ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
                     {renderMessageContent(msg.content)}
                 </div>
               </div>
@@ -165,20 +234,20 @@ export default function ChatPage() {
             <div ref={scrollRef} />
           </div>
 
-          <form onSubmit={sendMessage} className="flex-none p-3 bg-black border-t border-orange-900/30 flex gap-2">
-            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950 border border-orange-900/30 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500 font-cormorant" />
-            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-[10px] tracking-widest transition-colors">
+          <form onSubmit={sendMessage} className="flex-none p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2">
+            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500 font-cormorant" />
+            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-[10px] tracking-widest transition-colors shadow-md shadow-orange-900/50">
               SEND
             </button>
           </form>
 
-          <div className="md:hidden flex-none bg-black/90 border-t border-orange-900/20 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
+          <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
-              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-[9px] tracking-tighter border ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500' : 'bg-zinc-900 text-gray-500 border-orange-900/20'}`}>
+              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-[9px] tracking-tighter border transition-colors ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'}`}>
                 {ch.shortName}
               </button>
             ))}
-            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-[9px] tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950 text-red-600 border-red-900/20'}`}>ADMIN</button>}
+            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-[9px] tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
           </div>
         </div>
       </div>
