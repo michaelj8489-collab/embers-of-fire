@@ -156,24 +156,9 @@ const schedule = [
       </div>
     </div>
   </Link>
-
-        {/* ADMIN ONLY: SIGNAL SNIFFER */}
-        {/* ADMIN ONLY: SIGNAL SNIFFER */}
-        {userRole.toLowerCase() === 'admin' && (  
-        <Link href="/dashboard/admin/sniffer" className="flex-1 group">
-        <div className="relative aspect-square rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-orange-500 group-hover:shadow-[0_0_50px_rgba(234,88,12,0.3)]">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
-          <source src="/images/jmc-edits-palettes/smule-sniffer-button.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12">
-          <h2 className="font-cinzel text-2xl md:text-3xl lg:text-4xl text-orange-400 tracking-[0.2em] uppercase">The Sniffer</h2>
-          <p className="text-orange-500/60 font-cinzel text-[10px] md:text-xs tracking-widest mt-2 uppercase italic">Admin Signal Access</p>
-        </div>
-      </div>
-    </Link>
-  )}
 </div>
 
+       
           <div className="w-full max-w-5xl flex flex-col gap-12 mb-24">
             <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
