@@ -24,7 +24,7 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
   'the-messengers': '/images/main-images/Cover Art/messengers-new.jpg',
   'brindles-vision': '/images/main-images/Cover Art/brindles-vision-bg.png',
   'honkytonk-heaven': '/images/media-4/honky-tonk-heaven.jpg',
-  'defining-your-character': '/images/jmc-edits-palettes/defining-your-character.jpg',
+  'defining-your-character': '/images/jmc-edits-palettes/defining-your-character-bg.mp4', // <-- NOW AN MP4
   'mystic-mist': '/images/main-images/Cover Art/mystic-mist.jpg', 
   'admin-chat': '/images/rise-radio-logo.png' 
 };
@@ -154,14 +154,35 @@ export default function ChatPage() {
   if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em]">Igniting...</div>;
 
   const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }].find(c => c.id === activeRoom)?.name || 'Unknown Room';
+  
+  // DETERMINE IF IT'S A VIDEO OR IMAGE
   const currentBackground = ROOM_BACKGROUNDS[activeRoom] || ROOM_BACKGROUNDS['global'];
+  const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main 
-      className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-contain bg-no-repeat bg-center bg-black bg-fixed relative transition-all duration-500"
-      style={{ backgroundImage: `url('${currentBackground}')` }}
-    >
-      {/* BACKGROUND OVERLAY: Darkens the image so chat text remains highly readable */}
+    <main className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-black relative">
+      
+      {/* --- SMART BACKGROUND RENDERER --- */}
+      {isVideo ? (
+        <video 
+          key={currentBackground}
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          className="absolute inset-0 w-full h-full object-contain z-0 pointer-events-none"
+        >
+          <source src={currentBackground} type="video/mp4" />
+        </video>
+      ) : (
+        <div 
+          key={currentBackground}
+          className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-contain bg-no-repeat bg-center transition-all duration-500"
+          style={{ backgroundImage: `url('${currentBackground}')` }}
+        />
+      )}
+
+      {/* BACKGROUND OVERLAY: Darkens the image/video so chat text remains highly readable */}
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
       <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative">
