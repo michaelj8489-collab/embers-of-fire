@@ -23,7 +23,7 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
   'voices-on-the-rise': '/images/media-4/voices-on-the-rise.jpg',
   'the-messengers': '/images/main-images/Cover Art/messengers-new.jpg',
   'brindles-vision': '/images/main-images/Cover Art/brindles-vision-bg.png',
-  'honkytonk-heaven': '/images/media-4/honky-tonk-heaven.jpg',
+  'honkytonk-heaven': '/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg',
   'defining-your-character': '/images/jmc-edits-palettes/defining-your-character-bg.mp4', // <-- NOW AN MP4
   'mystic-mist': '/images/main-images/Cover Art/mystic-mist.jpg', 
   'admin-chat': '/images/rise-radio-logo.png' 

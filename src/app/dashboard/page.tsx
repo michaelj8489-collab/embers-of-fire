@@ -100,7 +100,7 @@ const schedule = [
   { name: "Brindle's Vision", day: "Tuesdays", time: "12:00 PM EST", href: "/dashboard/brindles-vision" },
   { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
   { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core" },
-  { name: "Honky Tonk Heaven", day: "Fridays", time: "8:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
+  { name: "Honky Tonk Heaven", day: "Fridays", time: "9:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
   { name: "Illuminate", day: "Fridays", time: "11:00 AM EST", href: "/dashboard/illuminate" },
   { name: "Voices on the Rise", day: "Fridays (biweekly)", time: "6:00 PM EST", href: "/dashboard/voices-on-the-rise" },
   { name: "Defining Your Character", day: "Saturdays", time: "6:00 PM EST", href: "/dashboard/defining-your-character"},

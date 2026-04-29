@@ -93,7 +93,7 @@ export default function HonkyTonkPage() {
       {/* Background Layer */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/images/media-4/honky-tonk-heaven.jpg" 
+          src="public\images\main-images\Cover Art\honkey-tonk-heaven-main.jpg" 
           alt="Honky Tonk Background" 
           className="w-full h-full object-cover fixed opacity-40" 
         />
@@ -120,7 +120,7 @@ export default function HonkyTonkPage() {
                 Honky Tonk Heaven
               </h1>
               <p className="font-cinzel text-2xl text-[#FFF8DC]/90 italic tracking-wide">
-                "Classic country and southern soul."
+                "Wednesdays, 9:00 PM EST"
               </p>
             </div>
 
