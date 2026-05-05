@@ -24,7 +24,7 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
   'the-messengers': '/images/main-images/Cover Art/messengers-new.jpg',
   'brindles-vision': '/images/main-images/Cover Art/brindles-vision-bg.png',
   'honkytonk-heaven': '/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg',
-  'defining-your-character': '/images/jmc-edits-palettes/defining-your-character-bg.mp4', // <-- NOW AN MP4
+  'defining-your-character': '/images/jmc-edits-palettes/defining-your-character-bg.mp4', 
   'mystic-mist': '/images/main-images/Cover Art/mystic-mist.jpg', 
   'admin-chat': '/images/rise-radio-logo.png' 
 };
@@ -43,28 +43,7 @@ export default function ChatPage() {
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentMessages = messagesByRoom[activeRoom] || [];
-
-  const renderMessageContent = (content: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = content.split(urlRegex);
-
-    return parts.map((part, i) => {
-      if (part.match(urlRegex)) {
-        return (
-          <a 
-            key={i} 
-            href={part} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-orange-300 underline hover:text-orange-100 break-all transition-colors"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
+  const [bots, setBots] = useState<any[]>([]);
 
   const handleLoadSong = () => {
     if (inputLink.includes('smule.com')) {
@@ -97,9 +76,17 @@ export default function ChatPage() {
       const twoWeeksAgo = new Date();
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
+      // 1. Fetch the Bot Commands first
+      const fetchBots = async () => {
+        const { data } = await supabase.from('chat_commands').select('*');
+        if (data) setBots(data);
+      };
+      fetchBots();
+
+      // 2. Then fetch the messages
       const { data, error } = await supabase
         .from('chat_messages')
-        .select(`id, content, created_at, user_id, room_name, profiles ( full_name, username )`)
+        .select(`id, content, image_url, created_at, user_id, room_name, profiles ( full_name, username )`)
         .eq('room_name', activeRoom) 
         .gte('created_at', twoWeeksAgo.toISOString())
         .order('created_at', { ascending: true })
@@ -139,16 +126,41 @@ export default function ChatPage() {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentMessages]);
 
+  // --- UPGRADED INTERCEPTOR SEND MESSAGE FUNCTION ---
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newMessage.trim()) return;
-    const { error } = await supabase.from('chat_messages').insert({
-      content: newMessage,
+  
+    const userMsg = newMessage.trim();
+    setNewMessage(''); // Clear input for snappy feel
+  
+    // 1. Send the User's message normally
+    const { error: userError } = await supabase.from('chat_messages').insert({
+      content: userMsg,
       user_id: user.id,
       room_name: activeRoom, 
     });
-    if (error) alert("Failed to send: " + error.message);
-    else setNewMessage('');
+  
+    if (userError) {
+      alert("Failed to send: " + userError.message);
+      return;
+    }
+  
+    // 2. Check if the user's message exactly matches a trigger word
+    const cleanMsg = userMsg.toLowerCase();
+    const matchedBot = bots.find(bot => bot.trigger_word === cleanMsg);
+  
+    // 3. If it matches, immediately deploy the Bot's response!
+    if (matchedBot) {
+      const { error: botError } = await supabase.from('chat_messages').insert({
+        content: `🤖 SANCTUARY BOT:\n\n${matchedBot.response_text || ''}`,
+        user_id: user.id, // Use active user's ID to bypass RLS, but display text as Bot
+        room_name: activeRoom,
+        image_url: matchedBot.image_url || null
+      });
+      
+      if (botError) console.error("Error deploying bot:", botError);
+    }
   };
 
   if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em]">Igniting...</div>;
@@ -182,7 +194,7 @@ export default function ChatPage() {
         />
       )}
 
-      {/* BACKGROUND OVERLAY: Darkens the image/video so chat text remains highly readable */}
+      {/* BACKGROUND OVERLAY */}
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
       <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative">
@@ -246,9 +258,26 @@ export default function ChatPage() {
                 <span className="text-[9px] font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
                     {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                 </span>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-xl ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
-                    {renderMessageContent(msg.content)}
+                
+                {/* UPGRADED MESSAGE BUBBLE FOR TEXT & IMAGES */}
+                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
+                    
+                    {msg.content && (
+                      <div className="whitespace-pre-wrap">
+                        <Linkify text={msg.content} />
+                      </div>
+                    )}
+
+                    {msg.image_url && (
+                      <img 
+                        src={msg.image_url} 
+                        alt="Attached image" 
+                        className="mt-3 max-w-full md:max-w-[250px] rounded-lg border border-black/30 shadow-lg" 
+                      />
+                    )}
+
                 </div>
+
               </div>
             ))}
             <div ref={scrollRef} />
@@ -274,3 +303,24 @@ export default function ChatPage() {
     </main>
   );
 }
+
+// THE NEW LINKIFIER
+const Linkify = ({ text }: { text: string }) => {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return (
+    <span>
+      {parts.map((part, i) => 
+        urlRegex.test(part) ? (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold transition-colors">
+            {part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
+};
