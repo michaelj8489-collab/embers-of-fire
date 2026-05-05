@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
+import ChatBot from '@/components/BotManager';
+import BotManager from '@/components/BotManager';
 
 // SYNCED NAMES: These match your Supabase database exactly
 const TIERS = [
@@ -138,6 +140,8 @@ export default function AdminDashboard() {
             </p>
           )}
         </section>
+        
+        <BotManager />
 
       </div>
     </main>
