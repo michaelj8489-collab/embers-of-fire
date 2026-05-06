@@ -194,11 +194,22 @@ export default function ChatPage() {
         />
       )}
 
-      {/* BACKGROUND OVERLAY */}
+     {/* BACKGROUND OVERLAY */}
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
-      <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative">
+      <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative flex justify-between items-center">
          <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">{activeChannelName}</h1>
+         
+         {/* THE MAGIC COPY BUTTON */}
+         <button 
+           onClick={() => {
+             navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
+             alert(`Stream Suite Embed Link for ${activeChannelName} copied to your clipboard!`);
+           }}
+           className="px-3 py-1.5 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded cursor-pointer text-[10px] md:text-xs font-cinzel tracking-widest transition-all shadow-md"
+         >
+           📋 COPY EMBED LINK
+         </button>
       </div>
 
       <div className="flex-1 flex overflow-hidden w-full max-w-7xl mx-auto z-10 relative">
