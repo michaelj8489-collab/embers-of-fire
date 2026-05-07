@@ -35,6 +35,7 @@ export default function ChatPage() {
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
   const [newMessage, setNewMessage] = useState('');
   const [replyingTo, setReplyingTo] = useState<any>(null);
+  const [activePickerId, setActivePickerId] = useState<string | null>(null); // NEW: Tracks which emoji picker is open
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -85,7 +86,6 @@ export default function ChatPage() {
       };
       fetchBots();
 
-      // NEW: Added 'reactions' to the fetch query
       const { data, error } = await supabase
         .from('chat_messages')
         .select(`id, content, image_url, created_at, user_id, room_name, parent_id, reactions, profiles ( full_name, username )`)
@@ -103,10 +103,9 @@ export default function ChatPage() {
 
     fetchRoomMessages();
 
-    // UPGRADED: Channel now listens to both INSERT and UPDATE (for reactions)
     const channel = supabase.channel(`chat_${activeRoom}`)
       .on('postgres_changes', { 
-        event: '*', // <-- Changed from INSERT to *
+        event: '*', 
         schema: 'public', 
         table: 'chat_messages', 
         filter: `room_name=eq.${activeRoom}` 
@@ -144,14 +143,11 @@ export default function ChatPage() {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentMessages]);
 
-  // --- NEW LOGIC: TOGGLE REACTIONS ---
   const toggleReaction = async (messageId: string, currentReactions: any, emoji: string) => {
-    if (!user) return; // Must be logged in to react
+    if (!user) return; 
     
-    // Clone the current reactions object so we can modify it safely
     const updatedReactions = currentReactions ? { ...currentReactions } : {};
     
-    // If this emoji doesn't exist yet, create an array for it
     if (!updatedReactions[emoji]) {
       updatedReactions[emoji] = [];
     }
@@ -159,18 +155,14 @@ export default function ChatPage() {
     const hasReacted = updatedReactions[emoji].includes(user.id);
 
     if (hasReacted) {
-      // Remove the user's ID
       updatedReactions[emoji] = updatedReactions[emoji].filter((id: string) => id !== user.id);
-      // Clean up empty emojis
       if (updatedReactions[emoji].length === 0) {
         delete updatedReactions[emoji];
       }
     } else {
-      // Add the user's ID
       updatedReactions[emoji].push(user.id);
     }
 
-    // Push the update to Supabase
     const { error } = await supabase
       .from('chat_messages')
       .update({ reactions: updatedReactions })
@@ -366,9 +358,8 @@ export default function ChatPage() {
                     )}
 
                     {/* --- REACTION & REPLY CONTROLS --- */}
-                    <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10">
+                    <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10 relative">
                       
-                      {/* Active Reactions */}
                       {msg.reactions && Object.entries(msg.reactions).map(([emoji, users]: [string, any]) => {
                         if (!users || users.length === 0) return null;
                         const hasReacted = user && users.includes(user.id);
@@ -383,26 +374,34 @@ export default function ChatPage() {
                         );
                       })}
 
-                      {/* Emoji Picker Reveal Button */}
-                      <div className="group relative">
-                        <button className="text-[12px] text-gray-400 hover:text-white px-2 py-0.5 rounded-full border border-transparent hover:bg-black/30 hover:border-gray-500 transition-all">
+                      {/* UPGRADED: Click-to-Toggle Emoji Picker Reveal Button */}
+                      <div className="relative">
+                        <button 
+                          onClick={() => setActivePickerId(activePickerId === msg.id ? null : msg.id)}
+                          className={`text-[12px] px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
+                        >
                           +😀
                         </button>
-                        {/* Hidden Picker Menu */}
-                        <div className="hidden group-hover:flex absolute bottom-full left-0 mb-2 bg-zinc-900 border border-orange-900/70 rounded-xl p-2 gap-2 shadow-2xl z-50">
-                          {EMOJI_OPTIONS.map(em => (
-                            <button 
-                              key={em} 
-                              onClick={() => toggleReaction(msg.id, msg.reactions, em)}
-                              className="text-lg hover:scale-125 transition-transform"
-                            >
-                              {em}
-                            </button>
-                          ))}
-                        </div>
+                        
+                        {/* Hidden Picker Menu - Now linked to Click State */}
+                        {activePickerId === msg.id && (
+                          <div className="flex absolute bottom-full left-0 mb-2 bg-zinc-900 border border-orange-900/70 rounded-xl p-2 gap-2 shadow-2xl z-50">
+                            {EMOJI_OPTIONS.map(em => (
+                              <button 
+                                key={em} 
+                                onClick={() => {
+                                  toggleReaction(msg.id, msg.reactions, em);
+                                  setActivePickerId(null); // Closes menu immediately after selection
+                                }}
+                                className="text-lg hover:scale-125 transition-transform"
+                              >
+                                {em}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
-                      {/* Reply Button moved to right side */}
                       <button 
                         onClick={() => setReplyingTo(msg)} 
                         className="text-[10px] text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
