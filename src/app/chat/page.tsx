@@ -229,6 +229,26 @@ export default function ChatPage() {
 
         <div className="flex-1 flex flex-col min-w-0 h-full">
           
+          {/* --- ZENO RADIO SANCTUARY PLAYER --- */}
+          <div className="flex-none bg-black/60 border-b border-orange-500/30 p-3 shrink-0 backdrop-blur-sm z-10 relative">
+            <div className="flex justify-between items-center mb-2 px-1">
+              <span className="text-orange-400 font-cinzel text-xs uppercase tracking-widest flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                Live Broadcast
+              </span>
+            </div>
+            
+            <iframe 
+              src="https://zeno.fm/player/rise-radio-woqo" 
+              width="100%" 
+              height="120" 
+              frameBorder="0" 
+              scrolling="no" 
+              className="rounded-lg shadow-2xl shrink-0"
+            ></iframe>
+          </div>
+          {/* ----------------------------------- */}
+
           {/* --- CONDITIONAL SMULE JUKEBOX --- */}
           {activeRoom === 'group-songs' && (
             <div className="flex-none bg-black/60 border-b border-orange-900/30 p-4 shrink-0 backdrop-blur-md">
