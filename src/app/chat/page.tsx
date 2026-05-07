@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import Link from 'next/link'; // NEW: Imported Link for navigation
 
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
@@ -35,7 +36,7 @@ export default function ChatPage() {
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
   const [newMessage, setNewMessage] = useState('');
   const [replyingTo, setReplyingTo] = useState<any>(null);
-  const [activePickerId, setActivePickerId] = useState<string | null>(null); // NEW: Tracks which emoji picker is open
+  const [activePickerId, setActivePickerId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -238,8 +239,25 @@ export default function ChatPage() {
 
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
+      {/* UPGRADED TOP BAR WITH BACK BUTTON */}
       <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative flex justify-between items-center">
-         <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">{activeChannelName}</h1>
+         <div className="flex items-center gap-3">
+           
+           {/* THE ESCAPE HATCH */}
+           <Link 
+             href="/" 
+             className="text-gray-400 hover:text-orange-500 transition-colors flex items-center justify-center bg-black/50 p-2 rounded-full border border-transparent hover:border-orange-500/50 shadow-md"
+             title="Return to Main Site"
+           >
+             <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+             </svg>
+           </Link>
+
+           <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">
+             {activeChannelName}
+           </h1>
+         </div>
          
          <button 
            onClick={() => {
@@ -357,7 +375,6 @@ export default function ChatPage() {
                       />
                     )}
 
-                    {/* --- REACTION & REPLY CONTROLS --- */}
                     <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10 relative">
                       
                       {msg.reactions && Object.entries(msg.reactions).map(([emoji, users]: [string, any]) => {
@@ -374,7 +391,6 @@ export default function ChatPage() {
                         );
                       })}
 
-                      {/* UPGRADED: Click-to-Toggle Emoji Picker Reveal Button */}
                       <div className="relative">
                         <button 
                           onClick={() => setActivePickerId(activePickerId === msg.id ? null : msg.id)}
@@ -383,7 +399,6 @@ export default function ChatPage() {
                           +😀
                         </button>
                         
-                        {/* Hidden Picker Menu - Now linked to Click State */}
                         {activePickerId === msg.id && (
                           <div className="flex absolute bottom-full left-0 mb-2 bg-zinc-900 border border-orange-900/70 rounded-xl p-2 gap-2 shadow-2xl z-50">
                             {EMOJI_OPTIONS.map(em => (
@@ -391,7 +406,7 @@ export default function ChatPage() {
                                 key={em} 
                                 onClick={() => {
                                   toggleReaction(msg.id, msg.reactions, em);
-                                  setActivePickerId(null); // Closes menu immediately after selection
+                                  setActivePickerId(null); 
                                 }}
                                 className="text-lg hover:scale-125 transition-transform"
                               >
