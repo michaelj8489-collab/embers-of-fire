@@ -15,6 +15,8 @@ const PUBLIC_CHANNELS = [
   { id: 'mystic-mist', name: 'Mystic Mist', shortName: 'MIST', desc: 'Show chat' }
 ];
 
+const EMOJI_OPTIONS = ['👍', '❤️', '😂', '🔥', '🙏', '😢'];
+
 // --- DYNAMIC BACKGROUND MAPPING ---
 const ROOM_BACKGROUNDS: Record<string, string> = {
   'global': '/images/rise-radio-logo.png',
@@ -32,6 +34,7 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
 export default function ChatPage() {
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
   const [newMessage, setNewMessage] = useState('');
+  const [replyingTo, setReplyingTo] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -76,17 +79,16 @@ export default function ChatPage() {
       const twoWeeksAgo = new Date();
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-      // 1. Fetch the Bot Commands first
       const fetchBots = async () => {
         const { data } = await supabase.from('chat_commands').select('*');
         if (data) setBots(data);
       };
       fetchBots();
 
-      // 2. Then fetch the messages
+      // NEW: Added 'reactions' to the fetch query
       const { data, error } = await supabase
         .from('chat_messages')
-        .select(`id, content, image_url, created_at, user_id, room_name, profiles ( full_name, username )`)
+        .select(`id, content, image_url, created_at, user_id, room_name, parent_id, reactions, profiles ( full_name, username )`)
         .eq('room_name', activeRoom) 
         .gte('created_at', twoWeeksAgo.toISOString())
         .order('created_at', { ascending: true })
@@ -101,22 +103,38 @@ export default function ChatPage() {
 
     fetchRoomMessages();
 
+    // UPGRADED: Channel now listens to both INSERT and UPDATE (for reactions)
     const channel = supabase.channel(`chat_${activeRoom}`)
       .on('postgres_changes', { 
-        event: 'INSERT', 
+        event: '*', // <-- Changed from INSERT to *
         schema: 'public', 
         table: 'chat_messages', 
         filter: `room_name=eq.${activeRoom}` 
       }, 
       async (payload: any) => {
-        const incomingMsg = payload.new;
-        const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
-        const msgWithProfile = { ...incomingMsg, profiles: profile };
         
-        setMessagesByRoom((prev) => {
-          const existing = prev[activeRoom] || [];
-          return { ...prev, [activeRoom]: [...existing, msgWithProfile] };
-        });
+        if (payload.eventType === 'INSERT') {
+          const incomingMsg = payload.new;
+          const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
+          const msgWithProfile = { ...incomingMsg, profiles: profile };
+          
+          setMessagesByRoom((prev) => {
+            const existing = prev[activeRoom] || [];
+            return { ...prev, [activeRoom]: [...existing, msgWithProfile] };
+          });
+        } 
+        else if (payload.eventType === 'UPDATE') {
+          setMessagesByRoom((prev) => {
+            const existing = prev[activeRoom] || [];
+            return {
+              ...prev,
+              [activeRoom]: existing.map(msg => 
+                msg.id === payload.new.id ? { ...msg, reactions: payload.new.reactions } : msg
+              )
+            };
+          });
+        }
+
       }).subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -126,35 +144,69 @@ export default function ChatPage() {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentMessages]);
 
-  // --- UPGRADED INTERCEPTOR SEND MESSAGE FUNCTION ---
+  // --- NEW LOGIC: TOGGLE REACTIONS ---
+  const toggleReaction = async (messageId: string, currentReactions: any, emoji: string) => {
+    if (!user) return; // Must be logged in to react
+    
+    // Clone the current reactions object so we can modify it safely
+    const updatedReactions = currentReactions ? { ...currentReactions } : {};
+    
+    // If this emoji doesn't exist yet, create an array for it
+    if (!updatedReactions[emoji]) {
+      updatedReactions[emoji] = [];
+    }
+
+    const hasReacted = updatedReactions[emoji].includes(user.id);
+
+    if (hasReacted) {
+      // Remove the user's ID
+      updatedReactions[emoji] = updatedReactions[emoji].filter((id: string) => id !== user.id);
+      // Clean up empty emojis
+      if (updatedReactions[emoji].length === 0) {
+        delete updatedReactions[emoji];
+      }
+    } else {
+      // Add the user's ID
+      updatedReactions[emoji].push(user.id);
+    }
+
+    // Push the update to Supabase
+    const { error } = await supabase
+      .from('chat_messages')
+      .update({ reactions: updatedReactions })
+      .eq('id', messageId);
+
+    if (error) console.error("Error updating reaction:", error);
+  };
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newMessage.trim()) return;
   
     const userMsg = newMessage.trim();
-    setNewMessage(''); // Clear input for snappy feel
+    setNewMessage(''); 
   
-    // 1. Send the User's message normally
     const { error: userError } = await supabase.from('chat_messages').insert({
       content: userMsg,
       user_id: user.id,
       room_name: activeRoom, 
+      parent_id: replyingTo ? replyingTo.id : null 
     });
-  
+
+    setReplyingTo(null); 
+
     if (userError) {
       alert("Failed to send: " + userError.message);
       return;
     }
   
-    // 2. Check if the user's message exactly matches a trigger word
     const cleanMsg = userMsg.toLowerCase();
     const matchedBot = bots.find(bot => bot.trigger_word === cleanMsg);
   
-    // 3. If it matches, immediately deploy the Bot's response!
     if (matchedBot) {
       const { error: botError } = await supabase.from('chat_messages').insert({
         content: `🤖 SANCTUARY BOT:\n\n${matchedBot.response_text || ''}`,
-        user_id: user.id, // Use active user's ID to bypass RLS, but display text as Bot
+        user_id: user.id, 
         room_name: activeRoom,
         image_url: matchedBot.image_url || null
       });
@@ -167,14 +219,12 @@ export default function ChatPage() {
 
   const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }].find(c => c.id === activeRoom)?.name || 'Unknown Room';
   
-  // DETERMINE IF IT'S A VIDEO OR IMAGE
   const currentBackground = ROOM_BACKGROUNDS[activeRoom] || ROOM_BACKGROUNDS['global'];
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
     <main className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-black relative">
       
-      {/* --- SMART BACKGROUND RENDERER --- */}
       {isVideo ? (
         <video 
           key={currentBackground}
@@ -194,13 +244,11 @@ export default function ChatPage() {
         />
       )}
 
-     {/* BACKGROUND OVERLAY */}
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
       <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative flex justify-between items-center">
          <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">{activeChannelName}</h1>
          
-         {/* THE MAGIC COPY BUTTON */}
          <button 
            onClick={() => {
              navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
@@ -229,7 +277,6 @@ export default function ChatPage() {
 
         <div className="flex-1 flex flex-col min-w-0 h-full">
           
-          {/* --- ZENO RADIO SANCTUARY PLAYER --- */}
           <div className="flex-none bg-black/60 border-b border-orange-500/30 p-3 shrink-0 backdrop-blur-sm z-10 relative">
             <div className="flex justify-between items-center mb-2 px-1">
               <span className="text-orange-400 font-cinzel text-xs uppercase tracking-widest flex items-center gap-2">
@@ -247,9 +294,7 @@ export default function ChatPage() {
               className="rounded-lg shadow-2xl shrink-0"
             ></iframe>
           </div>
-          {/* ----------------------------------- */}
 
-          {/* --- CONDITIONAL SMULE JUKEBOX --- */}
           {activeRoom === 'group-songs' && (
             <div className="flex-none bg-black/60 border-b border-orange-900/30 p-4 shrink-0 backdrop-blur-md">
               <div className="max-w-4xl mx-auto">
@@ -284,15 +329,28 @@ export default function ChatPage() {
           )}
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden">
-            {currentMessages.map((msg) => (
-              <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                <span className="text-[9px] font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
-                    {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
-                </span>
-                
-                {/* UPGRADED MESSAGE BUBBLE FOR TEXT & IMAGES */}
-                <div className={`max-w-[85%] p-3 rounded-2xl text-base font-cormorant shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
-                    
+            {currentMessages.map((msg) => {
+              const parentMsg = msg.parent_id ? currentMessages.find(m => m.id === msg.parent_id) : null;
+
+              return (
+                <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
+                  <span className="text-[9px] font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
+                      {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
+                  </span>
+                  
+                  <div className={`max-w-[85%] p-3 rounded-2xl text-xl md:text-2xl font-bold font-cormorant shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
+                      
+                    {msg.parent_id && (
+                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-sm text-gray-300/90">
+                        <span className="font-cinzel text-orange-300/80 text-[10px] uppercase tracking-widest block mb-1">
+                          Replying to {parentMsg?.profiles?.username || parentMsg?.profiles?.full_name || 'a seeker'}
+                        </span>
+                        <span className="line-clamp-2 italic text-base">
+                          {parentMsg ? (parentMsg.content || '[Attached Image]') : 'Message scroll has faded...'}
+                        </span>
+                      </div>
+                    )}
+
                     {msg.content && (
                       <div className="whitespace-pre-wrap">
                         <Linkify text={msg.content} />
@@ -307,12 +365,69 @@ export default function ChatPage() {
                       />
                     )}
 
-                </div>
+                    {/* --- REACTION & REPLY CONTROLS --- */}
+                    <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10">
+                      
+                      {/* Active Reactions */}
+                      {msg.reactions && Object.entries(msg.reactions).map(([emoji, users]: [string, any]) => {
+                        if (!users || users.length === 0) return null;
+                        const hasReacted = user && users.includes(user.id);
+                        return (
+                          <button 
+                            key={emoji}
+                            onClick={() => toggleReaction(msg.id, msg.reactions, emoji)}
+                            className={`text-[12px] px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
+                          >
+                            {emoji} {users.length}
+                          </button>
+                        );
+                      })}
 
-              </div>
-            ))}
+                      {/* Emoji Picker Reveal Button */}
+                      <div className="group relative">
+                        <button className="text-[12px] text-gray-400 hover:text-white px-2 py-0.5 rounded-full border border-transparent hover:bg-black/30 hover:border-gray-500 transition-all">
+                          +😀
+                        </button>
+                        {/* Hidden Picker Menu */}
+                        <div className="hidden group-hover:flex absolute bottom-full left-0 mb-2 bg-zinc-900 border border-orange-900/70 rounded-xl p-2 gap-2 shadow-2xl z-50">
+                          {EMOJI_OPTIONS.map(em => (
+                            <button 
+                              key={em} 
+                              onClick={() => toggleReaction(msg.id, msg.reactions, em)}
+                              className="text-lg hover:scale-125 transition-transform"
+                            >
+                              {em}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Reply Button moved to right side */}
+                      <button 
+                        onClick={() => setReplyingTo(msg)} 
+                        className="text-[10px] text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
+                      >
+                        ↩ REPLY
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })}
             <div ref={scrollRef} />
           </div>
+
+          {replyingTo && (
+            <div className="flex-none bg-orange-900/40 border-t border-orange-500/50 p-2 flex justify-between items-center px-4 backdrop-blur-md">
+              <span className="text-xs font-cinzel text-orange-200 truncate">
+                Replying to: <span className="text-white">"{replyingTo.content?.substring(0, 40)}..."</span>
+              </span>
+              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-xs font-bold px-2 tracking-widest">
+                ✕ CANCEL
+              </button>
+            </div>
+          )}
 
           <form onSubmit={sendMessage} className="flex-none p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2">
             <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500 font-cormorant" />
