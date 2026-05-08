@@ -23,7 +23,6 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
   'global': '/images/rise-radio-logo.png',
   'smule-joins': '/icon-maskable-512x512.png',
   'group-songs': '/images/group-songs-room-background.png',
-  'voices-on-the-rise': '/images/media-4/voices-on-the-rise.jpg',
   'the-messengers': '/images/main-images/Cover Art/messengers-new.jpg',
   'brindles-vision': '/images/main-images/Cover Art/brindles-vision-bg.png',
   'honkytonk-heaven': '/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg',
