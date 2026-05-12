@@ -75,7 +75,7 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center bg-black overflow-x-hidden">
       <video autoPlay muted loop playsInline className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none hidden md:block">
-        <source src="public/images/jmc-edits-palettes/phoenix-at-birth.mp4" type="video/mp4" />
+        <source src="/images/jmc-edits-palettes/phoenix-at-birth.mp4" type="video/mp4" />
       </video>
       <video autoPlay muted loop playsInline className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-40 pointer-events-none block md:hidden">
         <source src="/images/jmc-edits-palettes/mobile-background.mp4" type="video/mp4" />
