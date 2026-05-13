@@ -142,7 +142,7 @@ export default function BrindlesVisionPage() {
                     <div className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       {parentDomain && (
                         <iframe
-                          src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&darkpopout`}
+                          src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&parent=localhost&parent=embersoflight.net&parent=www.embersoflight.net&darkpopout`}
                           className="w-full h-full"
                           frameBorder="0"
                         />
