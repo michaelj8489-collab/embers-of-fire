@@ -10,20 +10,44 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [userTier, setUserTier] = useState('seeker');
+  const [isAdmin, setIsAdmin] = useState(false); // <-- NEW ADMIN STATE
 
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     setIsMounted(true);
+    
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+      
+      // <-- NEW: Check Database for Tier and Admin Role in one swoop
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier, role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          if (profile.subscription_tier) setUserTier(profile.subscription_tier);
+          if (profile.role === 'admin') setIsAdmin(true);
+        }
+      }
     };
+    
     checkUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
+      if (event === 'SIGNED_IN') {
+        checkUser();
+      }
+      if (event === 'SIGNED_OUT') {
+        setIsAdmin(false); // Reset admin status on logout
+        setUserTier('seeker'); // Reset tier on logout
+      }
     });
 
     return () => {
@@ -31,13 +55,13 @@ export default function Header() {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/login');
   };
-
+    
   const shows = [
     { name: "The Bloom", href: "/dashboard/the-bloom" },
     { name: "The Messengers", href: "/dashboard/the-messengers" },
@@ -66,6 +90,14 @@ export default function Header() {
         <nav className="hidden lg:flex items-center gap-10">
           {isMounted && isLoggedIn ? (
             <>
+              {/* NEW DESKTOP ADMIN LINK */}
+              {/* NEW DESKTOP ADMIN LINK */}
+              {isAdmin && (
+                 <Link href="/dashboard/admin" className="text-orange-500 font-cinzel font-bold text-sm uppercase tracking-[0.2em] hover:text-orange-400 transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
+                   Admin Dashboard
+                 </Link>
+)}
+
               <Link href="/chat" className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors">
                 Chat
               </Link>
@@ -80,7 +112,6 @@ export default function Header() {
                 
                 {showsOpen && (
                   <div className="absolute top-full right-0 mt-4 w-64 bg-black/95 border border-orange-900/50 backdrop-blur-xl flex flex-col py-2 z-50 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
-                    {/* DASHBOARD LINK ADDED HERE */}
                     <Link 
                       href="/dashboard" 
                       onClick={() => setShowsOpen(false)}
@@ -131,7 +162,13 @@ export default function Header() {
         <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-8 py-6 flex flex-col gap-6 max-h-[85vh] overflow-y-auto shadow-2xl">
           {isMounted && isLoggedIn ? (
             <>
-              {/* DASHBOARD LINK ADDED HERE */}
+             {/* NEW MOBILE ADMIN LINK */}
+{isAdmin && (
+  <Link href="/dashboard/admin" onClick={() => setIsOpen(false)} className="text-orange-500 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
+    Admin Dashboard
+  </Link>
+)}
+
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
                 Dashboard
               </Link>
