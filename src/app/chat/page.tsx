@@ -230,7 +230,7 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-xl md:text-2xl">
+    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-2xl md:text-3xl">
       
       {isVideo ? (
         <video 
@@ -288,12 +288,12 @@ export default function ChatPage() {
         
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
           {PUBLIC_CHANNELS.map(ch => (
-            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'}`}>
+            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-2xl uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'}`}>
               {ch.name}
             </button>
           ))}
           {isAdmin && (
-            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-[10px] uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
+            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-2xl uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
               Admin Chat
             </button>
           )}
@@ -303,7 +303,7 @@ export default function ChatPage() {
           
           <div className="flex-none bg-black/60 border-b border-orange-500/30 p-3 shrink-0 backdrop-blur-sm z-10 relative">
             <div className="flex justify-between items-center mb-2 px-1">
-              <span className="text-orange-400 font-cinzel text-xs uppercase tracking-widest flex items-center gap-2">
+              <span className="text-orange-400 font-cinzel text-2xl uppercase tracking-widest flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                 Live Broadcast
               </span>
@@ -328,11 +328,11 @@ export default function ChatPage() {
                     placeholder="Paste Smule link to play..."
                     value={inputLink}
                     onChange={(e) => setInputLink(e.target.value)}
-                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-sm font-cormorant transition-colors"
+                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-lg font-cormorant transition-colors"
                   />
                   <button 
                     onClick={handleLoadSong}
-                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-xs tracking-widest rounded-lg transition-all shadow-md shrink-0"
+                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-lg tracking-widest rounded-lg transition-all shadow-md shrink-0"
                   >
                     LOAD
                   </button>
