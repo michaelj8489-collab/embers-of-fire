@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'; // <-- 1. The new Import!
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -66,9 +67,7 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleSubscription = (tierName: string) => {
-    // We convert the name to a URL-friendly version (e.g. "Flame Bearers" -> "flame-bearers")
     const tierSlug = tierName.toLowerCase().replace(/ /g, '-');
-    // Send to signup and "remember" the tier in the URL
     router.push(`/signup?tier=${tierSlug}`);
   };
 
@@ -100,10 +99,16 @@ export default function HomePage() {
               key={tier.name}
               className="relative flex flex-col bg-black/80 rounded-2xl border border-orange-900/40 shadow-2xl transition-all duration-500 hover:border-orange-500/60 group hover:shadow-[0_0_40px_rgba(255,100,0,0.15)] overflow-hidden"
             >
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-55 transition-opacity duration-500 group-hover:opacity-75 z-0"
-                style={{ backgroundImage: `url('${tier.image}')` }}
-              ></div>
+              {/* 2. THE NEW IMAGE COMPONENT */}
+              <div className="absolute inset-0 opacity-55 transition-opacity duration-500 group-hover:opacity-75 z-0">
+                <Image 
+                  src={tier.image}
+                  alt={`${tier.name} Background`}
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
 
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-[#0a0a0a] z-0"></div>
 
