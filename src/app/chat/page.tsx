@@ -230,7 +230,7 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-xl md:text-2xl">
+    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg md:text-xl">
       
       {isVideo ? (
         <video 
