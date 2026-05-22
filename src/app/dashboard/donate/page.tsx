@@ -69,7 +69,7 @@ export default function DonateTierPage() {
       const stripe = await getStripe();
       
      if (stripe && resData.sessionId) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const { error } = await (stripe as any).redirectToCheckout({ sessionId: resData.sessionId });
         if (error) console.error("Stripe redirect error:", error);
     }

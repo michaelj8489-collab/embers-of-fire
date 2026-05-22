@@ -79,7 +79,7 @@ function DashboardContent() {
         
         if (stripe && resData.sessionId) {
           // Added the ESLint override here to fix the "Unexpected any" error!
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const { error } = await (stripe as any).redirectToCheckout({ sessionId: resData.sessionId });
           if (error) console.error("Stripe redirect error:", error);
         }

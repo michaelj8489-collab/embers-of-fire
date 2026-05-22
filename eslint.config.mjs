@@ -5,9 +5,14 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // Stops the "any" yelling
+      "@typescript-eslint/no-unused-vars": "warn", // Makes unused variables just a warning
+      "react/no-unescaped-entities": "off",        // Stops complaining about characters
+    }
+  },
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",

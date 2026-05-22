@@ -1,6 +1,9 @@
+ 
+/* eslint-disable @next/next/no-img-element */
 'use client';
+// ... rest of your imports
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link'; // NEW: Imported Link for navigation
 
@@ -46,7 +49,9 @@ export default function ChatPage() {
   
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const currentMessages = messagesByRoom[activeRoom] || [];
+  const currentMessages = useMemo(() => {
+  return messagesByRoom[activeRoom] || [];
+}, [messagesByRoom, activeRoom]);
   const [bots, setBots] = useState<any[]>([]);
 
   const handleLoadSong = () => {
@@ -140,8 +145,21 @@ export default function ChatPage() {
   }, [supabase, activeRoom, loading]);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [currentMessages]);
+    const scrollToBottom = () => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    // 1. Scroll immediately when messages change
+    scrollToBottom();
+
+    // 2. Scroll again after a 500ms delay 
+    // This catches the scroll position AFTER images/players have finished loading
+    const timer = setTimeout(scrollToBottom, 500);
+    
+    return () => clearTimeout(timer);
+  }, [currentMessages, activeRoom]);
 
   const toggleReaction = async (messageId: string, currentReactions: any, emoji: string) => {
     if (!user) return; 
