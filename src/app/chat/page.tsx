@@ -230,7 +230,7 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-2xl md:text-3xl">
+    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-xl md:text-2xl">
       
       {isVideo ? (
         <video 
@@ -288,12 +288,12 @@ export default function ChatPage() {
         
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
           {PUBLIC_CHANNELS.map(ch => (
-            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-2xl uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'}`}>
+            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-xl uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'}`}>
               {ch.name}
             </button>
           ))}
           {isAdmin && (
-            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-2xl uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
+            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-xl uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
               Admin Chat
             </button>
           )}
@@ -303,7 +303,7 @@ export default function ChatPage() {
           
           <div className="flex-none bg-black/60 border-b border-orange-500/30 p-3 shrink-0 backdrop-blur-sm z-10 relative">
             <div className="flex justify-between items-center mb-2 px-1">
-              <span className="text-orange-400 font-cinzel text-2xl uppercase tracking-widest flex items-center gap-2">
+              <span className="text-orange-400 font-cinzel text-xl uppercase tracking-widest flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                 Live Broadcast
               </span>
@@ -315,7 +315,7 @@ export default function ChatPage() {
               height="120" 
               frameBorder="0" 
               scrolling="no" 
-              className="rounded-lg shadow-2xl shrink-0"
+              className="rounded-lg shadow-xl shrink-0"
             ></iframe>
           </div>
 
@@ -328,11 +328,11 @@ export default function ChatPage() {
                     placeholder="Paste Smule link to play..."
                     value={inputLink}
                     onChange={(e) => setInputLink(e.target.value)}
-                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-lg font-cormorant transition-colors"
+                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-md font-cinzel transition-colors"
                   />
                   <button 
                     onClick={handleLoadSong}
-                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-lg tracking-widest rounded-lg transition-all shadow-md shrink-0"
+                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-md tracking-widest rounded-lg transition-all shadow-md shrink-0"
                   >
                     LOAD
                   </button>
@@ -362,14 +362,14 @@ export default function ChatPage() {
                       {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
                   
-                  <div className={`max-w-[85%] p-3 rounded-2xl text-2xl md:text-3xl font-bold font-cinzel shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
+                  <div className={`max-w-[85%] p-3 rounded-xl text-xl md:text-2xl font-bold font-cinzel shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
                       
                     {msg.parent_id && (
-                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-xl text-gray-300/90">
-                        <span className="font-cinzel text-orange-300/80 text-xl uppercase tracking-widest block mb-1">
+                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-lg text-gray-300/90">
+                        <span className="font-cinzel text-orange-300/80 text-lg uppercase tracking-widest block mb-1">
                           Replying to {parentMsg?.profiles?.username || parentMsg?.profiles?.full_name || 'a seeker'}
                         </span>
-                        <span className="line-clamp-2 italic text-xl text-gray-400">
+                        <span className="line-clamp-2 italic text-lg text-gray-400">
                           {parentMsg ? (parentMsg.content || '[Attached Image]') : 'Message scroll has faded...'}
                         </span>
                       </div>
@@ -398,7 +398,7 @@ export default function ChatPage() {
                           <button 
                             key={emoji}
                             onClick={() => toggleReaction(msg.id, msg.reactions, emoji)}
-                            className={`text-2xl px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
+                            className={`text-lg px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
                           >
                             {emoji} {users.length}
                           </button>
@@ -408,7 +408,7 @@ export default function ChatPage() {
                       <div className="relative">
                         <button 
                           onClick={() => setActivePickerId(activePickerId === msg.id ? null : msg.id)}
-                          className={`text-2xl px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
+                          className={`text-lg px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
                         >
                           +😀
                         </button>
@@ -422,7 +422,7 @@ export default function ChatPage() {
                                   toggleReaction(msg.id, msg.reactions, em);
                                   setActivePickerId(null); 
                                 }}
-                                className="text-2xl hover:scale-125 transition-transform"
+                                className="text-lg hover:scale-125 transition-transform"
                               >
                                 {em}
                               </button>
@@ -433,7 +433,7 @@ export default function ChatPage() {
 
                       <button 
                         onClick={() => setReplyingTo(msg)} 
-                        className="text-2xl text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
+                        className="text-xl text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
                       >
                         ↩ REPLY
                       </button>
@@ -448,29 +448,29 @@ export default function ChatPage() {
 
           {replyingTo && (
             <div className="flex-none bg-orange-900/40 border-t border-orange-500/50 p-2 flex justify-between items-center px-4 backdrop-blur-md">
-              <span className="text-2xl font-cinzel text-orange-200 truncate">
+              <span className="text-xl font-cinzel text-orange-200 truncate">
                 Replying to: <span className="text-white">"{replyingTo.content?.substring(0, 40)}..."</span>
               </span>
-              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-2xl font-bold px-2 tracking-widest">
+              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-lg font-bold px-2 tracking-widest">
                 ✕ CANCEL
               </button>
             </div>
           )}
 
           <form onSubmit={sendMessage} className="flex-none p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2">
-            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
-            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-2xl tracking-widest transition-colors shadow-md shadow-orange-900/50">
+            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-md focus:outline-none focus:border-orange-500 font-cinzel" />
+            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50">
               SEND
             </button>
           </form>
 
           <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
-              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-2xl tracking-tighter border transition-colors ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'}`}>
+              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-lg tracking-tighter border transition-colors ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'}`}>
                 {ch.shortName}
               </button>
             ))}
-            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-2xl tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
+            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-lg tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
           </div>
         </div>
       </div>
