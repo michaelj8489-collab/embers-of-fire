@@ -1,11 +1,8 @@
- 
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable */
 'use client';
-// ... rest of your imports
-
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import Link from 'next/link'; // NEW: Imported Link for navigation
+import Link from 'next/link';
 
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
@@ -233,7 +230,7 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-[100dvh] w-full flex flex-col overflow-hidden pt-16 md:pt-24 pb-20 md:pb-0 bg-black relative">
+    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg md:text-xl">
       
       {isVideo ? (
         <video 
@@ -256,38 +253,39 @@ export default function ChatPage() {
 
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
-      {/* UPGRADED TOP BAR WITH BACK BUTTON */}
-      <div className="flex-none p-4 bg-black/40 border-b border-orange-900/30 backdrop-blur-md z-10 relative flex justify-between items-center">
-         <div className="flex items-center gap-3">
-           
-           {/* THE ESCAPE HATCH */}
-           <Link 
-             href="/" 
-             className="text-gray-400 hover:text-orange-500 transition-colors flex items-center justify-center bg-black/50 p-2 rounded-full border border-transparent hover:border-orange-500/50 shadow-md"
-             title="Return to Main Site"
-           >
-             <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-             </svg>
-           </Link>
+      
+     {/* RESPONSIVE TOP BAR: Polar Opposites */}
+        <div className="flex-none p-4 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center"></div>
+  
+        <div className="flex-none p-4 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center">
+  {/* LEFT: BACK BUTTON */}
+  <div className="flex items-center">
+    <Link 
+      href="/" 
+      className="text-gray-400 hover:text-orange-500 transition-colors flex items-center justify-center bg-black/50 p-3 rounded-full border border-orange-900/30 hover:border-orange-500/50 shadow-md"
+      title="Return to Sanctuary"
+    >
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+    </Link>
+  </div>
 
-           <h1 className="font-cinzel text-orange-500 text-sm md:text-xl uppercase tracking-[0.2em] shadow-black drop-shadow-md">
-             {activeChannelName}
-           </h1>
-         </div>
-         
-         <button 
-           onClick={() => {
-             navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
-             alert(`Stream Suite Embed Link for ${activeChannelName} copied to your clipboard!`);
-           }}
-           className="px-3 py-1.5 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded cursor-pointer text-[10px] md:text-xs font-cinzel tracking-widest transition-all shadow-md"
-         >
-           📋 COPY EMBED LINK
-         </button>
-      </div>
+  {/* RIGHT: EMBED BUTTON */}
+  <div className="flex items-center">
+    <button 
+      onClick={() => {
+        navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
+        alert(`Embed link for ${activeChannelName} copied!`);
+      }}
+      className="px-4 py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-xs md:text-sm font-cinzel tracking-widest transition-all shadow-md"
+    >
+      📋 COPY EMBED
+    </button>
+  </div>
+</div>
 
-      <div className="flex-1 flex overflow-hidden w-full max-w-7xl mx-auto z-10 relative">
+      <div className="flex-1 flex overflow-hidden w-full z-10 relative">
         
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
           {PUBLIC_CHANNELS.map(ch => (
