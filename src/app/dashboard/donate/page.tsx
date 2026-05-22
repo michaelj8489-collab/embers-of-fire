@@ -1,8 +1,9 @@
 'use client';
+
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { getStripe } from '@/utils/stripe/client'; // <-- Added to handle the checkout
 
 // Copying your established tiers
 const subscriptionTiers = [
@@ -54,17 +55,24 @@ const subscriptionTiers = [
 ];
 
 export default function DonateTierPage() {
-  const router = useRouter();
-
+  
   const handleCheckout = async (tierName: string) => {
-    // This will trigger your existing Stripe logic
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tierName }),
       });
-      // Handle the redirect as you did on the homepage
+      
+      // We now actively use the 'response' to redirect the user
+      const resData = await response.json();
+      const stripe = await getStripe();
+      
+     if (stripe && resData.sessionId) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (stripe as any).redirectToCheckout({ sessionId: resData.sessionId });
+        if (error) console.error("Stripe redirect error:", error);
+    }
     } catch (err) {
       console.error("Stripe Error:", err);
     }
@@ -75,7 +83,7 @@ export default function DonateTierPage() {
          style={{ backgroundImage: "url('/images/phoenix-revised.png')" }}>
       <Header />
       <main className="flex-grow flex flex-col items-center pt-32 pb-20 px-4 relative z-10">
-        <h1 className="text-5xl md:text-7xl font-cinzelDec font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-yellow-500 drop-shadow-[0_5px_15px_rgba(255,69,0,0.4)]">
+        <h1 className="text-5xl md:text-7xl font-cinzel font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-yellow-500 drop-shadow-[0_5px_15px_rgba(255,69,0,0.4)]">
           Tiers of Light
         </h1>
         <div className="w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent mb-16 shadow-[0_0_10px_rgba(255,165,0,0.8)]" />
