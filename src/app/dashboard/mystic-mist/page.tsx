@@ -89,7 +89,7 @@ export default function MysticMistPage() {
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-2xl">
                     <Image
                       src="/images/misc/amanda-bio.jpg" 
-                      alt="Amanda (Papaduck78)"
+                      alt="Amanda (Papaduck78)" 
                       className="w-full h-full object-contain"
                     />
                   </div>
