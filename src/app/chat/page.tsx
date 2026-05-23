@@ -358,7 +358,7 @@ export default function ChatPage() {
 
               return (
                 <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                  <span className="text-[9px] font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
+                  <span className="text-base font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
                       {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
                   
