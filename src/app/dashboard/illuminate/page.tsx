@@ -42,10 +42,11 @@ export default function IlluminatePage() {
                 />
                 <div className="absolute inset-0 bg-[#4B0082]/20 z-10 pointer-events-none"></div> 
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none"></div>
-      <div className="relative z-10 flex flex-col min-h-screen w-full">
-        </div>
-
-        <Header />
+                       </div>
+                
+                      <div className="relative z-10 flex flex-col min-h-screen w-full">
+                        <Header />
+                        
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl mx-auto">
             <div className="mb-12">
