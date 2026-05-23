@@ -36,7 +36,7 @@ export default function TheBloomPage() {
           {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
           <div className="fixed inset-0 z-0">
             <Image 
-              src="/images/main-images/Cover Art/the-bloom-bg.jpg" 
+              src="/images/main-images/Cover Art/bloom-bg.jpg" 
               alt="The Bloom Background" 
               className="w-full h-full object-fit" 
             />
