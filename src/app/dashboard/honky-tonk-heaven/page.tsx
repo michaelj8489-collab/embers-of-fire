@@ -94,13 +94,12 @@ export default function HonkyTonkPage() {
           <div className="fixed inset-0 z-0">
           <Image
            // 1. Fixed path (removed 'public', replaced \ with /, ensure folder name matches)
-            src="/images/main-images/Cover_Art/honkey-tonk-heaven-main.jpg"
+            src="/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg"
             alt="Honky Tonk Background"
             fill
             priority
             // 2. Simplified className
-            className="object-cover opacity-40"
-            sizes="100vw"
+            className="object-cover opacity-30"
             />
              {/* The overlays stay as they are */}
            <div className="absolute inset-0 bg-[#4B0082]/40 z-10 pointer-events-none"></div>
