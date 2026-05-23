@@ -68,12 +68,20 @@ export default function PhoenixTalksPage() {
   );
 
   return (
-    <Image     src="/images/main-images/Cover Art/phoenix-talks-bg.jpg"
-      alt="Phoenix Talks Cover Art"
-      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/phoenix-talks-bg.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
+     // 1. THIS DIV IS THE PAGE WRAPPER (Keep it!)
+     <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+       
+       {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
+       <div className="fixed inset-0 z-0">
+         <Image 
+            src="/images/phoenix-talks-bg.jpg"  
+            alt="Phoenix Talks Background"
+            className="w-full h-full object-cover opacity-30"
+            priority
+         />
+         <div className="absolute inset-0 bg-[#4B0082]/20 z-10 pointer-events-none"></div>
+         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none"></div>
+       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
@@ -191,6 +199,6 @@ export default function PhoenixTalksPage() {
 
         <Footer />
       </div>
-    </Image>
+    </div>
   );
 }

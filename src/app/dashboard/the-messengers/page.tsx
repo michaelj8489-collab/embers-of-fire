@@ -30,20 +30,24 @@ export default function TheMessengersPage() {
   );
 
   return (
-    <Image
-      src="/images/main-images/Cover Art/messengers-new.jpg"
-      alt="The Messengers Cover Art" 
-      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/messengers-new.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
+    <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+      {/* Background Image Wrapper */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/images/main-images/Cover Art/messengers-bg.jpg"
+          alt="The Messengers Background"
+          fill
+          className="object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-[#4B0082]/20 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 pointer-events-none"></div>
+      </div>
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl mx-auto">
-            
             <div className="mb-12">
               <Link href="/dashboard" className="text-orange-500 hover:text-orange-400 font-cinzel tracking-widest transition-colors flex items-center gap-2 w-fit uppercase text-sm font-bold">
                 <span>←</span> BACK TO DASHBOARD
@@ -68,14 +72,12 @@ export default function TheMessengersPage() {
               <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative md:h-[600px]">
                 {activeView === 'live' ? (
                   <div className="flex flex-col md:flex-row w-full h-full">
-                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
                     <iframe 
                       src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
                       className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
                       frameBorder="0" 
                       allowFullScreen
                     ></iframe>
-                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
                     <iframe 
                       src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
                       className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
@@ -96,6 +98,7 @@ export default function TheMessengersPage() {
 
             <SectionDivider />
 
+            {/* Meet The Messengers Section */}
             <section className="w-full mb-24">
               <h2 className="font-cinzel-decorative text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-16">
                 Meet The Messengers
@@ -106,7 +109,8 @@ export default function TheMessengersPage() {
                   <Image 
                     src="/images/jmc-edits-palettes/messengers-steampunk.png" 
                     alt="Welcome to The Messengers" 
-                    className="w-full h-full object-contain" 
+                    fill
+                    className="object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -129,7 +133,8 @@ export default function TheMessengersPage() {
                   <Image 
                     src="/images/brindle-lunaria-profile.png" 
                     alt="The Spark of 2023" 
-                    className="w-full h-full object-contain" 
+                    fill
+                    className="object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -162,6 +167,6 @@ export default function TheMessengersPage() {
 
         <Footer />
       </div>
-    </Image>
+    </div>
   );
 }

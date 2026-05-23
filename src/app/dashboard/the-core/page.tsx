@@ -75,13 +75,19 @@ export default function TheCorePage() {
   );
 
   return (
-    <Image      src="/images/main-images/Cover Art/core-bg.jpg"
-      alt="The CORE Cover Art"
-      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/core-bg.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
-
+       // 1. THIS DIV IS THE PAGE WRAPPER (Keep it!)
+       <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+         
+         {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
+         <div className="fixed inset-0 z-0">
+           <Image
+              src="/images/jmc-edits-palettes/the-core-bg.png" 
+              alt="The CORE Background"
+              className="w-full h-full object-cover opacity-30"
+              fill
+           />
+           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none"></div>
+         </div> 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
@@ -176,7 +182,7 @@ export default function TheCorePage() {
 
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
-                  <Image
+                  <img 
                     src="/images/jmc-edits-palettes/the-core-3-in-1.png" 
                     alt="Welcome to The CORE" 
                     className="w-full h-full object-contain" 
@@ -199,7 +205,7 @@ export default function TheCorePage() {
 
               <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
-                  <Image
+                  <img 
                     src="/images/jmc-edits-palettes/the-core-bio-2.png" 
                     alt="The CORE Origin" 
                     className="w-full h-full object-contain" 
@@ -229,6 +235,6 @@ export default function TheCorePage() {
 
         <Footer />
       </div>
-    </Image>
+    </div>
   );
 }
