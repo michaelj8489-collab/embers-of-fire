@@ -222,7 +222,7 @@ export default function ChatPage() {
     }
   };
 
-  if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em]">Igniting...</div>;
+  if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em] text-lg">Igniting...</div>;
 
   const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }].find(c => c.id === activeRoom)?.name || 'Unknown Room';
   
@@ -230,7 +230,7 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg md:text-xl">
+    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg">
       
       {isVideo ? (
         <video 
@@ -255,8 +255,6 @@ export default function ChatPage() {
       
       
      {/* RESPONSIVE TOP BAR: Polar Opposites */}
-        <div className="flex-none p-4 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center"></div>
-  
         <div className="flex-none p-4 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center">
   {/* LEFT: BACK BUTTON */}
   <div className="flex items-center">
@@ -277,7 +275,7 @@ export default function ChatPage() {
         navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
         alert(`Embed link for ${activeChannelName} copied!`);
       }}
-      className="px-4 py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-xs md:text-sm font-cinzel tracking-widest transition-all shadow-md"
+      className="px-4 py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-sm font-cinzel tracking-widest transition-all shadow-md"
     >
       📋 COPY EMBED
     </button>
@@ -328,11 +326,11 @@ export default function ChatPage() {
                     placeholder="Paste Smule link to play..."
                     value={inputLink}
                     onChange={(e) => setInputLink(e.target.value)}
-                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-md font-cinzel transition-colors"
+                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-base font-cinzel transition-colors"
                   />
                   <button 
                     onClick={handleLoadSong}
-                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-md tracking-widest rounded-lg transition-all shadow-md shrink-0"
+                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-base tracking-widest rounded-lg transition-all shadow-md shrink-0"
                   >
                     LOAD
                   </button>
@@ -358,11 +356,11 @@ export default function ChatPage() {
 
               return (
                 <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                  <span className="text-base font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
-                      {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
+                  <span className="text-lg font-bold font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
+                    {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
-                  
-                  <div className={`max-w-[85%] p-3 rounded-md text-md md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
+                                    
+                  <div className={`max-w-[85%] p-3 rounded-md text-lg font-bold font-cinzel shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
                       
                     {msg.parent_id && (
                       <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-lg text-gray-300/90">
@@ -458,19 +456,19 @@ export default function ChatPage() {
           )}
 
           <form onSubmit={sendMessage} className="flex-none p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2">
-            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-md focus:outline-none focus:border-orange-500 font-cinzel" />
-            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-md tracking-widest transition-colors shadow-md shadow-orange-900/50">
+            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
+            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50">
               SEND
             </button>
           </form>
 
           <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
-              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-md tracking-tighter border transition-colors ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'}`}>
+              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'}`}>
                 {ch.shortName}
               </button>
             ))}
-            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-md tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
+            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
           </div>
         </div>
       </div>
