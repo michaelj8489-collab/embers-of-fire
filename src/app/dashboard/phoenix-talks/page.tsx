@@ -73,11 +73,12 @@ export default function PhoenixTalksPage() {
        
        {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
        <div className="fixed inset-0 z-0">
-         <Image 
-            src="/images/phoenix-talks-bg.jpg"  
-            alt="Phoenix Talks Background"
-            className="w-full h-full object-cover opacity-30"
-            priority
+        <Image
+          src="/images/main-images/Cover Art/phoenix-talks-bg.jpg"
+          alt="Phoenix Talks Background"
+          fill
+          priority
+          className="object-cover opacity-30"
          />
          <div className="absolute inset-0 bg-[#4B0082]/20 z-10 pointer-events-none"></div>
          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none"></div>
@@ -169,9 +170,9 @@ export default function PhoenixTalksPage() {
               <div className="flex flex-col md:flex-row items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <Image
-                    src="/images/jmc-edits-palettes/pheonix-talks-bio.png" 
-                    alt="The History of Phoenix Talks" 
-                    className="w-full h-full object-contain" 
+                  src="/images/jmc-edits-palettes/phoenix-talks-bio.png"
+                  alt="The History of Phoenix Talks"
+                   className="w-full h-full object-contain" 
                   />
                 </div>
 

@@ -29,10 +29,22 @@ export default function IlluminatePage() {
   }, []);
 
   return (
-    <div className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-         style={{ backgroundImage: "url('/images/main-images/Cover Art/illuminate-bg.jpg')" }}>
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
+     <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+        
+    {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
+              <div className="fixed inset-0 z-0">
+                <Image 
+                  src="/images/main-images/Cover Art/illuminate-bg.jpg"
+                  alt="Illuminate Background"
+                  fill
+                  priority
+                  className="object-cover opacity-30"
+                />
+                <div className="absolute inset-0 bg-[#4B0082]/20 z-10 pointer-events-none"></div> 
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none"></div>
       <div className="relative z-10 flex flex-col min-h-screen w-full">
+        </div>
+
         <Header />
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl mx-auto">
@@ -80,8 +92,7 @@ export default function IlluminatePage() {
                 <Image
                   alt="Lunaria Bio Pic"
                   src="/images/jmc-edits-palettes/lunaria-bio-pic.png"
-                  width={400}
-                  height={500}
+                  className="w-full h-full object-contain"
                 />
                 {/* THE TEXT LANE */}
                  <div className="flex-1">

@@ -34,9 +34,10 @@ export default function TheMessengersPage() {
       {/* Background Image Wrapper */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="/images/main-images/Cover Art/messengers-bg.jpg"
+          src="/images/main-images/Cover Art/messengers-new.jpg"
           alt="The Messengers Background"
           fill
+          priority
           className="object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-[#4B0082]/20 pointer-events-none"></div>
@@ -109,8 +110,7 @@ export default function TheMessengersPage() {
                   <Image 
                     src="/images/jmc-edits-palettes/messengers-steampunk.png" 
                     alt="Welcome to The Messengers" 
-                    fill
-                    className="object-contain" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -133,8 +133,7 @@ export default function TheMessengersPage() {
                   <Image 
                     src="/images/brindle-lunaria-profile.png" 
                     alt="The Spark of 2023" 
-                    fill
-                    className="object-contain" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-center">

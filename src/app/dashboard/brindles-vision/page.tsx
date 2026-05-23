@@ -95,8 +95,7 @@ export default function BrindlesVisionPage() {
           alt="Brindle's Vision Background"
           fill
           priority
-          className="object-cover opacity-90"
-          sizes="100vw"
+          className="object-cover opacity-30"
         />
         {/* The overlay sits on top of the Image */}
         <div className="absolute inset-0 bg-black/90 z-10 pointer-events-none"></div>
@@ -196,8 +195,7 @@ export default function BrindlesVisionPage() {
                     <Image
                       src="/images/jmc-edits-palettes/brindle-bio-pic.png" 
                       alt="Michka Grant"
-                      className="w-full h-full object-contain"
-
+                      className="w-full h-full object-contain" 
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent"></div>
                   </div>

@@ -15,7 +15,9 @@ export default function MysticMistPage() {
         <Image
           src="/images/main-images/Cover Art/mystic-mist-bg.jpg" 
           alt="Mystic Mist Background" 
-          className="w-full h-full object-cover fixed opacity-30" 
+          fill
+          priority
+          className="object-cover opacity-30" 
         />
         <div className="absolute inset-0 bg-[#4B0082]/20 z-10 pointer-events-none fixed"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none fixed"></div>
