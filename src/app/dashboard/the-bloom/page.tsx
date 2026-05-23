@@ -31,14 +31,14 @@ export default function TheBloomPage() {
 
   return (
         // 1. THIS DIV IS THE PAGE WRAPPER (Keep it!)
-        <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+        <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-hidden">
           
           {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
           <div className="fixed inset-0 z-0">
             <Image 
               src="/images/main-images/Cover Art/the-bloom-bg.jpg" 
               alt="The Bloom Background" 
-              className="w-full h-full object-fill opacity-30" 
+              className="w-full h-full object-fit" 
             />
             {/* Optional: Add a color overlay for better text contrast */}
             <div className="absolute inset-0 bg-[#4B0082]/20 pointer-events-none"></div>
