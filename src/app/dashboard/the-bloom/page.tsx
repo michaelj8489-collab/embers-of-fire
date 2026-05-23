@@ -38,7 +38,7 @@ export default function TheBloomPage() {
             <Image 
               src="/images/main-images/Cover Art/the-bloom-bg.jpg" 
               alt="The Bloom Background" 
-              className="w-full h-full object-cover opacity-30" 
+              className="w-full h-full object-fill opacity-30" 
             />
             {/* Optional: Add a color overlay for better text contrast */}
             <div className="absolute inset-0 bg-[#4B0082]/20 pointer-events-none"></div>
