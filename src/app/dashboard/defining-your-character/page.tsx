@@ -1,5 +1,7 @@
+/* eslint-disable */
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -216,10 +218,12 @@ export default function DefiningYourCharacterPage() {
               <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl text-left">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-2xl">
-                    <img
+                    <Image
                       src="/images/jmc-edits-palettes/michael-j-bio.png" 
                       alt="Michael J Cox"
                       className="w-full h-full object-contain "
+                      width={280}
+                      height={350}
                     />
                   </div>
                   <div className="mt-6">

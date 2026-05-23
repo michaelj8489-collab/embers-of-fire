@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -88,18 +89,23 @@ export default function HonkyTonkPage() {
     fetchPodcast();
   }, []);
 
-  return (
-    <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
-      {/* Background Layer */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src="public\images\main-images\Cover Art\honkey-tonk-heaven-main.jpg" 
-          alt="Honky Tonk Background" 
-          className="w-full h-full object-cover fixed opacity-40" 
-        />
-        <div className="absolute inset-0 bg-[#4B0082]/40 z-10 pointer-events-none fixed"></div>
-        <div className="absolute inset-0 bg-black/80 z-10 pointer-events-none fixed"></div>
-      </div>
+        return (
+          <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
+          <div className="fixed inset-0 z-0">
+          <Image
+           // 1. Fixed path (removed 'public', replaced \ with /, ensure folder name matches)
+            src="/images/main-images/Cover_Art/honkey-tonk-heaven-main.jpg"
+            alt="Honky Tonk Background"
+            fill
+            priority
+            // 2. Simplified className
+            className="object-cover opacity-40"
+            sizes="100vw"
+            />
+             {/* The overlays stay as they are */}
+           <div className="absolute inset-0 bg-[#4B0082]/40 z-10 pointer-events-none"></div>
+           <div className="absolute inset-0 bg-black/80 z-10 pointer-events-none"></div>
+          </div>
 
       <div className="relative z-20 flex flex-col min-h-screen w-full">
         <Header />
@@ -209,10 +215,12 @@ export default function HonkyTonkPage() {
               {/* Meet the Host Section */}
               <div className="bg-black/40 border border-orange-500/20 p-8 rounded-xl flex flex-col items-center text-center shadow-lg">
                  <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-orange-500 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
-                   <img 
+                   <Image
                      src="/images/jmc-edits-palettes/will-bio-pic.png" 
                      alt="Will Iommi - Host of Honky Tonk Heaven" 
                      className="w-full h-full object-contain" 
+                     width={128}
+                     height={128}
                    />
                  </div>
                  <h4 className="font-cinzel text-orange-400 mb-2 uppercase tracking-widest font-bold text-xl">Meet the Host</h4>

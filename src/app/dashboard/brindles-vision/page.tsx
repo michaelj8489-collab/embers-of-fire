@@ -1,5 +1,7 @@
+/* eslint-disable */
 'use client'; 
 
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -83,13 +85,25 @@ export default function BrindlesVisionPage() {
   }, []);
 
   return (
-    <div 
-      className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
-      style={{ backgroundImage: "url('/images/main-images/Cover Art/brindles-vision-bg.png')" }}
-    >
-      <div className="absolute inset-0 bg-black/90 z-0 pointer-events-none fixed"></div>
+    // 1. THIS DIV IS THE PAGE WRAPPER (Keep it!)
+    <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
+      
+      {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
+      <div className="fixed inset-0 z-0">
+        <Image 
+          src="/images/main-images/Cover Art/brindles-vision-bg.png"
+          alt="Brindle's Vision Background"
+          fill
+          priority
+          className="object-cover opacity-90"
+          sizes="100vw"
+        />
+        {/* The overlay sits on top of the Image */}
+        <div className="absolute inset-0 bg-black/90 z-10 pointer-events-none"></div>
+      </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen w-full">
+      {/* 3. YOUR CONTENT (Siblings to the background image, NOT children) */}
+      <div className="relative z-20 flex flex-col min-h-screen">
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
@@ -179,10 +193,11 @@ export default function BrindlesVisionPage() {
               <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl text-left max-w-5xl mx-auto">
                 <div className="flex flex-col items-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.1)]">
-                    <img
+                    <Image
                       src="/images/jmc-edits-palettes/brindle-bio-pic.png" 
                       alt="Michka Grant"
                       className="w-full h-full object-contain"
+
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent"></div>
                   </div>

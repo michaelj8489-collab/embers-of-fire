@@ -1,3 +1,5 @@
+
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 
@@ -73,9 +75,11 @@ export default function Footer() {
             
             <div className="flex flex-row items-center gap-1 sm:gap-3 group cursor-default">
               {/* Logo Image - Shrunk to 16px (w-4) on mobile */}
-              <img 
-                src="/images/crimson-leo.png" 
-                alt="Crimson Leo Designs Logo" 
+              <Image
+                src="/images/crimson-leo.png"
+                alt="Crimson Leo Designs Logo"
+                width={40}
+                height={40}
                 className="w-4 h-4 sm:w-8 sm:h-8 md:w-10 md:h-10 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]"
               />
               {/* Designer Text - Forced to never wrap */}

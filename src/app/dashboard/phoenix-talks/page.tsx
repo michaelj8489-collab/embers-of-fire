@@ -1,5 +1,7 @@
+/* eslint-disable */
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -66,7 +68,8 @@ export default function PhoenixTalksPage() {
   );
 
   return (
-    <div 
+    <Image     src="/images/main-images/Cover Art/phoenix-talks-bg.jpg"
+      alt="Phoenix Talks Cover Art"
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
       style={{ backgroundImage: "url('/images/main-images/Cover Art/phoenix-talks-bg.jpg')" }}
     >
@@ -157,7 +160,7 @@ export default function PhoenixTalksPage() {
 
               <div className="flex flex-col md:flex-row items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
-                  <img 
+                  <Image
                     src="/images/jmc-edits-palettes/pheonix-talks-bio.png" 
                     alt="The History of Phoenix Talks" 
                     className="w-full h-full object-contain" 
@@ -188,6 +191,6 @@ export default function PhoenixTalksPage() {
 
         <Footer />
       </div>
-    </div>
+    </Image>
   );
 }

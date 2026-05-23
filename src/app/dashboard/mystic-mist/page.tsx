@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,7 +12,7 @@ export default function MysticMistPage() {
       
       {/* BACKGROUND IMAGE */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <Image
           src="/images/main-images/Cover Art/mystic-mist-bg.jpg" 
           alt="Mystic Mist Background" 
           className="w-full h-full object-cover fixed opacity-30" 
@@ -84,7 +85,7 @@ export default function MysticMistPage() {
               <div className="grid grid-cols-1 md:grid-cols-[300px_1px_1fr] items-center gap-10 md:gap-16 bg-black/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-orange-900/30 shadow-2xl text-left">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-2xl">
-                    <img
+                    <Image
                       src="/images/misc/amanda-bio.jpg" 
                       alt="Amanda (Papaduck78)"
                       className="w-full h-full object-contain"

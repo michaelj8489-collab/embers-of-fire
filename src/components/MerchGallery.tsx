@@ -1,5 +1,6 @@
-import React from 'react';
 
+import React from 'react';
+import Image from 'next/image';
 interface Product {
   id: number;
   name: string;
@@ -24,7 +25,7 @@ const MerchGallery = ({ showName, products }: MerchGalleryProps) => {
         {products.map((item) => (
           <div key={item.id} className="group bg-black/40 border border-orange-500/20 rounded-xl overflow-hidden backdrop-blur-sm hover:border-orange-500/50 transition-all duration-500">
             <div className="relative aspect-square bg-zinc-900 overflow-hidden flex items-center justify-center">
-              <img 
+              <Image
                 src={item.image} 
                 alt={item.name}
                 className="object-contain w-full h-full p-4 group-hover:scale-110 transition-transform duration-700"

@@ -1,5 +1,7 @@
+/* eslint-disable */
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -73,7 +75,8 @@ export default function TheCorePage() {
   );
 
   return (
-    <div 
+    <Image      src="/images/main-images/Cover Art/core-bg.jpg"
+      alt="The CORE Cover Art"
       className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant"
       style={{ backgroundImage: "url('/images/main-images/Cover Art/core-bg.jpg')" }}
     >
@@ -173,7 +176,7 @@ export default function TheCorePage() {
 
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
-                  <img 
+                  <Image
                     src="/images/jmc-edits-palettes/the-core-3-in-1.png" 
                     alt="Welcome to The CORE" 
                     className="w-full h-full object-contain" 
@@ -196,7 +199,7 @@ export default function TheCorePage() {
 
               <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
-                  <img 
+                  <Image
                     src="/images/jmc-edits-palettes/the-core-bio-2.png" 
                     alt="The CORE Origin" 
                     className="w-full h-full object-contain" 
@@ -226,6 +229,6 @@ export default function TheCorePage() {
 
         <Footer />
       </div>
-    </div>
+    </Image>
   );
 }

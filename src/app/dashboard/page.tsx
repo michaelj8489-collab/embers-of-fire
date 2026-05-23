@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useEffect, Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -156,9 +157,12 @@ function DashboardContent() {
 
           {/* NEW: FEED THE FIRE DONATION BLOCK */}
           <div className="w-full max-w-7xl relative rounded-3xl overflow-hidden shadow-2xl mb-24 border border-orange-500/30">
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: "url('/images/jmc-edits-palettes/feeding-the-phoenix.png')" }}
+           <Image 
+              src="/path/to/image.png"
+              alt="Description"
+              fill
+              className="absolute inset-0 object-cover object-center opacity-55 z-0"
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/80" /> 
             
