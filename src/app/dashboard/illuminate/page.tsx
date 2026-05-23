@@ -46,7 +46,7 @@ export default function IlluminatePage() {
                 
                       <div className="relative z-10 flex flex-col min-h-screen w-full">
                         <Header />
-                        
+
         <main className="flex-grow flex flex-col items-center pt-24 pb-12 px-4 w-full">
           <div className="w-full max-w-7xl mx-auto">
             <div className="mb-12">
@@ -90,11 +90,14 @@ export default function IlluminatePage() {
               <h2 className="font-cinzel-decorative text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 uppercase tracking-widest mb-6">Meet Your Guide</h2>
               <div className="max-w-4xl bg-black/60 backdrop-blur-sm p-8 rounded-2xl border border-orange-900/30 shadow-2xl flex flex-col md:flex-row items-start gap-12         text-left mx-auto">
                {/* THE PHOTO LANE */}
-                <Image
-                  alt="Lunaria Bio Pic"
-                  src="/images/jmc-edits-palettes/lunaria-bio-pic.png"
-                  className="w-full h-full object-contain"
-                />
+           {/* THE PHOTO LANE */}
+            <Image
+              alt="Lunaria Bio Pic"
+              src="/images/jmc-edits-palettes/lunaria-bio-pic.png"
+              width={400}
+              height={400}
+              className="w-full h-full object-contain"
+             />
                 {/* THE TEXT LANE */}
                  <div className="flex-1">
                     <h3 className="font-cinzel text-3xl text-orange-500 tracking-widest uppercase font-bold mb-2"> Karrie Lynne (Lunaria) </h3>
