@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { GiphyFetch } from '@giphy/js-fetch-api';
+import { Grid } from '@giphy/react-components';
 
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
@@ -32,12 +34,16 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
   'admin-chat': '/images/rise-radio-logo.png' 
 };
 
+const gf = new GiphyFetch('8IJKtjYvrjEQjtwpcGUkKMqqMaQaazIy');
+
 export default function ChatPage() {
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
   const [newMessage, setNewMessage] = useState('');
   const [replyingTo, setReplyingTo] = useState<any>(null);
   const [activePickerId, setActivePickerId] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState('');
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -187,6 +193,22 @@ export default function ChatPage() {
 
     if (error) console.error("Error updating reaction:", error);
   };
+
+  const fetchGifs = (offset: number) => {
+  return gifSearch ? gf.search(gifSearch, { offset, limit: 10 }) : gf.trending({ offset, limit: 10 });
+};
+
+const sendGifMessage = async (gifUrl: string) => {
+  if (!user) return;
+  const { error } = await supabase.from('chat_messages').insert({
+    user_id: user.id,
+    room_name: activeRoom,
+    image_url: gifUrl,
+    parent_id: replyingTo ? replyingTo.id : null
+  });
+  setReplyingTo(null);
+  if (error) alert("Failed to send GIF: " + error.message);
+};
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -464,10 +486,11 @@ export default function ChatPage() {
           )}
 
           <div className="flex-none relative">
+  {/* EMOJI PICKER */}
   {showEmojiPicker && (
     <div className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl">
       <EmojiPicker 
-        theme={Theme.DARK}
+        theme={Theme.DARK} 
         onEmojiClick={(emojiObject) => {
           setNewMessage(prev => prev + emojiObject.emoji);
           setShowEmojiPicker(false);
@@ -475,18 +498,64 @@ export default function ChatPage() {
       />
     </div>
   )}
+
+  {/* GIF PICKER */}
+  {showGifPicker && (
+    <div className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl bg-zinc-900 border border-orange-900/70 rounded-xl p-3 w-[320px] flex flex-col gap-3 max-h-[400px]">
+      <input
+        type="text"
+        placeholder="Search GIPHY..."
+        value={gifSearch}
+        onChange={(e) => setGifSearch(e.target.value)}
+        className="w-full bg-black/50 border border-gray-700 rounded-lg p-2 text-white outline-none focus:border-orange-500 font-cinzel text-sm"
+      />
+      <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden">
+        <Grid
+          width={294}
+          columns={2}
+          fetchGifs={fetchGifs}
+          key={gifSearch} 
+          onGifClick={(gif, e) => {
+            e.preventDefault();
+            sendGifMessage(gif.images.original.url);
+            setShowGifPicker(false);
+            setGifSearch(''); 
+          }}
+        />
+      </div>
+    </div>
+  )}
   
+  {/* CHAT INPUT FORM */}
   <form onSubmit={sendMessage} className="p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2 items-center">
+    
     <button 
       type="button" 
-      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+      onClick={() => {
+        setShowGifPicker(!showGifPicker);
+        setShowEmojiPicker(false); 
+      }}
+      className="text-lg font-bold font-cinzel text-gray-400 hover:text-white transition-colors px-2 shrink-0 bg-transparent border-none cursor-pointer"
+      title="Add a GIF"
+    >
+      GIF
+    </button>
+
+    <button 
+      type="button" 
+      onClick={() => {
+        setShowEmojiPicker(!showEmojiPicker);
+        setShowGifPicker(false); 
+      }}
       className="text-2xl hover:scale-110 transition-transform px-2 shrink-0 bg-transparent border-none cursor-pointer"
       title="Add an emoji"
     >
       😀
-            </button>
-               <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
-            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0">
+    </button>
+
+    <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
+    
+    <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0">
       SEND
     </button>
   </form>
