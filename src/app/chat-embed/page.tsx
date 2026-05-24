@@ -1,6 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
+
 'use client';
 
+import Image from 'next/image';
 import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useSearchParams } from 'next/navigation';
@@ -145,13 +146,15 @@ function ChatEmbedContent() {
                     <Linkify text={msg.content} />
                   </div>
                 )}
-                {msg.image_url && (
-                  <img 
+               {msg.image_url && (
+                 <Image 
                     src={msg.image_url} 
                     alt="Attached image" 
-                    className="mt-3 max-w-full rounded-lg border border-black/30 shadow-lg" 
+                    width={250}
+                    height={250}
+                    className="mt-3 w-full max-w-full h-auto object-contain rounded-lg border border-black/30 shadow-lg" 
                   />
-                )}
+               )}
             </div>
           </div>
         ))}

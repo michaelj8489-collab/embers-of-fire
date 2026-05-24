@@ -1,5 +1,5 @@
-/* eslint-disable */
 'use client';
+import Image from 'next/image';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
@@ -379,13 +379,15 @@ export default function ChatPage() {
                       </div>
                     )}
 
-                    {msg.image_url && (
-                      <img 
-                        src={msg.image_url} 
-                        alt="Attached image" 
-                        className="mt-3 max-w-full md:max-w-[250px] rounded-lg border border-black/30 shadow-lg" 
-                      />
-                    )}
+                  {msg.image_url && (
+                  <Image 
+                   src={msg.image_url} 
+                   alt="Attached image" 
+                   width={250}
+                   height={250}
+                   className="mt-3 w-full max-w-full md:max-w-[250px] h-auto object-contain rounded-lg border border-black/30 shadow-lg" 
+                   />
+                  )}
 
                     <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10 relative">
                       

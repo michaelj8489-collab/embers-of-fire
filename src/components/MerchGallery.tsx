@@ -1,5 +1,6 @@
-/* eslint-disable */
+
 import React from 'react';
+import Image from 'next/image';
 interface Product {
   id: number;
   name: string;
@@ -23,17 +24,18 @@ const MerchGallery = ({ showName, products }: MerchGalleryProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((item) => (
           <div key={item.id} className="group bg-black/40 border border-orange-500/20 rounded-xl overflow-hidden backdrop-blur-sm hover:border-orange-500/50 transition-all duration-500">
-            <div className="relative aspect-square bg-zinc-900 overflow-hidden flex items-center justify-center">
-              <img
-                src={item.image} 
-                alt={item.name}
-                className="object-contain w-full h-full p-4 group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-xs font-bold text-orange-400 border border-orange-500/30">
-                Official Merch
-              </div>
-            </div>
-
+           <div className="relative aspect-square bg-zinc-900 overflow-hidden flex items-center justify-center">
+          <Image
+            src={item.image} 
+            alt={item.name}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+           className="object-contain p-4 group-hover:scale-110 transition-transform duration-700"
+          />
+          <div className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-xs font-bold text-orange-400 border border-orange-500/30">
+          Official Merch
+         </div>
+        </div>
             <div className="p-5">
               <h3 className="text-lg font-medium text-white mb-1 truncate">{item.name}</h3>
               <p className="text-orange-500 font-bold text-xl mb-4">{item.price}</p>
