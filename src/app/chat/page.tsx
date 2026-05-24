@@ -44,6 +44,8 @@ export default function ChatPage() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [gifSearch, setGifSearch] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -208,6 +210,56 @@ const sendGifMessage = async (gifUrl: string) => {
   });
   setReplyingTo(null);
   if (error) alert("Failed to send GIF: " + error.message);
+};
+
+const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file || !user) return;
+
+  // The Bouncer: Check file size (5MB = 5 * 1024 * 1024 bytes)
+  if (file.size > 5242880) {
+    alert("File is too large! Please keep it under 5MB.");
+    // Clear the input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    return;
+  }
+
+  setIsUploading(true); // <-- This right here fixes your last error!
+
+  try {
+    // 1. Create a unique file name so images don't overwrite each other
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+    // 2. Upload the file to our new bucket
+    const { error: uploadError } = await supabase.storage
+      .from('chat_uploads')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    // 3. Get the public URL for the image
+    const { data: { publicUrl } } = supabase.storage
+      .from('chat_uploads')
+      .getPublicUrl(fileName);
+
+    // 4. Save it as a chat message (exactly like a GIF)
+    const { error: messageError } = await supabase.from('chat_messages').insert({
+      user_id: user.id,
+      room_name: activeRoom,
+      image_url: publicUrl,
+      parent_id: replyingTo ? replyingTo.id : null
+    });
+
+    if (messageError) throw messageError;
+    
+    setReplyingTo(null);
+  } catch (error: any) {
+    alert("Upload failed: " + error.message);
+  } finally {
+    setIsUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
 };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -526,9 +578,29 @@ const sendGifMessage = async (gifUrl: string) => {
     </div>
   )}
   
-  {/* CHAT INPUT FORM */}
+{/* CHAT INPUT FORM */}
   <form onSubmit={sendMessage} className="p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2 items-center">
     
+    {/* HIDDEN FILE INPUT */}
+    <input 
+      type="file" 
+      accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,audio/webm,audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac"
+      className="hidden" 
+      ref={fileInputRef} 
+      onChange={handleFileUpload} 
+    />
+
+    {/* ATTACHMENT BUTTON */}
+    <button 
+      type="button" 
+      onClick={() => fileInputRef.current?.click()}
+      disabled={isUploading}
+      className={`text-xl transition-transform px-2 shrink-0 bg-transparent border-none cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed animate-pulse' : 'hover:scale-110 text-gray-400 hover:text-white'}`}
+      title="Attach a file"
+    >
+      📎
+    </button>
+
     <button 
       type="button" 
       onClick={() => {
@@ -553,9 +625,9 @@ const sendGifMessage = async (gifUrl: string) => {
       😀
     </button>
 
-    <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
+    <input type="text" disabled={!user || isUploading} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isUploading ? "Uploading..." : "Speak your truth..."} className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
     
-    <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0">
+    <button type="submit" disabled={isUploading} className={`bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
       SEND
     </button>
   </form>
