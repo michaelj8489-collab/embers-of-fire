@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
@@ -36,6 +37,7 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState('');
   const [replyingTo, setReplyingTo] = useState<any>(null);
   const [activePickerId, setActivePickerId] = useState<string | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -461,12 +463,34 @@ export default function ChatPage() {
             </div>
           )}
 
-          <form onSubmit={sendMessage} className="flex-none p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2">
-            <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
-            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50">
-              SEND
+          <div className="flex-none relative">
+  {showEmojiPicker && (
+    <div className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl">
+      <EmojiPicker 
+        theme={Theme.DARK}
+        onEmojiClick={(emojiObject) => {
+          setNewMessage(prev => prev + emojiObject.emoji);
+          setShowEmojiPicker(false);
+        }} 
+      />
+    </div>
+  )}
+  
+  <form onSubmit={sendMessage} className="p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2 items-center">
+    <button 
+      type="button" 
+      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+      className="text-2xl hover:scale-110 transition-transform px-2 shrink-0 bg-transparent border-none cursor-pointer"
+      title="Add an emoji"
+    >
+      😀
             </button>
-          </form>
+               <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Speak your truth..." className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
+            <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0">
+      SEND
+    </button>
+  </form>
+</div>
 
           <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
