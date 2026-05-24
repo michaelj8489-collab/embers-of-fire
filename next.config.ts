@@ -15,11 +15,13 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.embersoflight.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.giphy.com',
       }
     ],
   },
 };
-
-
 
 export default nextConfig;
