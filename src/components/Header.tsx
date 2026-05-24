@@ -12,6 +12,9 @@ export default function Header() {
   const [isMounted, setIsMounted] = useState(false);
   const [userTier, setUserTier] = useState('seeker');
   const [isAdmin, setIsAdmin] = useState(false); // <-- NEW ADMIN STATE
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
+  const [myUsername, setMyUsername] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
 
   const router = useRouter();
   const supabase = createClient();
@@ -23,17 +26,18 @@ export default function Header() {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
       
-      // <-- NEW: Check Database for Tier and Admin Role in one swoop
       if (session?.user) {
+        setUserId(session.user.id); // <-- Added this to save your ID
         const { data: profile } = await supabase
           .from('profiles')
-          .select('subscription_tier, role')
+          .select('subscription_tier, role, username') // <-- Added username here
           .eq('id', session.user.id)
           .single();
 
         if (profile) {
           if (profile.subscription_tier) setUserTier(profile.subscription_tier);
           if (profile.role === 'admin') setIsAdmin(true);
+          if (profile.username) setMyUsername(profile.username); // <-- Saved your username
         }
       }
     };
@@ -57,6 +61,38 @@ export default function Header() {
       }
     };
   }, [supabase]);
+
+  // GLOBAL CHAT NOTIFICATION LISTENER FOR THE HEADER
+  useEffect(() => {
+    if (!myUsername || !userId) return;
+
+    const headerChannel = supabase.channel('header_notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_messages'
+      }, (payload: any) => {
+        const newMsg = payload.new;
+        
+        // 1. Did someone whisper to you?
+        if (newMsg.recipient_id === userId) {
+          setHasUnreadChat(true);
+          return;
+        }
+
+        // 2. Did someone tag you in a public room?
+        const text = newMsg.content?.toLowerCase() || '';
+        const isTagged = text.includes(`@${myUsername.toLowerCase()}`) || text.includes('@all');
+        
+        if (isTagged && newMsg.user_id !== userId) {
+          setHasUnreadChat(true);
+        }
+      }).subscribe();
+
+    return () => {
+      supabase.removeChannel(headerChannel);
+    };
+  }, [myUsername, userId, supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -94,9 +130,16 @@ export default function Header() {
               {/* NEW DESKTOP ADMIN LINK */}
               {/* NEW DESKTOP ADMIN LINK */}
               {isAdmin && (
-                 <Link href="/dashboard/admin" className="text-orange-500 font-cinzel font-bold text-sm uppercase tracking-[0.2em] hover:text-orange-400 transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
-                   Admin Dashboard
-                 </Link>
+                 <Link 
+                href="/chat" 
+                onClick={() => setHasUnreadChat(false)}
+                className="relative text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors"
+              >
+                Chat
+                {hasUnreadChat && (
+                  <span className="absolute -top-2 -right-4 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                )}
+              </Link>
 )}
 
               <Link href="/chat" className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors">
@@ -178,9 +221,18 @@ export default function Header() {
                 My Sanctuary
               </Link>
 
-              <Link href="/chat" onClick={() => setIsOpen(false)} className="text-gray-300 uppercase text-sm tracking-widest font-cinzel">
-                Chat Sanctuary
-              </Link>
+              <div className="relative w-max">
+                <Link 
+                  href="/chat" 
+                  onClick={() => { setIsOpen(false); setHasUnreadChat(false); }} 
+                  className="text-gray-300 uppercase text-sm tracking-widest font-cinzel block"
+                >
+                  Chat Sanctuary
+                </Link>
+                {hasUnreadChat && (
+                  <span className="absolute top-1 -right-5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                )}
+              </div>
               
               <button 
                 onClick={() => setShowsOpen(!showsOpen)}
