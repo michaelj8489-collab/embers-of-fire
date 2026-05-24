@@ -54,7 +54,7 @@ export default function RootLayout({
         {/* This line loads the Stripe engine so your buttons work */}
         <Script 
           src="https://js.stripe.com/v3/" 
-          strategy="beforeInteractive" 
+          strategy="lazyOnload" 
         />
         <link rel="preconnect" href="https://zeno.fm" />
         <link rel="preconnect" href="https://zenoimages.s3.us-west-001.backblazeb2.com" />

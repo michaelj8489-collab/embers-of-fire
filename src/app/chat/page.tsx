@@ -230,7 +230,7 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg">
+    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg relative">
       
       {isVideo ? (
         <video 
@@ -244,10 +244,13 @@ export default function ChatPage() {
           <source src={currentBackground} type="video/mp4" />
         </video>
       ) : (
-        <div 
+        <Image
           key={currentBackground}
-          className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-contain bg-no-repeat bg-center transition-all duration-500"
-          style={{ backgroundImage: `url('${currentBackground}')` }}
+          src={currentBackground}
+          alt={`${activeRoom} background`}
+          fill
+          className="object-contain z-0 pointer-events-none transition-opacity duration-500"
+          priority={activeRoom === 'global'} // Loads the default background instantly
         />
       )}
 
@@ -385,7 +388,7 @@ export default function ChatPage() {
                    alt="Attached image" 
                    width={250}
                    height={250}
-                   className="mt-3 w-full max-w-full md:max-w-[250px] h-auto object-contain rounded-lg border border-black/30 shadow-lg" 
+                   className="mt-3 md:max-w-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
                    />
                   )}
 

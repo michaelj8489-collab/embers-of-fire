@@ -152,7 +152,7 @@ function ChatEmbedContent() {
                     alt="Attached image" 
                     width={250}
                     height={250}
-                    className="mt-3 w-full max-w-full h-auto object-contain rounded-lg border border-black/30 shadow-lg" 
+                    className="mt-3 md:max-w-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
                   />
                )}
             </div>
