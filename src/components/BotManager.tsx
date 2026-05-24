@@ -52,11 +52,12 @@ export default function BotManager() {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
         
-        const { data: uploadData, error: uploadError } = await supabase.storage
+       const { data: uploadData, error: uploadError } = await supabase.storage
           .from('bot-images')
-          .upload(fileName, imageFile);
-
-        if (uploadError) throw uploadError;
+          .upload(fileName, imageFile, {
+            cacheControl: '31536000', // Tells browsers to cache this for 1 year
+            upsert: false
+          });
 
         // Get the public URL for the chatroom to display
         const { data: publicUrlData } = supabase.storage

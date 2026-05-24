@@ -163,7 +163,7 @@ function ChatEmbedContent() {
 
       <form onSubmit={sendMessage} className="flex-none p-2 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2">
         <input type="text" disabled={!user} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={user ? "Type a message..." : "Log in to chat"} className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-orange-500 font-cormorant" />
-        <button type="submit" disabled={!user} className="bg-orange-600 disabled:opacity-50 hover:bg-orange-500 text-white px-3 py-2 rounded-lg font-cinzel text-[10px] tracking-widest transition-colors shadow-md shadow-orange-900/50">
+        <button type="submit" disabled={!user} className="bg-orange-700 disabled:opacity-50 hover:bg-orange-500 text-white px-3 py-2 rounded-lg font-cinzel text-[10px] tracking-widest transition-colors shadow-md shadow-orange-900/50">
           SEND
         </button>
       </form>

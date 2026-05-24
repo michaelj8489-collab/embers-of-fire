@@ -56,6 +56,8 @@ export default function RootLayout({
           src="https://js.stripe.com/v3/" 
           strategy="beforeInteractive" 
         />
+        <link rel="preconnect" href="https://zeno.fm" />
+        <link rel="preconnect" href="https://zenoimages.s3.us-west-001.backblazeb2.com" />
       </head>
       <body className={`${cinzelDec.variable} ${cinzel.variable} ${cormorant.variable} antialiased bg-black text-white`}>
         {children}
