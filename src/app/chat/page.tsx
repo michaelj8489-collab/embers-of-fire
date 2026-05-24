@@ -45,6 +45,9 @@ export default function ChatPage() {
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [gifSearch, setGifSearch] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [privateRecipient, setPrivateRecipient] = useState<{id: string, username: string} | null>(null);
+  const [dmUsers, setDmUsers] = useState<{id: string, username: string, full_name: string}[]>([]);
+  const [privateMessages, setPrivateMessages] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -56,9 +59,13 @@ export default function ChatPage() {
   
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const currentMessages = useMemo(() => {
-  return messagesByRoom[activeRoom] || [];
-}, [messagesByRoom, activeRoom]);
+const currentMessages = useMemo(() => {
+    // If we have a target lock, show the secret vault!
+    if (privateRecipient) return privateMessages;
+    
+    // Otherwise, show the normal public room.
+    return messagesByRoom[activeRoom] || [];
+  }, [messagesByRoom, activeRoom, privateRecipient, privateMessages]);
   const [bots, setBots] = useState<any[]>([]);
 
   const handleLoadSong = () => {
@@ -71,6 +78,77 @@ export default function ChatPage() {
       alert("Please enter a valid Smule URL.");
     }
   };
+
+  useEffect(() => {
+    const fetchDmUsers = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, username, full_name')
+        .neq('id', user.id); // This makes sure you don't show up in your own DM list!
+
+      if (error) {
+        console.error("Error fetching DM users:", error.message);
+      } else if (data) {
+        setDmUsers(data);
+      }
+    };
+
+    fetchDmUsers();
+ }, [user, supabase]);
+
+ // FETCH PRIVATE MESSAGES & LISTEN FOR NEW ONES
+  useEffect(() => {
+    if (!user || !privateRecipient) {
+      setPrivateMessages([]);
+      return;
+    }
+
+    const fetchDMs = async () => {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select(`id, content, image_url, created_at, user_id, room_name, parent_id, recipient_id, reactions, profiles ( full_name, username )`)
+        // This magic line says: "Get messages I sent to them, OR messages they sent to me"
+        .or(`and(user_id.eq.${user.id},recipient_id.eq.${privateRecipient.id}),and(user_id.eq.${privateRecipient.id},recipient_id.eq.${user.id})`)
+        .order('created_at', { ascending: true })
+        .limit(1000);
+
+      if (error) {
+        console.error("Error fetching DMs:", error.message);
+      } else if (data) {
+        setPrivateMessages(data);
+      }
+    };
+
+    fetchDMs();
+
+    // Set up a real-time listener just for this specific conversation
+    const dmChannel = supabase.channel(`dms_${user.id}_${privateRecipient.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_messages',
+      }, async (payload: any) => {
+        const incomingMsg = payload.new;
+        
+        // Double check this message belongs in THIS private chat
+        const isForMeFromThem = incomingMsg.recipient_id === user.id && incomingMsg.user_id === privateRecipient.id;
+        const isFromMeToThem = incomingMsg.user_id === user.id && incomingMsg.recipient_id === privateRecipient.id;
+        
+        if (isForMeFromThem || isFromMeToThem) {
+          const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
+          const msgWithProfile = { ...incomingMsg, profiles: profile };
+          
+          setPrivateMessages(prev => [...prev, msgWithProfile]);
+        }
+      }).subscribe();
+
+    // Clean up the listener when you click away
+    return () => {
+      supabase.removeChannel(dmChannel);
+    };
+  }, [user, privateRecipient, supabase]);
 
   useEffect(() => {
     const initSetup = async () => {
@@ -100,11 +178,12 @@ export default function ChatPage() {
 
       const { data, error } = await supabase
         .from('chat_messages')
-        .select(`id, content, image_url, created_at, user_id, room_name, parent_id, reactions, profiles ( full_name, username )`)
+        .select(`id, content, image_url, created_at, user_id, room_name, parent_id, recipient_id, reactions, profiles ( full_name, username )`)
         .eq('room_name', activeRoom) 
+        .is('recipient_id', null) // <-- Hides whispers from the public feed!
         .gte('created_at', twoWeeksAgo.toISOString())
         .order('created_at', { ascending: true })
-        .limit(2000); 
+        .limit(2000);
 
       if (error) console.error("Chat Fetch Error:", error.message);
 
@@ -126,6 +205,9 @@ export default function ChatPage() {
         
         if (payload.eventType === 'INSERT') {
           const incomingMsg = payload.new;
+          // Ignore whispers in the public feed
+          if (incomingMsg.recipient_id !== null) return;
+
           const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
           const msgWithProfile = { ...incomingMsg, profiles: profile };
           
@@ -269,11 +351,12 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const userMsg = newMessage.trim();
     setNewMessage(''); 
   
-    const { error: userError } = await supabase.from('chat_messages').insert({
+   const { error: userError } = await supabase.from('chat_messages').insert({
       content: userMsg,
       user_id: user.id,
       room_name: activeRoom, 
-      parent_id: replyingTo ? replyingTo.id : null 
+      parent_id: replyingTo ? replyingTo.id : null,
+      recipient_id: privateRecipient ? privateRecipient.id : null
     });
 
     setReplyingTo(null); 
@@ -370,13 +453,36 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
               {ch.name}
             </button>
           ))}
+
+          {/* DIRECT MESSAGES SECTION */}
+          <div className="mt-8 mb-4">
+            <h3 className="text-orange-500/80 font-cinzel text-sm font-bold mb-3 uppercase tracking-wider px-4">
+              Direct Messages
+            </h3>
+            <ul className="space-y-1">
+              {dmUsers.map((dmUser) => (
+                <li key={dmUser.id}>
+                  <button
+                    onClick={() => setPrivateRecipient(dmUser)}
+                    className={`w-full text-left px-4 py-2 rounded-lg transition-all font-cinzel ${
+                      privateRecipient?.id === dmUser.id
+                        ? 'bg-purple-900/50 text-purple-200 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
+                        : 'text-gray-400 hover:bg-zinc-800/50 hover:text-white'
+                    }`}
+                  >
+                    <span className="truncate block">@{dmUser.username}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
           {isAdmin && (
-            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-4 ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
+            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
               Admin Chat
             </button>
           )}
         </div>
-
         <div className="flex-1 flex flex-col min-w-0 h-full">
           
           <div className="flex-none bg-black/60 border-b border-orange-500/30 p-3 shrink-0 backdrop-blur-sm z-10 relative">
@@ -578,6 +684,23 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     </div>
   )}
   
+  {/* WHISPER INDICATOR */}
+  {privateRecipient && (
+    <div className="bg-purple-900/40 border-t border-x border-purple-500/50 rounded-t-xl px-4 py-2 flex justify-between items-center mb-[-1px] relative z-10 backdrop-blur-md">
+      <span className="text-purple-300 font-cinzel text-sm">
+        Whispering to: <span className="font-bold text-white">{privateRecipient.username}</span>
+      </span>
+      <button 
+        type="button"
+        onClick={() => setPrivateRecipient(null)}
+        className="text-gray-400 hover:text-red-400 transition-colors px-2"
+        title="Cancel private message"
+      >
+        ✖
+      </button>
+    </div>
+  )}
+
 {/* CHAT INPUT FORM */}
   <form onSubmit={sendMessage} className="p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2 items-center">
     
