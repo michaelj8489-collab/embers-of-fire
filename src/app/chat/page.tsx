@@ -250,7 +250,8 @@ export default function ChatPage() {
           alt={`${activeRoom} background`}
           fill
           className="object-contain z-0 pointer-events-none transition-opacity duration-500"
-          priority={activeRoom === 'global'} // Loads the default background instantly
+          priority // Loads the default background instantly
+
         />
       )}
 
@@ -384,12 +385,12 @@ export default function ChatPage() {
 
                   {msg.image_url && (
                   <Image 
-                   src={msg.image_url} 
-                   alt="Attached image" 
-                   width={250}
-                   height={250}
-                   className="mt-3 md:max-w-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
-                   />
+                    src={msg.image_url} 
+                    alt="Attached image" 
+                    width={250}
+                    height={250}
+                    className="mt-3 md:w-[250px] md:h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
+                  />
                   )}
 
                     <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10 relative">
