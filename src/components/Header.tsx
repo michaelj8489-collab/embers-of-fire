@@ -127,10 +127,15 @@ export default function Header() {
         <nav className="hidden lg:flex items-center gap-10">
           {isMounted && isLoggedIn ? (
             <>
-              {/* NEW DESKTOP ADMIN LINK */}
-              {/* NEW DESKTOP ADMIN LINK */}
+              {/* DESKTOP ADMIN LINK */}
               {isAdmin && (
-                 <Link 
+                <Link href="/dashboard/admin" className="text-orange-500 font-cinzel font-bold text-sm uppercase tracking-[0.2em] hover:text-orange-400 transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
+                  Admin Dashboard
+                </Link>
+              )}
+
+              {/* THE GLOWING CHAT LINK */}
+              <Link 
                 href="/chat" 
                 onClick={() => setHasUnreadChat(false)}
                 className="relative text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors"
@@ -139,11 +144,6 @@ export default function Header() {
                 {hasUnreadChat && (
                   <span className="absolute -top-2 -right-4 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
                 )}
-              </Link>
-)}
-
-              <Link href="/chat" className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors">
-                Chat
               </Link>
 
               <div className="relative">
