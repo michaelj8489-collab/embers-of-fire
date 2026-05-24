@@ -49,6 +49,12 @@ export default function ChatPage() {
   const [dmUsers, setDmUsers] = useState<{id: string, username: string, full_name: string}[]>([]);
   const [privateMessages, setPrivateMessages] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [unreadDMs, setUnreadDMs] = useState<string[]>([]);
+  const [myUsername, setMyUsername] = useState<string>('');
+  const [unreadRooms, setUnreadRooms] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
@@ -155,13 +161,56 @@ const currentMessages = useMemo(() => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        // We added 'username' to the select query!
+        const { data: profile } = await supabase.from('profiles').select('role, username').eq('id', user.id).single();
         if (profile?.role === 'admin') setIsAdmin(true);
+        if (profile?.username) setMyUsername(profile.username);
       }
       setLoading(false);
     };
     initSetup();
   }, [supabase]);
+
+  // GLOBAL MENTION & DM LISTENER
+  useEffect(() => {
+    if (!myUsername || !user) return;
+
+    const globalChannel = supabase.channel('global_notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_messages'
+      }, (payload: any) => {
+        const newMsg = payload.new;
+        
+        // 1. CHECK FOR INCOMING WHISPERS
+        if (newMsg.recipient_id === user.id) {
+          // If they whispered you, and you aren't currently looking at their DM...
+          if (privateRecipient?.id !== newMsg.user_id) {
+            setUnreadDMs((prev) => {
+              if (!prev.includes(newMsg.user_id)) return [...prev, newMsg.user_id];
+              return prev;
+            });
+          }
+          return; // Stop here so it doesn't treat whispers like public room tags
+        }
+
+        // 2. CHECK FOR PUBLIC ROOM TAGS (@username and @all)
+        const text = newMsg.content?.toLowerCase() || '';
+        const isTagged = text.includes(`@${myUsername.toLowerCase()}`) || text.includes('@all');
+        
+        if (isTagged && newMsg.room_name !== activeRoom && newMsg.user_id !== user.id) {
+          setUnreadRooms((prev) => {
+            if (!prev.includes(newMsg.room_name)) return [...prev, newMsg.room_name];
+            return prev;
+          });
+        }
+      }).subscribe();
+
+    return () => {
+      supabase.removeChannel(globalChannel);
+    };
+  }, [myUsername, activeRoom, user, privateRecipient, supabase]);
 
   useEffect(() => {
     if (loading) return;
@@ -343,6 +392,78 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 };
+const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+   } catch (err) {
+      console.error("Microphone error:", err); // <-- Now we are using it!
+      alert("Sanctuary needs microphone access to send voice notes!");
+    }
+  };
+
+  const stopRecording = () => {
+    if (!mediaRecorderRef.current) return;
+    
+    // When the recorder stops, this runs to package the file
+    mediaRecorderRef.current.onstop = async () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      
+      // Stop the browser from showing the red "recording" dot on the tab
+      mediaRecorderRef.current?.stream.getTracks().forEach(track => track.stop());
+      
+      if (audioBlob.size > 5242880) {
+        alert("Voice note is too long! Keep it under 5MB.");
+        return;
+      }
+
+      setIsUploading(true);
+      try {
+        const fileName = `${user.id}-voice-${Date.now()}.webm`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('chat_uploads')
+          .upload(fileName, audioBlob);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('chat_uploads')
+          .getPublicUrl(fileName);
+
+        const { error: messageError } = await supabase.from('chat_messages').insert({
+          user_id: user.id,
+          room_name: activeRoom,
+          image_url: publicUrl, 
+          parent_id: replyingTo ? replyingTo.id : null,
+          recipient_id: privateRecipient ? privateRecipient.id : null
+        });
+
+        if (messageError) throw messageError;
+        setReplyingTo(null);
+      } catch (error: any) {
+        alert("Voice note failed: " + error.message);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    // Trigger the stop!
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
+  };
+
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -449,12 +570,29 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
           {PUBLIC_CHANNELS.map(ch => (
-            <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 ${activeRoom === ch.id ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'}`}>
-              {ch.name}
+            <button 
+              key={ch.id} 
+              onClick={() => {
+                setActiveRoom(ch.id);
+                // Clear the notification dot when you enter the room
+                setUnreadRooms(prev => prev.filter(r => r !== ch.id));
+              }} 
+              className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
+                activeRoom === ch.id 
+                  ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' 
+                  : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'
+              }`}
+            >
+              <span className="truncate">{ch.name}</span>
+              
+              {/* THE TAG NOTIFICATION DOT */}
+              {unreadRooms.includes(ch.id) && activeRoom !== ch.id && (
+                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0 ml-2"></span>
+              )}
             </button>
           ))}
 
-          {/* DIRECT MESSAGES SECTION */}
+         {/* DIRECT MESSAGES SECTION */}
           <div className="mt-8 mb-4">
             <h3 className="text-orange-500/80 font-cinzel text-sm font-bold mb-3 uppercase tracking-wider px-4">
               Direct Messages
@@ -463,14 +601,23 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
               {dmUsers.map((dmUser) => (
                 <li key={dmUser.id}>
                   <button
-                    onClick={() => setPrivateRecipient(dmUser)}
-                    className={`w-full text-left px-4 py-2 rounded-lg transition-all font-cinzel ${
+                    onClick={() => {
+                      setPrivateRecipient(dmUser);
+                      // This clears the red dot when you click their name!
+                      setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded-lg transition-all flex justify-between items-center ${
                       privateRecipient?.id === dmUser.id
                         ? 'bg-purple-900/50 text-purple-200 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
                         : 'text-gray-400 hover:bg-zinc-800/50 hover:text-white'
                     }`}
                   >
-                    <span className="truncate block">@{dmUser.username}</span>
+                    <span className="truncate block font-cinzel">{dmUser.username}</span>
+                    
+                    {/* THE RED NOTIFICATION DOT */}
+                    {unreadDMs.includes(dmUser.id) && privateRecipient?.id !== dmUser.id && (
+                      <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0"></span>
+                    )}
                   </button>
                 </li>
               ))}
@@ -537,8 +684,12 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
           )}
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden">
-            {currentMessages.map((msg) => {
+           {currentMessages.map((msg) => {
               const parentMsg = msg.parent_id ? currentMessages.find(m => m.id === msg.parent_id) : null;
+              
+              // 1. Check if you were tagged in this specific message!
+              const textToScan = msg.content?.toLowerCase() || '';
+              const isMentioned = myUsername && (textToScan.includes(`@${myUsername.toLowerCase()}`) || textToScan.includes('@all')) && msg.user_id !== user?.id;
 
               return (
                 <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
@@ -546,7 +697,14 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
                                     
-                  <div className={`max-w-[85%] p-3 rounded-md text-lg font-bold font-cinzel shadow-xl flex flex-col ${msg.user_id === user?.id ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'}`}>
+                  {/* 2. Make the bubble glow red if isMentioned is true! */}
+                  <div className={`max-w-[85%] p-3 rounded-md text-lg font-bold font-cinzel shadow-xl flex flex-col ${
+                    msg.user_id === user?.id 
+                      ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' 
+                      : isMentioned
+                        ? 'bg-red-950/90 text-white rounded-tl-none border-2 border-red-500 backdrop-blur-sm shadow-[0_0_15px_rgba(239,68,68,0.6)]'
+                        : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'
+                  }`}>
                       
                     {msg.parent_id && (
                       <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-lg text-gray-300/90">
@@ -566,14 +724,25 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     )}
 
                   {msg.image_url && (
-                  <Image 
-                    src={msg.image_url} 
-                    alt="Attached image" 
-                    width={250}
-                    height={250}
-                    className="mt-3 md:w-[250px] md:h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
-                  />
-                  )}
+                    msg.image_url.includes('.webm') || msg.image_url.includes('.mp3') || msg.image_url.includes('.wav') || msg.image_url.includes('.ogg') || msg.image_url.includes('.m4a') ? (
+                    <audio controls className="mt-3 w-[250px] max-w-full rounded-full shadow-lg border border-orange-900/30">
+                    <source src={msg.image_url} />
+                       Your browser does not support the audio element.
+                    </audio>
+                    ) : msg.image_url.includes('.mp4') ? (
+                    <video controls className="mt-3 w-[250px] rounded-lg shadow-lg border border-orange-900/30">
+                    <source src={msg.image_url} type="video/mp4" />
+                    </video>
+                     ) : (
+                    <Image 
+                      src={msg.image_url} 
+                      alt="Attached media" 
+                      width={250}
+                      height={250}
+                      className="mt-3 md:w-[250px] md:h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
+                       />
+                       )
+                      )}
 
                     <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10 relative">
                       
@@ -753,13 +922,40 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     <button type="submit" disabled={isUploading} className={`bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
       SEND
     </button>
+    <button 
+      type="button" 
+      onClick={isRecording ? stopRecording : startRecording}
+      disabled={isUploading && !isRecording}
+      className={`text-2xl transition-all px-2 shrink-0 bg-transparent border-none cursor-pointer ${
+        isRecording 
+          ? 'text-red-500 animate-pulse scale-125 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' 
+          : 'text-gray-400 hover:scale-110 hover:text-white'
+      }`}
+      title={isRecording ? "Tap to stop & send" : "Tap to record voice note"}
+    >
+      🎤
+    </button>
   </form>
 </div>
 
           <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
-              <button key={ch.id} onClick={() => setActiveRoom(ch.id)} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors ${activeRoom === ch.id ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'}`}>
+              <button 
+                key={ch.id} 
+                onClick={() => {
+                  setActiveRoom(ch.id);
+                  setUnreadRooms(prev => prev.filter(r => r !== ch.id));
+                }} 
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
+                  activeRoom === ch.id 
+                    ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' 
+                    : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'
+                }`}
+              >
                 {ch.shortName}
+                {unreadRooms.includes(ch.id) && activeRoom !== ch.id && (
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)] shrink-0"></span>
+                )}
               </button>
             ))}
             {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
