@@ -510,7 +510,7 @@ const startRecording = async () => {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-screen w-full flex flex-col bg-black overflow-hidden text-lg relative">
+    <main className="h-[100dvh] w-full flex flex-col bg-black overflow-hidden text-lg relative">
       
       {isVideo ? (
         <video 
@@ -569,16 +569,16 @@ const startRecording = async () => {
       <div className="flex-1 flex overflow-hidden w-full z-10 relative">
         
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
-          {PUBLIC_CHANNELS.map(ch => (
+       {PUBLIC_CHANNELS.map(ch => (
             <button 
               key={ch.id} 
               onClick={() => {
                 setActiveRoom(ch.id);
-                // Clear the notification dot when you enter the room
+                setPrivateRecipient(null); // <-- UNLOCKS THE VAULT TO RETURN TO PUBLIC CHAT
                 setUnreadRooms(prev => prev.filter(r => r !== ch.id));
               }} 
               className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
-                activeRoom === ch.id 
+                activeRoom === ch.id && !privateRecipient // <-- Removes highlight if you are currently whispering
                   ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' 
                   : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'
               }`}
@@ -624,8 +624,18 @@ const startRecording = async () => {
             </ul>
           </div>
           
-          {isAdmin && (
-            <button onClick={() => setActiveRoom('admin-chat')} className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white' : 'text-red-600 hover:bg-red-900/40'}`}>
+         {isAdmin && (
+            <button 
+              onClick={() => {
+                setActiveRoom('admin-chat');
+                setPrivateRecipient(null); // <-- Added here to unlock the vault!
+              }} 
+              className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${
+                activeRoom === 'admin-chat' && !privateRecipient
+                  ? 'bg-red-800 text-white' 
+                  : 'text-red-600 hover:bg-red-900/40'
+              }`}
+            >
               Admin Chat
             </button>
           )}
@@ -938,16 +948,18 @@ const startRecording = async () => {
   </form>
 </div>
 
-          <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-2 gap-2 [&::-webkit-scrollbar]:hidden">
+        {/* MOBILE NAVIGATION MENU */}
+          <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-3 pb-6 gap-2 [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x">
             {PUBLIC_CHANNELS.map(ch => (
               <button 
                 key={ch.id} 
                 onClick={() => {
                   setActiveRoom(ch.id);
+                  setPrivateRecipient(null); // <-- Return to public chat
                   setUnreadRooms(prev => prev.filter(r => r !== ch.id));
                 }} 
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
-                  activeRoom === ch.id 
+                  activeRoom === ch.id && !privateRecipient
                     ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' 
                     : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'
                 }`}
@@ -958,7 +970,48 @@ const startRecording = async () => {
                 )}
               </button>
             ))}
-            {isAdmin && <button onClick={() => setActiveRoom('admin-chat')} className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border ${activeRoom === 'admin-chat' ? 'bg-red-800 text-white border-red-500' : 'bg-red-950/50 text-red-600 border-red-900/30'}`}>ADMIN</button>}
+
+            {/* A subtle divider line between public rooms and private whispers */}
+            {dmUsers.length > 0 && (
+              <div className="w-px bg-orange-900/50 shrink-0 mx-1 self-stretch rounded-full"></div>
+            )}
+
+            {/* MOBILE DIRECT MESSAGES LIST */}
+            {dmUsers.map((dmUser) => (
+              <button
+                key={dmUser.id}
+                onClick={() => {
+                  setPrivateRecipient(dmUser);
+                  setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
+                }}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
+                  privateRecipient?.id === dmUser.id
+                    ? 'bg-purple-900/90 text-purple-200 border-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]'
+                    : 'bg-zinc-900/50 text-gray-400 border-purple-900/30 hover:bg-zinc-800'
+                }`}
+              >
+                {dmUser.username}
+                {unreadDMs.includes(dmUser.id) && privateRecipient?.id !== dmUser.id && (
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)] shrink-0"></span>
+                )}
+              </button>
+            ))}
+
+            {isAdmin && (
+              <button 
+                onClick={() => {
+                  setActiveRoom('admin-chat');
+                  setPrivateRecipient(null);
+                }} 
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border ${
+                  activeRoom === 'admin-chat' && !privateRecipient 
+                    ? 'bg-red-800 text-white border-red-500' 
+                    : 'bg-red-950/50 text-red-600 border-red-900/30'
+                }`}
+              >
+                ADMIN
+              </button>
+            )}
           </div>
         </div>
       </div>
