@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel_Decorative, Cinzel, Cormorant } from "next/font/google";
 import "./globals.css";
-import Script from 'next/script'; // Added this import
-import BottomNav from '@/components/BottomNav';
+import Script from 'next/script'; 
 
 const cinzelDec = Cinzel_Decorative({
   weight: ['400', '700', '900'],
@@ -22,9 +21,8 @@ const cormorant = Cormorant({
 
 export const metadata: Metadata = {
   title: 'Rise Radio Network | Embers of Light Hub',
-  manifest: '/manifest.json', // 🚀 Add this line right here
+  manifest: '/manifest.json', 
   description: 'The exclusive sanctuary and hub for the Rise Radio community. Join the awareness.',
-  // ... leave the rest as is
   openGraph: {
     title: 'Rise Radio Network | Embers of Light Hub',
     description: 'Join the sanctuary. Fuel the journey.',
@@ -51,7 +49,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* This line loads the Stripe engine so your buttons work */}
         <Script 
           src="https://js.stripe.com/v3/" 
           strategy="lazyOnload" 
@@ -61,7 +58,7 @@ export default function RootLayout({
       </head>
       <body className={`${cinzelDec.variable} ${cinzel.variable} ${cormorant.variable} antialiased bg-black text-white`}>
         {children}
-        <BottomNav /> {/* 🚀 The new App Navigation! */}
+        {/* Notice BottomNav is COMPLETELY gone from here! */}
       </body>
     </html>
   );
