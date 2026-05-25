@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.giphy.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images-api.printify.com', // 🚀 Printify is now whitelisted!
       }
     ],
   },
