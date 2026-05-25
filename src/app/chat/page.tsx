@@ -60,10 +60,7 @@ export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState('global');
   const [loading, setLoading] = useState(true);
   const [showRadio, setShowRadio] = useState(true);
-  
-  // NEW STATE: Controls the mobile sliding drawer
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
   const [currentSong, setCurrentSong] = useState('');
   const [inputLink, setInputLink] = useState('');
   
@@ -89,19 +86,14 @@ export default function ChatPage() {
   useEffect(() => {
     const fetchDmUsers = async () => {
       if (!user) return;
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('id, username, full_name')
         .neq('id', user.id); 
 
-      if (error) {
-        console.error("Error fetching DM users:", error.message);
-      } else if (data) {
-        setDmUsers(data);
-      }
+      if (error) console.error("Error fetching DM users:", error.message);
+      else if (data) setDmUsers(data);
     };
-
     fetchDmUsers();
   }, [user, supabase]);
 
@@ -119,11 +111,8 @@ export default function ChatPage() {
         .order('created_at', { ascending: true })
         .limit(1000);
 
-      if (error) {
-        console.error("Error fetching DMs:", error.message);
-      } else if (data) {
-        setPrivateMessages(data);
-      }
+      if (error) console.error("Error fetching DMs:", error.message);
+      else if (data) setPrivateMessages(data);
     };
 
     fetchDMs();
@@ -135,21 +124,17 @@ export default function ChatPage() {
         table: 'chat_messages',
       }, async (payload: any) => {
         const incomingMsg = payload.new;
-        
         const isForMeFromThem = incomingMsg.recipient_id === user.id && incomingMsg.user_id === privateRecipient.id;
         const isFromMeToThem = incomingMsg.user_id === user.id && incomingMsg.recipient_id === privateRecipient.id;
         
         if (isForMeFromThem || isFromMeToThem) {
           const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
           const msgWithProfile = { ...incomingMsg, profiles: profile };
-          
           setPrivateMessages(prev => [...prev, msgWithProfile]);
         }
       }).subscribe();
 
-    return () => {
-      supabase.removeChannel(dmChannel);
-    };
+    return () => { supabase.removeChannel(dmChannel); };
   }, [user, privateRecipient, supabase]);
 
   useEffect(() => {
@@ -198,9 +183,7 @@ export default function ChatPage() {
         }
       }).subscribe();
 
-    return () => {
-      supabase.removeChannel(globalChannel);
-    };
+    return () => { supabase.removeChannel(globalChannel); };
   }, [myUsername, activeRoom, user, privateRecipient, supabase]);
 
   useEffect(() => {
@@ -226,10 +209,7 @@ export default function ChatPage() {
         .limit(2000);
 
       if (error) console.error("Chat Fetch Error:", error.message);
-
-      if (data) {
-        setMessagesByRoom((prev) => ({ ...prev, [activeRoom]: data }));
-      }
+      if (data) setMessagesByRoom((prev) => ({ ...prev, [activeRoom]: data }));
     };
 
     fetchRoomMessages();
@@ -242,7 +222,6 @@ export default function ChatPage() {
         filter: `room_name=eq.${activeRoom}` 
       }, 
       async (payload: any) => {
-        
         if (payload.eventType === 'INSERT') {
           const incomingMsg = payload.new;
           if (incomingMsg.recipient_id !== null) return;
@@ -266,7 +245,6 @@ export default function ChatPage() {
             };
           });
         }
-
       }).subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -274,11 +252,8 @@ export default function ChatPage() {
 
   useEffect(() => {
     const scrollToBottom = () => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: 'smooth' });
     };
-
     scrollToBottom();
     const timer = setTimeout(scrollToBottom, 500);
     return () => clearTimeout(timer);
@@ -288,27 +263,18 @@ export default function ChatPage() {
     if (!user) return; 
     
     const updatedReactions = currentReactions ? { ...currentReactions } : {};
-    
-    if (!updatedReactions[emoji]) {
-      updatedReactions[emoji] = [];
-    }
+    if (!updatedReactions[emoji]) updatedReactions[emoji] = [];
 
     const hasReacted = updatedReactions[emoji].includes(user.id);
 
     if (hasReacted) {
       updatedReactions[emoji] = updatedReactions[emoji].filter((id: string) => id !== user.id);
-      if (updatedReactions[emoji].length === 0) {
-        delete updatedReactions[emoji];
-      }
+      if (updatedReactions[emoji].length === 0) delete updatedReactions[emoji];
     } else {
       updatedReactions[emoji].push(user.id);
     }
 
-    const { error } = await supabase
-      .from('chat_messages')
-      .update({ reactions: updatedReactions })
-      .eq('id', messageId);
-
+    const { error } = await supabase.from('chat_messages').update({ reactions: updatedReactions }).eq('id', messageId);
     if (error) console.error("Error updating reaction:", error);
   };
 
@@ -344,15 +310,10 @@ export default function ChatPage() {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('chat_uploads')
-        .upload(fileName, file);
-
+      const { error: uploadError } = await supabase.storage.from('chat_uploads').upload(fileName, file);
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('chat_uploads')
-        .getPublicUrl(fileName);
+      const { data: { publicUrl } } = supabase.storage.from('chat_uploads').getPublicUrl(fileName);
 
       const { error: messageError } = await supabase.from('chat_messages').insert({
         user_id: user.id,
@@ -362,7 +323,6 @@ export default function ChatPage() {
       });
 
       if (messageError) throw messageError;
-      
       setReplyingTo(null);
     } catch (error: any) {
       alert("Upload failed: " + error.message);
@@ -375,22 +335,16 @@ export default function ChatPage() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
       let mimeType = '';
-      if (MediaRecorder.isTypeSupported('audio/mp4')) {
-        mimeType = 'audio/mp4'; 
-      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-        mimeType = 'audio/webm'; 
-      }
+      if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4'; 
+      else if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm'; 
 
       const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
 
       mediaRecorder.start();
@@ -407,7 +361,6 @@ export default function ChatPage() {
     mediaRecorderRef.current.onstop = async () => {
       const finalMimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
       const audioBlob = new Blob(audioChunksRef.current, { type: finalMimeType });
-      
       mediaRecorderRef.current?.stream.getTracks().forEach(track => track.stop());
       
       if (audioBlob.size > 5242880) {
@@ -420,15 +373,10 @@ export default function ChatPage() {
         const fileExt = finalMimeType.includes('mp4') ? 'm4a' : 'webm';
         const fileName = `${user.id}-voice-${Date.now()}.${fileExt}`;
         
-        const { error: uploadError } = await supabase.storage
-          .from('chat_uploads')
-          .upload(fileName, audioBlob);
-
+        const { error: uploadError } = await supabase.storage.from('chat_uploads').upload(fileName, audioBlob);
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('chat_uploads')
-          .getPublicUrl(fileName);
+        const { data: { publicUrl } } = supabase.storage.from('chat_uploads').getPublicUrl(fileName);
 
         const { error: messageError } = await supabase.from('chat_messages').insert({
           user_id: user.id,
@@ -483,7 +431,6 @@ export default function ChatPage() {
         room_name: activeRoom,
         image_url: matchedBot.image_url || null
       });
-      
       if (botError) console.error("Error deploying bot:", botError);
     }
   };
@@ -491,12 +438,11 @@ export default function ChatPage() {
   if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em] text-lg">Igniting...</div>;
 
   const activeChannelName = [...PUBLIC_CHANNELS, { id: 'admin-chat', name: 'Rise Admin Chat' }].find(c => c.id === activeRoom)?.name || 'Unknown Room';
-  
   const currentBackground = ROOM_BACKGROUNDS[activeRoom] || ROOM_BACKGROUNDS['global'];
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-[100dvh] w-[100vw] max-w-full flex flex-col bg-black overflow-hidden text-lg relative">
+    <main className="h-[100dvh] w-[100vw] max-w-full flex flex-col bg-black overflow-hidden relative pb-[80px] md:pb-0">
       
       {isVideo ? (
         <video 
@@ -523,8 +469,7 @@ export default function ChatPage() {
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
       {/* RESPONSIVE TOP BAR */}
-      <div className="flex-none p-3 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center">
-        {/* LEFT: BACK BUTTON */}
+      <div className="flex-none p-2 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center">
         <div className="flex items-center">
           <Link 
             href="/" 
@@ -536,14 +481,13 @@ export default function ChatPage() {
           </Link>
         </div>
 
-        {/* RIGHT: EMBED BUTTON */}
         <div className="flex items-center">
           <button 
             onClick={() => {
               navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
               alert(`Embed link for ${activeChannelName} copied!`);
             }}
-            className="px-3 md:px-4 py-1.5 md:py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-xs md:text-sm font-cinzel tracking-widest transition-all shadow-md"
+            className="px-3 py-1.5 md:py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-xs md:text-sm font-cinzel tracking-widest transition-all shadow-md"
           >
             📋 COPY EMBED
           </button>
@@ -552,7 +496,7 @@ export default function ChatPage() {
 
       <div className="flex-1 flex overflow-hidden w-full z-10 relative max-w-full">
         
-        {/* 1. THE OVERLAY (Mobile Only) */}
+        {/* THE OVERLAY (Mobile Only) */}
         {isMobileMenuOpen && (
           <div
             className="fixed inset-0 bg-black/80 z-40 md:hidden transition-opacity backdrop-blur-sm"
@@ -560,7 +504,7 @@ export default function ChatPage() {
           />
         )}
 
-        {/* 2. THE SLIDING DRAWER / DESKTOP SIDEBAR */}
+        {/* THE SLIDING DRAWER / DESKTOP SIDEBAR */}
         <div className={`
           fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm flex flex-col border-r border-orange-900/50 bg-black/95 shadow-2xl
           transform transition-transform duration-300 ease-in-out
@@ -568,18 +512,17 @@ export default function ChatPage() {
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           
-          {/* MOBILE HEADER INSIDE DRAWER */}
-          <div className="flex md:hidden items-center justify-between p-4 border-b border-orange-900/50 bg-black">
-            <span className="font-bold text-lg font-cinzel tracking-widest text-orange-500">NAVIGATION</span>
+          <div className="flex md:hidden items-center justify-between p-3 border-b border-orange-900/50 bg-black">
+            <span className="font-bold text-sm font-cinzel tracking-widest text-orange-500">NAVIGATION</span>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="px-3 py-1.5 bg-red-900/40 text-red-400 border border-red-500/30 font-bold rounded-lg hover:bg-red-900/60 transition-colors tracking-widest text-sm"
+              className="px-3 py-1 bg-red-900/40 text-red-400 border border-red-500/30 font-bold rounded-lg hover:bg-red-900/60 transition-colors tracking-widest text-xs"
             >
               ✕ CLOSE
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:hidden">
+          <div className="flex-1 overflow-y-auto p-3 [&::-webkit-scrollbar]:hidden">
             {PUBLIC_CHANNELS.map(ch => (
               <button 
                 key={ch.id} 
@@ -587,26 +530,23 @@ export default function ChatPage() {
                   setActiveRoom(ch.id);
                   setPrivateRecipient(null);
                   setUnreadRooms(prev => prev.filter(r => r !== ch.id));
-                  setIsMobileMenuOpen(false); // AUTO-CLOSE ON MOBILE
+                  setIsMobileMenuOpen(false);
                 }} 
-                className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
+                className={`w-full text-left p-2.5 md:p-3 rounded-lg font-cinzel text-sm md:text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
                   activeRoom === ch.id && !privateRecipient 
                     ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' 
                     : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'
                 }`}
               >
                 <span className="truncate">{ch.name}</span>
-                
-                {/* THE TAG NOTIFICATION DOT */}
                 {unreadRooms.includes(ch.id) && activeRoom !== ch.id && (
                   <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0 ml-2"></span>
                 )}
               </button>
             ))}
 
-            {/* DIRECT MESSAGES SECTION */}
-            <div className="mt-8 mb-4">
-              <h3 className="text-orange-500/80 font-cinzel text-sm font-bold mb-3 uppercase tracking-wider px-4">
+            <div className="mt-6 mb-4">
+              <h3 className="text-orange-500/80 font-cinzel text-xs md:text-sm font-bold mb-2 uppercase tracking-wider px-3">
                 Direct Messages
               </h3>
               <ul className="space-y-1">
@@ -616,17 +556,15 @@ export default function ChatPage() {
                       onClick={() => {
                         setPrivateRecipient(dmUser);
                         setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
-                        setIsMobileMenuOpen(false); // AUTO-CLOSE ON MOBILE
+                        setIsMobileMenuOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-all flex justify-between items-center ${
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-all flex justify-between items-center text-sm md:text-base ${
                         privateRecipient?.id === dmUser.id
                           ? 'bg-purple-900/50 text-purple-200 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
                           : 'text-gray-400 hover:bg-zinc-800/50 hover:text-white'
                       }`}
                     >
                       <span className="truncate block font-cinzel">{dmUser.username}</span>
-                      
-                      {/* THE RED NOTIFICATION DOT */}
                       {unreadDMs.includes(dmUser.id) && privateRecipient?.id !== dmUser.id && (
                         <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0"></span>
                       )}
@@ -641,9 +579,9 @@ export default function ChatPage() {
                 onClick={() => {
                   setActiveRoom('admin-chat');
                   setPrivateRecipient(null);
-                  setIsMobileMenuOpen(false); // AUTO-CLOSE ON MOBILE
+                  setIsMobileMenuOpen(false);
                 }} 
-                className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${
+                className={`w-full text-left p-2.5 md:p-3 rounded-lg font-cinzel text-sm md:text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${
                   activeRoom === 'admin-chat' && !privateRecipient
                     ? 'bg-red-800 text-white' 
                     : 'text-red-600 hover:bg-red-900/40'
@@ -657,31 +595,30 @@ export default function ChatPage() {
 
         <div className="flex-1 flex flex-col min-w-0 h-full w-full max-w-full relative z-0">
           
-          {/* 3. THE NEW MOBILE TRIGGER BUTTON */}
-          <div className="md:hidden flex-none p-3 bg-black/80 border-b border-orange-900/30 backdrop-blur-md w-full shadow-lg">
+          {/* SCALED DOWN MOBILE TRIGGER BUTTON */}
+          <div className="md:hidden flex-none p-2 bg-black/80 border-b border-orange-900/30 backdrop-blur-md w-full shadow-lg">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="w-full flex items-center justify-center gap-3 p-3.5 bg-zinc-900/90 text-white text-base md:text-lg font-bold rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] active:scale-95 transition-all border border-orange-500/40 font-cinzel tracking-widest"
+              className="w-full flex items-center justify-center gap-2 p-2 bg-zinc-900/90 text-white text-sm md:text-lg font-bold rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] active:scale-95 transition-all border border-orange-500/40 font-cinzel tracking-widest"
             >
               ☰ ROOMS & WHISPERS
               {(unreadRooms.length > 0 || unreadDMs.length > 0) && (
-                <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
               )}
             </button>
           </div>
           
-          {/* RESPONSIVE ZENO PLAYER WITH COLLAPSE TOGGLE */}
-          <div className="flex-none bg-black/60 border-b border-orange-500/30 p-2 md:p-3 shrink-0 backdrop-blur-sm z-10 relative max-w-full">
-            <div className="flex justify-between items-center mb-1 md:mb-2 px-1">
-              <span className="text-orange-400 font-cinzel text-sm md:text-lg uppercase tracking-widest flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <div className="flex-none bg-black/60 border-b border-orange-500/30 p-2 shrink-0 backdrop-blur-sm z-10 relative max-w-full">
+            <div className="flex justify-between items-center mb-1 px-1">
+              <span className="text-orange-400 font-cinzel text-xs md:text-sm uppercase tracking-widest flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                 Live Broadcast
               </span>
               <button 
                 onClick={() => setShowRadio(!showRadio)} 
-                className="text-gray-400 hover:text-white text-xs font-cinzel border border-gray-600 rounded px-2 py-0.5 md:py-1 transition-colors"
+                className="text-gray-400 hover:text-white text-[10px] md:text-xs font-cinzel border border-gray-600 rounded px-1.5 py-0.5 transition-colors"
               >
-                {showRadio ? 'HIDE RADIO' : 'SHOW RADIO'}
+                {showRadio ? 'HIDE' : 'SHOW'}
               </button>
             </div>
             
@@ -700,52 +637,48 @@ export default function ChatPage() {
           </div>
 
           {activeRoom === 'group-songs' && (
-            <div className="flex-none bg-black/60 border-b border-orange-900/30 p-4 shrink-0 backdrop-blur-md">
+            <div className="flex-none bg-black/60 border-b border-orange-900/30 p-3 shrink-0 backdrop-blur-md">
               <div className="max-w-4xl mx-auto">
-                <div className="flex gap-2 mb-3">
+                <div className="flex gap-2 mb-2">
                   <input 
                     type="text" 
                     placeholder="Paste Smule link to play..."
                     value={inputLink}
                     onChange={(e) => setInputLink(e.target.value)}
-                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-base font-cinzel transition-colors min-w-0"
+                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-2 py-1 md:py-2 md:px-3 text-gray-200 focus:border-orange-500 outline-none text-sm md:text-base font-cinzel transition-colors min-w-0"
                   />
                   <button 
                     onClick={handleLoadSong}
-                    className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-base tracking-widest rounded-lg transition-all shadow-md shrink-0"
+                    className="px-4 py-1 md:px-5 md:py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-cinzel text-sm md:text-base tracking-widest rounded-lg transition-all shadow-md shrink-0"
                   >
                     LOAD
                   </button>
                 </div>
 
                 {currentSong && (
-                  <div className="w-full h-[160px] md:h-[180px] shrink-0 bg-black rounded-lg border border-gray-800 overflow-hidden relative shadow-lg">
-                    <iframe 
-                      src={currentSong} 
-                      className="w-full h-full absolute top-0 left-0"
-                      frameBorder="0"
-                      allow="autoplay; fullscreen"
-                    />
+                  <div className="w-full h-[140px] md:h-[180px] shrink-0 bg-black rounded-lg border border-gray-800 overflow-hidden relative shadow-lg">
+                    <iframe src={currentSong} className="w-full h-full absolute top-0 left-0" frameBorder="0" allow="autoplay; fullscreen" />
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden w-full max-w-full">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-4 space-y-3 scroll-smooth [&::-webkit-scrollbar]:hidden w-full max-w-full">
             {currentMessages.map((msg) => {
               const parentMsg = msg.parent_id ? currentMessages.find(m => m.id === msg.parent_id) : null;
-              
               const textToScan = msg.content?.toLowerCase() || '';
               const isMentioned = myUsername && (textToScan.includes(`@${myUsername.toLowerCase()}`) || textToScan.includes('@all')) && msg.user_id !== user?.id;
 
               return (
                 <div key={msg.id} className={`flex flex-col max-w-full ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                  <span className="text-sm md:text-lg font-bold font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
+                  {/* SCALED SENDER NAME */}
+                  <span className="text-xs md:text-sm font-bold font-cinzel text-orange-500 mb-0.5 md:mb-1 tracking-widest uppercase drop-shadow-md">
                     {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
                                     
-                  <div className={`max-w-[90%] md:max-w-[85%] p-2 md:p-3 rounded-md text-base md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${
+                  {/* SCALED MESSAGE BUBBLE */}
+                  <div className={`max-w-[85%] md:max-w-[70%] p-2 md:p-3 rounded-md text-sm md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${
                     msg.user_id === user?.id 
                       ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' 
                       : isMentioned
@@ -754,45 +687,37 @@ export default function ChatPage() {
                   }`}>
                       
                     {msg.parent_id && (
-                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-sm md:text-lg text-gray-300/90 max-w-full overflow-hidden">
-                        <span className="font-cinzel text-orange-300/80 text-sm md:text-lg uppercase tracking-widest block mb-1">
+                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-1.5 md:p-2 mb-1.5 md:mb-2 text-xs md:text-sm text-gray-300/90 max-w-full overflow-hidden">
+                        <span className="font-cinzel text-orange-300/80 text-[10px] md:text-xs uppercase tracking-widest block mb-0.5 md:mb-1">
                           Replying to {parentMsg?.profiles?.username || parentMsg?.profiles?.full_name || 'a seeker'}
                         </span>
-                        <span className="line-clamp-2 italic text-gray-400">
+                        <span className="line-clamp-2 italic text-gray-400 text-xs md:text-sm">
                           {parentMsg ? (parentMsg.content || '[Attached Image]') : 'Message scroll has faded...'}
                         </span>
                       </div>
                     )}
 
                     {msg.content && (
-                      <div className="whitespace-pre-wrap break-words [word-break:break-word] max-w-full overflow-hidden">
+                      <div className="whitespace-pre-wrap break-words [word-break:break-word] max-w-full overflow-hidden leading-snug md:leading-normal">
                         <Linkify text={msg.content} />
                       </div>
                     )}
 
                   {msg.image_url && (
                     msg.image_url.includes('.webm') || msg.image_url.includes('.mp3') || msg.image_url.includes('.wav') || msg.image_url.includes('.ogg') || msg.image_url.includes('.m4a') ? (
-                    <audio controls className="mt-3 w-[200px] md:w-[250px] max-w-full rounded-full shadow-lg border border-orange-900/30">
+                    <audio controls className="mt-2 md:mt-3 w-[180px] md:w-[250px] max-w-full rounded-full shadow-lg border border-orange-900/30">
                     <source src={msg.image_url} />
-                        Your browser does not support the audio element.
                     </audio>
                     ) : msg.image_url.includes('.mp4') ? (
-                    <video controls className="mt-3 w-[200px] md:w-[250px] max-w-full rounded-lg shadow-lg border border-orange-900/30">
+                    <video controls className="mt-2 md:mt-3 w-[180px] md:w-[250px] max-w-full rounded-lg shadow-lg border border-orange-900/30">
                     <source src={msg.image_url} type="video/mp4" />
                     </video>
                      ) : (
-                    <Image 
-                      src={msg.image_url} 
-                      alt="Attached media" 
-                      width={250}
-                      height={250}
-                      className="mt-3 w-auto max-w-[200px] md:max-w-[250px] max-h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
-                       />
+                    <Image src={msg.image_url} alt="Attached media" width={250} height={250} className="mt-2 md:mt-3 w-auto max-w-[180px] md:max-w-[250px] max-h-[200px] md:max-h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" />
                        )
                       )}
 
-                    <div className="flex items-center flex-wrap gap-2 mt-3 pt-2 border-t border-white/10 relative">
-                      
+                    <div className="flex items-center flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3 pt-1.5 md:pt-2 border-t border-white/10 relative">
                       {msg.reactions && Object.entries(msg.reactions).map(([emoji, users]: [string, any]) => {
                         if (!users || users.length === 0) return null;
                         const hasReacted = user && users.includes(user.id);
@@ -800,7 +725,7 @@ export default function ChatPage() {
                           <button 
                             key={emoji}
                             onClick={() => toggleReaction(msg.id, msg.reactions, emoji)}
-                            className={`text-sm md:text-lg px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
+                            className={`text-[10px] md:text-sm px-1.5 md:px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
                           >
                             {emoji} {users.length}
                           </button>
@@ -810,13 +735,13 @@ export default function ChatPage() {
                       <div className="relative">
                         <button 
                           onClick={() => setActivePickerId(activePickerId === msg.id ? null : msg.id)}
-                          className={`text-sm md:text-lg px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
+                          className={`text-[10px] md:text-sm px-1.5 md:px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
                         >
                           +😀
                         </button>
                         
                         {activePickerId === msg.id && (
-                          <div className="flex absolute bottom-full left-0 mb-2 bg-zinc-900 border border-orange-900/70 rounded-xl p-2 gap-2 shadow-2xl z-50">
+                          <div className="flex absolute bottom-full left-0 mb-1 md:mb-2 bg-zinc-900 border border-orange-900/70 rounded-xl p-1.5 md:p-2 gap-1.5 md:gap-2 shadow-2xl z-50">
                             {EMOJI_OPTIONS.map(em => (
                               <button 
                                 key={em} 
@@ -824,7 +749,7 @@ export default function ChatPage() {
                                   toggleReaction(msg.id, msg.reactions, em);
                                   setActivePickerId(null); 
                                 }}
-                                className="text-base md:text-lg hover:scale-125 transition-transform"
+                                className="text-sm md:text-lg hover:scale-125 transition-transform"
                               >
                                 {em}
                               </button>
@@ -835,7 +760,7 @@ export default function ChatPage() {
 
                       <button 
                         onClick={() => setReplyingTo(msg)} 
-                        className="text-xs md:text-sm text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
+                        className="text-[10px] md:text-xs text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-1.5 md:px-2 py-0.5 md:py-1 transition-all"
                       >
                         ↩ REPLY
                       </button>
@@ -849,137 +774,70 @@ export default function ChatPage() {
           </div>
 
           {replyingTo && (
-            <div className="flex-none bg-orange-900/40 border-t border-orange-500/50 p-2 flex justify-between items-center px-2 md:px-4 backdrop-blur-md">
-              <span className="text-sm md:text-lg font-cinzel text-orange-200 truncate">
-                Replying to: <span className="text-white">"{replyingTo.content?.substring(0, 40)}..."</span>
+            <div className="flex-none bg-orange-900/40 border-t border-orange-500/50 p-1.5 md:p-2 flex justify-between items-center px-2 md:px-4 backdrop-blur-md">
+              <span className="text-xs md:text-sm font-cinzel text-orange-200 truncate">
+                Replying to: <span className="text-white">"{replyingTo.content?.substring(0, 30)}..."</span>
               </span>
-              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-xs md:text-sm font-bold px-2 tracking-widest">
+              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-[10px] md:text-xs font-bold px-2 tracking-widest">
                 ✕ CANCEL
               </button>
             </div>
           )}
 
           <div className="flex-none relative w-full max-w-full">
-            {/* EMOJI PICKER */}
             {showEmojiPicker && (
-              <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl scale-90 origin-bottom-left md:scale-100">
-                <EmojiPicker 
-                  theme={Theme.DARK} 
-                  onEmojiClick={(emojiObject) => {
-                    setNewMessage(prev => prev + emojiObject.emoji);
-                    setShowEmojiPicker(false);
-                  }} 
-                />
+              <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl scale-90 md:scale-100 origin-bottom-left">
+                <EmojiPicker theme={Theme.DARK} onEmojiClick={(emojiObject) => { setNewMessage(prev => prev + emojiObject.emoji); setShowEmojiPicker(false); }} />
               </div>
             )}
 
-            {/* GIF PICKER */}
             {showGifPicker && (
-              <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl bg-zinc-900 border border-orange-900/70 rounded-xl p-3 w-[280px] md:w-[320px] flex flex-col gap-3 max-h-[350px] md:max-h-[400px]">
+              <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl bg-zinc-900 border border-orange-900/70 rounded-xl p-2 md:p-3 w-[260px] md:w-[320px] flex flex-col gap-2 md:gap-3 max-h-[300px] md:max-h-[400px]">
                 <input
                   type="text"
                   placeholder="Search GIPHY..."
                   value={gifSearch}
                   onChange={(e) => setGifSearch(e.target.value)}
-                  className="w-full bg-black/50 border border-gray-700 rounded-lg p-2 text-white outline-none focus:border-orange-500 font-cinzel text-xs md:text-sm min-w-0"
+                  className="w-full bg-black/50 border border-gray-700 rounded-lg p-1.5 md:p-2 text-white outline-none focus:border-orange-500 font-cinzel text-xs md:text-sm min-w-0"
                 />
                 <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden">
-                  <Grid
-                    width={250}
-                    columns={2}
-                    fetchGifs={fetchGifs}
-                    key={gifSearch} 
-                    onGifClick={(gif, e) => {
-                      e.preventDefault();
-                      sendGifMessage(gif.images.original.url);
-                      setShowGifPicker(false);
-                      setGifSearch(''); 
-                    }}
-                  />
+                  <Grid width={230} columns={2} fetchGifs={fetchGifs} key={gifSearch} onGifClick={(gif, e) => { e.preventDefault(); sendGifMessage(gif.images.original.url); setShowGifPicker(false); setGifSearch(''); }} />
                 </div>
               </div>
             )}
             
-            {/* WHISPER INDICATOR */}
             {privateRecipient && (
-              <div className="bg-purple-900/40 border-t border-x border-purple-500/50 rounded-t-xl px-3 md:px-4 py-1.5 md:py-2 flex justify-between items-center mb-[-1px] relative z-10 backdrop-blur-md">
-                <span className="text-purple-300 font-cinzel text-xs md:text-sm">
+              <div className="bg-purple-900/40 border-t border-x border-purple-500/50 rounded-t-xl px-3 md:px-4 py-1 flex justify-between items-center mb-[-1px] relative z-10 backdrop-blur-md">
+                <span className="text-purple-300 font-cinzel text-[10px] md:text-xs">
                   Whispering to: <span className="font-bold text-white">{privateRecipient.username}</span>
                 </span>
-                <button 
-                  type="button"
-                  onClick={() => setPrivateRecipient(null)}
-                  className="text-gray-400 hover:text-red-400 transition-colors px-2"
-                  title="Cancel private message"
-                >
-                  ✖
-                </button>
+                <button type="button" onClick={() => setPrivateRecipient(null)} className="text-gray-400 hover:text-red-400 transition-colors px-2">✖</button>
               </div>
             )}
 
-            {/* CHAT INPUT FORM */}
-            <form onSubmit={sendMessage} className="p-2 md:p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-1 md:gap-2 items-center w-full max-w-full overflow-hidden z-10">
-              
-              <input 
-                type="file" 
-                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,audio/webm,audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac"
-                className="hidden" 
-                ref={fileInputRef} 
-                onChange={handleFileUpload} 
-              />
+            {/* SCALED INPUT FORM */}
+            <form onSubmit={sendMessage} className="p-2 md:p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-1.5 md:gap-2 items-center w-full max-w-full overflow-hidden z-10">
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,audio/webm,audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
 
-              <button 
-                type="button" 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className={`text-lg md:text-xl transition-transform px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed animate-pulse' : 'hover:scale-110 text-gray-400 hover:text-white'}`}
-                title="Attach a file"
-              >
+              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className={`text-base md:text-xl transition-transform px-1 shrink-0 bg-transparent border-none cursor-pointer ${isUploading ? 'opacity-50 animate-pulse' : 'text-gray-400 hover:text-white'}`}>
                 📎
               </button>
 
-              <button 
-                type="button" 
-                onClick={() => {
-                  setShowGifPicker(!showGifPicker);
-                  setShowEmojiPicker(false); 
-                }}
-                className="text-sm md:text-lg font-bold font-cinzel text-gray-400 hover:text-white transition-colors px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer"
-                title="Add a GIF"
-              >
+              <button type="button" onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }} className="text-xs md:text-sm font-bold font-cinzel text-gray-400 px-1 shrink-0 bg-transparent hover:text-white">
                 GIF
               </button>
 
-              <button 
-                type="button" 
-                onClick={() => {
-                  setShowEmojiPicker(!showEmojiPicker);
-                  setShowGifPicker(false); 
-                }}
-                className="text-xl md:text-2xl hover:scale-110 transition-transform px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer"
-                title="Add an emoji"
-              >
+              <button type="button" onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }} className="text-lg md:text-2xl px-1 shrink-0 bg-transparent hover:scale-110">
                 😀
               </button>
 
-              {/* MAGIC MIN-W-0 FIX */}
               <input type="text" disabled={!user || isUploading} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isUploading ? "Uploading..." : "Speak your truth..."} className="flex-1 min-w-0 bg-zinc-950/80 border border-orange-900/50 rounded-full px-3 md:px-4 py-1.5 md:py-2 text-white text-sm md:text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
               
-              <button type="submit" disabled={isUploading} className={`bg-orange-600 hover:bg-orange-500 text-white px-3 md:px-5 py-1.5 md:py-2 rounded-full font-cinzel text-sm md:text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <button type="submit" disabled={isUploading} className={`bg-orange-600 hover:bg-orange-500 text-white px-3 md:px-5 py-1.5 md:py-2 rounded-full font-cinzel text-xs md:text-sm tracking-widest shadow-md shrink-0 ${isUploading ? 'opacity-50' : ''}`}>
                 SEND
               </button>
               
-              <button 
-                type="button" 
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isUploading && !isRecording}
-                className={`text-xl md:text-2xl transition-all px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer ${
-                  isRecording 
-                    ? 'text-red-500 animate-pulse scale-125 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' 
-                    : 'text-gray-400 hover:scale-110 hover:text-white'
-                }`}
-                title={isRecording ? "Tap to stop & send" : "Tap to record voice note"}
-              >
+              <button type="button" onClick={isRecording ? stopRecording : startRecording} disabled={isUploading && !isRecording} className={`text-lg md:text-xl px-1 shrink-0 bg-transparent ${isRecording ? 'text-red-500 animate-pulse scale-125' : 'text-gray-400 hover:text-white hover:scale-110'}`}>
                 🎤
               </button>
             </form>
@@ -990,23 +848,15 @@ export default function ChatPage() {
   );
 }
 
-// THE NEW LINKIFIER
 const Linkify = ({ text }: { text: string }) => {
   if (!text) return null;
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = text.split(urlRegex);
-  
   return (
     <span>
-      {parts.map((part, i) => 
-        urlRegex.test(part) ? (
-          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold break-all transition-colors">
-            {part}
-          </a>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      )}
+      {parts.map((part, i) => urlRegex.test(part) ? (
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold break-all transition-colors">{part}</a>
+      ) : (<span key={i}>{part}</span>))}
     </span>
   );
 };
