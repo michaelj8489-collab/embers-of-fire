@@ -59,7 +59,10 @@ export default function ChatPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
   const [loading, setLoading] = useState(true);
-  const [showRadio, setShowRadio] = useState(true); // <-- Mobile Radio Toggle Fix
+  const [showRadio, setShowRadio] = useState(true);
+  
+  // NEW STATE: Controls the mobile sliding drawer
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [currentSong, setCurrentSong] = useState('');
   const [inputLink, setInputLink] = useState('');
@@ -67,10 +70,7 @@ export default function ChatPage() {
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentMessages = useMemo(() => {
-    // If we have a target lock, show the secret vault!
     if (privateRecipient) return privateMessages;
-    
-    // Otherwise, show the normal public room.
     return messagesByRoom[activeRoom] || [];
   }, [messagesByRoom, activeRoom, privateRecipient, privateMessages]);
   const [bots, setBots] = useState<any[]>([]);
@@ -93,7 +93,7 @@ export default function ChatPage() {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, username, full_name')
-        .neq('id', user.id); // This makes sure you don't show up in your own DM list!
+        .neq('id', user.id); 
 
       if (error) {
         console.error("Error fetching DM users:", error.message);
@@ -105,7 +105,6 @@ export default function ChatPage() {
     fetchDmUsers();
   }, [user, supabase]);
 
-  // FETCH PRIVATE MESSAGES & LISTEN FOR NEW ONES
   useEffect(() => {
     if (!user || !privateRecipient) {
       setPrivateMessages([]);
@@ -116,7 +115,6 @@ export default function ChatPage() {
       const { data, error } = await supabase
         .from('chat_messages')
         .select(`id, content, image_url, created_at, user_id, room_name, parent_id, recipient_id, reactions, profiles ( full_name, username )`)
-        // This magic line says: "Get messages I sent to them, OR messages they sent to me"
         .or(`and(user_id.eq.${user.id},recipient_id.eq.${privateRecipient.id}),and(user_id.eq.${privateRecipient.id},recipient_id.eq.${user.id})`)
         .order('created_at', { ascending: true })
         .limit(1000);
@@ -130,7 +128,6 @@ export default function ChatPage() {
 
     fetchDMs();
 
-    // Set up a real-time listener just for this specific conversation
     const dmChannel = supabase.channel(`dms_${user.id}_${privateRecipient.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
@@ -139,7 +136,6 @@ export default function ChatPage() {
       }, async (payload: any) => {
         const incomingMsg = payload.new;
         
-        // Double check this message belongs in THIS private chat
         const isForMeFromThem = incomingMsg.recipient_id === user.id && incomingMsg.user_id === privateRecipient.id;
         const isFromMeToThem = incomingMsg.user_id === user.id && incomingMsg.recipient_id === privateRecipient.id;
         
@@ -151,7 +147,6 @@ export default function ChatPage() {
         }
       }).subscribe();
 
-    // Clean up the listener when you click away
     return () => {
       supabase.removeChannel(dmChannel);
     };
@@ -162,7 +157,6 @@ export default function ChatPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        // We added 'username' to the select query!
         const { data: profile } = await supabase.from('profiles').select('role, username').eq('id', user.id).single();
         if (profile?.role === 'admin') setIsAdmin(true);
         if (profile?.username) setMyUsername(profile.username);
@@ -172,7 +166,6 @@ export default function ChatPage() {
     initSetup();
   }, [supabase]);
 
-  // GLOBAL MENTION & DM LISTENER
   useEffect(() => {
     if (!myUsername || !user) return;
 
@@ -184,19 +177,16 @@ export default function ChatPage() {
       }, (payload: any) => {
         const newMsg = payload.new;
         
-        // 1. CHECK FOR INCOMING WHISPERS
         if (newMsg.recipient_id === user.id) {
-          // If they whispered you, and you aren't currently looking at their DM...
           if (privateRecipient?.id !== newMsg.user_id) {
             setUnreadDMs((prev) => {
               if (!prev.includes(newMsg.user_id)) return [...prev, newMsg.user_id];
               return prev;
             });
           }
-          return; // Stop here so it doesn't treat whispers like public room tags
+          return;
         }
 
-        // 2. CHECK FOR PUBLIC ROOM TAGS (@username and @all)
         const text = newMsg.content?.toLowerCase() || '';
         const isTagged = text.includes(`@${myUsername.toLowerCase()}`) || text.includes('@all');
         
@@ -230,7 +220,7 @@ export default function ChatPage() {
         .from('chat_messages')
         .select(`id, content, image_url, created_at, user_id, room_name, parent_id, recipient_id, reactions, profiles ( full_name, username )`)
         .eq('room_name', activeRoom) 
-        .is('recipient_id', null) // <-- Hides whispers from the public feed!
+        .is('recipient_id', null)
         .gte('created_at', twoWeeksAgo.toISOString())
         .order('created_at', { ascending: true })
         .limit(2000);
@@ -255,7 +245,6 @@ export default function ChatPage() {
         
         if (payload.eventType === 'INSERT') {
           const incomingMsg = payload.new;
-          // Ignore whispers in the public feed
           if (incomingMsg.recipient_id !== null) return;
 
           const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', incomingMsg.user_id).single();
@@ -290,13 +279,8 @@ export default function ChatPage() {
       }
     };
 
-    // 1. Scroll immediately when messages change
     scrollToBottom();
-
-    // 2. Scroll again after a 500ms delay 
-    // This catches the scroll position AFTER images/players have finished loading
     const timer = setTimeout(scrollToBottom, 500);
-    
     return () => clearTimeout(timer);
   }, [currentMessages, activeRoom]);
 
@@ -329,81 +313,74 @@ export default function ChatPage() {
   };
 
   const fetchGifs = (offset: number) => {
-  return gifSearch ? gf.search(gifSearch, { offset, limit: 10 }) : gf.trending({ offset, limit: 10 });
-};
+    return gifSearch ? gf.search(gifSearch, { offset, limit: 10 }) : gf.trending({ offset, limit: 10 });
+  };
 
-const sendGifMessage = async (gifUrl: string) => {
-  if (!user) return;
-  const { error } = await supabase.from('chat_messages').insert({
-    user_id: user.id,
-    room_name: activeRoom,
-    image_url: gifUrl,
-    parent_id: replyingTo ? replyingTo.id : null
-  });
-  setReplyingTo(null);
-  if (error) alert("Failed to send GIF: " + error.message);
-};
-
-const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file || !user) return;
-
-  // The Bouncer: Check file size (5MB = 5 * 1024 * 1024 bytes)
-  if (file.size > 5242880) {
-    alert("File is too large! Please keep it under 5MB.");
-    // Clear the input
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    return;
-  }
-
-  setIsUploading(true); 
-
-  try {
-    // 1. Create a unique file name so images don't overwrite each other
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-
-    // 2. Upload the file to our new bucket
-    const { error: uploadError } = await supabase.storage
-      .from('chat_uploads')
-      .upload(fileName, file);
-
-    if (uploadError) throw uploadError;
-
-    // 3. Get the public URL for the image
-    const { data: { publicUrl } } = supabase.storage
-      .from('chat_uploads')
-      .getPublicUrl(fileName);
-
-    // 4. Save it as a chat message (exactly like a GIF)
-    const { error: messageError } = await supabase.from('chat_messages').insert({
+  const sendGifMessage = async (gifUrl: string) => {
+    if (!user) return;
+    const { error } = await supabase.from('chat_messages').insert({
       user_id: user.id,
       room_name: activeRoom,
-      image_url: publicUrl,
+      image_url: gifUrl,
       parent_id: replyingTo ? replyingTo.id : null
     });
-
-    if (messageError) throw messageError;
-    
     setReplyingTo(null);
-  } catch (error: any) {
-    alert("Upload failed: " + error.message);
-  } finally {
-    setIsUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  }
-};
+    if (error) alert("Failed to send GIF: " + error.message);
+  };
 
-const startRecording = async () => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 5242880) {
+      alert("File is too large! Please keep it under 5MB.");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setIsUploading(true); 
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat_uploads')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat_uploads')
+        .getPublicUrl(fileName);
+
+      const { error: messageError } = await supabase.from('chat_messages').insert({
+        user_id: user.id,
+        room_name: activeRoom,
+        image_url: publicUrl,
+        parent_id: replyingTo ? replyingTo.id : null
+      });
+
+      if (messageError) throw messageError;
+      
+      setReplyingTo(null);
+    } catch (error: any) {
+      alert("Upload failed: " + error.message);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // SMART FORMAT DETECTOR: Ask the phone what format it likes best! (iPhone Fix)
       let mimeType = '';
       if (MediaRecorder.isTypeSupported('audio/mp4')) {
-        mimeType = 'audio/mp4'; // iPhone's favorite
+        mimeType = 'audio/mp4'; 
       } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-        mimeType = 'audio/webm'; // Android/Chrome's favorite
+        mimeType = 'audio/webm'; 
       }
 
       const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
@@ -428,7 +405,6 @@ const startRecording = async () => {
     if (!mediaRecorderRef.current) return;
     
     mediaRecorderRef.current.onstop = async () => {
-      // Grab the exact format the phone decided to record in
       const finalMimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
       const audioBlob = new Blob(audioChunksRef.current, { type: finalMimeType });
       
@@ -441,7 +417,6 @@ const startRecording = async () => {
 
       setIsUploading(true);
       try {
-        // Set the file extension based on what the phone recorded
         const fileExt = finalMimeType.includes('mp4') ? 'm4a' : 'webm';
         const fileName = `${user.id}-voice-${Date.now()}.${fileExt}`;
         
@@ -577,79 +552,123 @@ const startRecording = async () => {
 
       <div className="flex-1 flex overflow-hidden w-full z-10 relative max-w-full">
         
-        <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
-          {PUBLIC_CHANNELS.map(ch => (
-            <button 
-              key={ch.id} 
-              onClick={() => {
-                setActiveRoom(ch.id);
-                setPrivateRecipient(null); // <-- UNLOCKS THE VAULT TO RETURN TO PUBLIC CHAT
-                setUnreadRooms(prev => prev.filter(r => r !== ch.id));
-              }} 
-              className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
-                activeRoom === ch.id && !privateRecipient 
-                  ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' 
-                  : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'
-              }`}
-            >
-              <span className="truncate">{ch.name}</span>
-              
-              {/* THE TAG NOTIFICATION DOT */}
-              {unreadRooms.includes(ch.id) && activeRoom !== ch.id && (
-                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0 ml-2"></span>
-              )}
-            </button>
-          ))}
+        {/* 1. THE OVERLAY (Mobile Only) */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/80 z-40 md:hidden transition-opacity backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
 
-          {/* DIRECT MESSAGES SECTION */}
-          <div className="mt-8 mb-4">
-            <h3 className="text-orange-500/80 font-cinzel text-sm font-bold mb-3 uppercase tracking-wider px-4">
-              Direct Messages
-            </h3>
-            <ul className="space-y-1">
-              {dmUsers.map((dmUser) => (
-                <li key={dmUser.id}>
-                  <button
-                    onClick={() => {
-                      setPrivateRecipient(dmUser);
-                      setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
-                    }}
-                    className={`w-full text-left px-4 py-2 rounded-lg transition-all flex justify-between items-center ${
-                      privateRecipient?.id === dmUser.id
-                        ? 'bg-purple-900/50 text-purple-200 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
-                        : 'text-gray-400 hover:bg-zinc-800/50 hover:text-white'
-                    }`}
-                  >
-                    <span className="truncate block font-cinzel">{dmUser.username}</span>
-                    
-                    {/* THE RED NOTIFICATION DOT */}
-                    {unreadDMs.includes(dmUser.id) && privateRecipient?.id !== dmUser.id && (
-                      <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0"></span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* 2. THE SLIDING DRAWER / DESKTOP SIDEBAR */}
+        <div className={`
+          fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm flex flex-col border-r border-orange-900/50 bg-black/95 shadow-2xl
+          transform transition-transform duration-300 ease-in-out
+          md:relative md:translate-x-0 md:w-64 md:bg-black/40 md:backdrop-blur-sm md:flex md:z-10
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           
-          {isAdmin && (
-            <button 
-              onClick={() => {
-                setActiveRoom('admin-chat');
-                setPrivateRecipient(null); // <-- Unlocks the vault!
-              }} 
-              className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${
-                activeRoom === 'admin-chat' && !privateRecipient
-                  ? 'bg-red-800 text-white' 
-                  : 'text-red-600 hover:bg-red-900/40'
-              }`}
+          {/* MOBILE HEADER INSIDE DRAWER */}
+          <div className="flex md:hidden items-center justify-between p-4 border-b border-orange-900/50 bg-black">
+            <span className="font-bold text-lg font-cinzel tracking-widest text-orange-500">NAVIGATION</span>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-3 py-1.5 bg-red-900/40 text-red-400 border border-red-500/30 font-bold rounded-lg hover:bg-red-900/60 transition-colors tracking-widest text-sm"
             >
-              Admin Chat
+              ✕ CLOSE
             </button>
-          )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:hidden">
+            {PUBLIC_CHANNELS.map(ch => (
+              <button 
+                key={ch.id} 
+                onClick={() => {
+                  setActiveRoom(ch.id);
+                  setPrivateRecipient(null);
+                  setUnreadRooms(prev => prev.filter(r => r !== ch.id));
+                  setIsMobileMenuOpen(false); // AUTO-CLOSE ON MOBILE
+                }} 
+                className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
+                  activeRoom === ch.id && !privateRecipient 
+                    ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' 
+                    : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'
+                }`}
+              >
+                <span className="truncate">{ch.name}</span>
+                
+                {/* THE TAG NOTIFICATION DOT */}
+                {unreadRooms.includes(ch.id) && activeRoom !== ch.id && (
+                  <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0 ml-2"></span>
+                )}
+              </button>
+            ))}
+
+            {/* DIRECT MESSAGES SECTION */}
+            <div className="mt-8 mb-4">
+              <h3 className="text-orange-500/80 font-cinzel text-sm font-bold mb-3 uppercase tracking-wider px-4">
+                Direct Messages
+              </h3>
+              <ul className="space-y-1">
+                {dmUsers.map((dmUser) => (
+                  <li key={dmUser.id}>
+                    <button
+                      onClick={() => {
+                        setPrivateRecipient(dmUser);
+                        setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
+                        setIsMobileMenuOpen(false); // AUTO-CLOSE ON MOBILE
+                      }}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-all flex justify-between items-center ${
+                        privateRecipient?.id === dmUser.id
+                          ? 'bg-purple-900/50 text-purple-200 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
+                          : 'text-gray-400 hover:bg-zinc-800/50 hover:text-white'
+                      }`}
+                    >
+                      <span className="truncate block font-cinzel">{dmUser.username}</span>
+                      
+                      {/* THE RED NOTIFICATION DOT */}
+                      {unreadDMs.includes(dmUser.id) && privateRecipient?.id !== dmUser.id && (
+                        <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)] shrink-0"></span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {isAdmin && (
+              <button 
+                onClick={() => {
+                  setActiveRoom('admin-chat');
+                  setPrivateRecipient(null);
+                  setIsMobileMenuOpen(false); // AUTO-CLOSE ON MOBILE
+                }} 
+                className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${
+                  activeRoom === 'admin-chat' && !privateRecipient
+                    ? 'bg-red-800 text-white' 
+                    : 'text-red-600 hover:bg-red-900/40'
+                }`}
+              >
+                Admin Chat
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0 h-full w-full max-w-full">
+        <div className="flex-1 flex flex-col min-w-0 h-full w-full max-w-full relative z-0">
+          
+          {/* 3. THE NEW MOBILE TRIGGER BUTTON */}
+          <div className="md:hidden flex-none p-3 bg-black/80 border-b border-orange-900/30 backdrop-blur-md w-full shadow-lg">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="w-full flex items-center justify-center gap-3 p-3.5 bg-zinc-900/90 text-white text-base md:text-lg font-bold rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] active:scale-95 transition-all border border-orange-500/40 font-cinzel tracking-widest"
+            >
+              ☰ ROOMS & WHISPERS
+              {(unreadRooms.length > 0 || unreadDMs.length > 0) && (
+                <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+              )}
+            </button>
+          </div>
           
           {/* RESPONSIVE ZENO PLAYER WITH COLLAPSE TOGGLE */}
           <div className="flex-none bg-black/60 border-b border-orange-500/30 p-2 md:p-3 shrink-0 backdrop-blur-sm z-10 relative max-w-full">
@@ -717,7 +736,6 @@ const startRecording = async () => {
             {currentMessages.map((msg) => {
               const parentMsg = msg.parent_id ? currentMessages.find(m => m.id === msg.parent_id) : null;
               
-              // 1. Check if you were tagged in this specific message!
               const textToScan = msg.content?.toLowerCase() || '';
               const isMentioned = myUsername && (textToScan.includes(`@${myUsername.toLowerCase()}`) || textToScan.includes('@all')) && msg.user_id !== user?.id;
 
@@ -727,7 +745,6 @@ const startRecording = async () => {
                     {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
                                     
-                  {/* 2. Make the bubble glow red if isMentioned is true! */}
                   <div className={`max-w-[90%] md:max-w-[85%] p-2 md:p-3 rounded-md text-base md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${
                     msg.user_id === user?.id 
                       ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' 
@@ -757,7 +774,7 @@ const startRecording = async () => {
                     msg.image_url.includes('.webm') || msg.image_url.includes('.mp3') || msg.image_url.includes('.wav') || msg.image_url.includes('.ogg') || msg.image_url.includes('.m4a') ? (
                     <audio controls className="mt-3 w-[200px] md:w-[250px] max-w-full rounded-full shadow-lg border border-orange-900/30">
                     <source src={msg.image_url} />
-                       Your browser does not support the audio element.
+                        Your browser does not support the audio element.
                     </audio>
                     ) : msg.image_url.includes('.mp4') ? (
                     <video controls className="mt-3 w-[200px] md:w-[250px] max-w-full rounded-lg shadow-lg border border-orange-900/30">
@@ -901,7 +918,7 @@ const startRecording = async () => {
             )}
 
             {/* CHAT INPUT FORM */}
-            <form onSubmit={sendMessage} className="p-2 md:p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-1 md:gap-2 items-center w-full max-w-full overflow-hidden">
+            <form onSubmit={sendMessage} className="p-2 md:p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-1 md:gap-2 items-center w-full max-w-full overflow-hidden z-10">
               
               <input 
                 type="file" 
@@ -966,72 +983,6 @@ const startRecording = async () => {
                 🎤
               </button>
             </form>
-          </div>
-
-          {/* MOBILE NAVIGATION MENU */}
-          <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-3 pb-6 gap-2 [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x w-full max-w-full">
-            {PUBLIC_CHANNELS.map(ch => (
-              <button 
-                key={ch.id} 
-                onClick={() => {
-                  setActiveRoom(ch.id);
-                  setPrivateRecipient(null); // <-- Return to public chat
-                  setUnreadRooms(prev => prev.filter(r => r !== ch.id));
-                }} 
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-sm md:text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
-                  activeRoom === ch.id && !privateRecipient
-                    ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' 
-                    : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'
-                }`}
-              >
-                {ch.shortName}
-                {unreadRooms.includes(ch.id) && activeRoom !== ch.id && (
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)] shrink-0"></span>
-                )}
-              </button>
-            ))}
-
-            {/* A subtle divider line between public rooms and private whispers */}
-            {dmUsers.length > 0 && (
-              <div className="w-px bg-orange-900/50 shrink-0 mx-1 self-stretch rounded-full"></div>
-            )}
-
-            {/* MOBILE DIRECT MESSAGES LIST */}
-            {dmUsers.map((dmUser) => (
-              <button
-                key={dmUser.id}
-                onClick={() => {
-                  setPrivateRecipient(dmUser);
-                  setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
-                }}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-sm md:text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
-                  privateRecipient?.id === dmUser.id
-                    ? 'bg-purple-900/90 text-purple-200 border-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]'
-                    : 'bg-zinc-900/50 text-gray-400 border-purple-900/30 hover:bg-zinc-800'
-                }`}
-              >
-                {dmUser.username}
-                {unreadDMs.includes(dmUser.id) && privateRecipient?.id !== dmUser.id && (
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)] shrink-0"></span>
-                )}
-              </button>
-            ))}
-
-            {isAdmin && (
-              <button 
-                onClick={() => {
-                  setActiveRoom('admin-chat');
-                  setPrivateRecipient(null);
-                }} 
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-sm md:text-base tracking-tighter border ${
-                  activeRoom === 'admin-chat' && !privateRecipient 
-                    ? 'bg-red-800 text-white border-red-500' 
-                    : 'bg-red-950/50 text-red-600 border-red-900/30'
-                }`}
-              >
-                ADMIN
-              </button>
-            )}
           </div>
         </div>
       </div>
