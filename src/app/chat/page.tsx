@@ -59,13 +59,14 @@ export default function ChatPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeRoom, setActiveRoom] = useState('global');
   const [loading, setLoading] = useState(true);
+  const [showRadio, setShowRadio] = useState(true); // <-- Mobile Radio Toggle Fix
   
   const [currentSong, setCurrentSong] = useState('');
   const [inputLink, setInputLink] = useState('');
   
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
-const currentMessages = useMemo(() => {
+  const currentMessages = useMemo(() => {
     // If we have a target lock, show the secret vault!
     if (privateRecipient) return privateMessages;
     
@@ -102,9 +103,9 @@ const currentMessages = useMemo(() => {
     };
 
     fetchDmUsers();
- }, [user, supabase]);
+  }, [user, supabase]);
 
- // FETCH PRIVATE MESSAGES & LISTEN FOR NEW ONES
+  // FETCH PRIVATE MESSAGES & LISTEN FOR NEW ONES
   useEffect(() => {
     if (!user || !privateRecipient) {
       setPrivateMessages([]);
@@ -355,7 +356,7 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     return;
   }
 
-  setIsUploading(true); // <-- This right here fixes your last error!
+  setIsUploading(true); 
 
   try {
     // 1. Create a unique file name so images don't overwrite each other
@@ -392,10 +393,20 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 };
+
 const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      
+      // SMART FORMAT DETECTOR: Ask the phone what format it likes best! (iPhone Fix)
+      let mimeType = '';
+      if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4'; // iPhone's favorite
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm'; // Android/Chrome's favorite
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -407,8 +418,8 @@ const startRecording = async () => {
 
       mediaRecorder.start();
       setIsRecording(true);
-   } catch (err) {
-      console.error("Microphone error:", err); // <-- Now we are using it!
+    } catch (err) {
+      console.error("Microphone error:", err); 
       alert("Sanctuary needs microphone access to send voice notes!");
     }
   };
@@ -416,11 +427,11 @@ const startRecording = async () => {
   const stopRecording = () => {
     if (!mediaRecorderRef.current) return;
     
-    // When the recorder stops, this runs to package the file
     mediaRecorderRef.current.onstop = async () => {
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      // Grab the exact format the phone decided to record in
+      const finalMimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+      const audioBlob = new Blob(audioChunksRef.current, { type: finalMimeType });
       
-      // Stop the browser from showing the red "recording" dot on the tab
       mediaRecorderRef.current?.stream.getTracks().forEach(track => track.stop());
       
       if (audioBlob.size > 5242880) {
@@ -430,7 +441,9 @@ const startRecording = async () => {
 
       setIsUploading(true);
       try {
-        const fileName = `${user.id}-voice-${Date.now()}.webm`;
+        // Set the file extension based on what the phone recorded
+        const fileExt = finalMimeType.includes('mp4') ? 'm4a' : 'webm';
+        const fileName = `${user.id}-voice-${Date.now()}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from('chat_uploads')
@@ -459,11 +472,9 @@ const startRecording = async () => {
       }
     };
 
-    // Trigger the stop!
     mediaRecorderRef.current.stop();
     setIsRecording(false);
   };
-
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -510,7 +521,7 @@ const startRecording = async () => {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-[100dvh] w-full flex flex-col bg-black overflow-hidden text-lg relative">
+    <main className="h-[100dvh] w-[100vw] max-w-full flex flex-col bg-black overflow-hidden text-lg relative">
       
       {isVideo ? (
         <video 
@@ -530,46 +541,44 @@ const startRecording = async () => {
           alt={`${activeRoom} background`}
           fill
           className="object-contain z-0 pointer-events-none transition-opacity duration-500"
-          priority // Loads the default background instantly
-
+          priority 
         />
       )}
 
       <div className="absolute inset-0 bg-black/85 z-0 pointer-events-none" />
       
-      
-     {/* RESPONSIVE TOP BAR: Polar Opposites */}
-        <div className="flex-none p-4 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center">
-  {/* LEFT: BACK BUTTON */}
-  <div className="flex items-center">
-    <Link 
-      href="/" 
-      className="text-gray-400 hover:text-orange-500 transition-colors flex items-center justify-center bg-black/50 p-3 rounded-full border border-orange-900/30 hover:border-orange-500/50 shadow-md"
-      title="Return to Sanctuary">
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-      </svg>
-    </Link>
-  </div>
+      {/* RESPONSIVE TOP BAR */}
+      <div className="flex-none p-3 md:p-6 bg-black/80 border-b border-orange-900/50 backdrop-blur-md z-20 w-full flex justify-between items-center">
+        {/* LEFT: BACK BUTTON */}
+        <div className="flex items-center">
+          <Link 
+            href="/" 
+            className="text-gray-400 hover:text-orange-500 transition-colors flex items-center justify-center bg-black/50 p-2 md:p-3 rounded-full border border-orange-900/30 hover:border-orange-500/50 shadow-md"
+            title="Return to Sanctuary">
+            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </Link>
+        </div>
 
-  {/* RIGHT: EMBED BUTTON */}
-  <div className="flex items-center">
-    <button 
-      onClick={() => {
-        navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
-        alert(`Embed link for ${activeChannelName} copied!`);
-      }}
-      className="px-4 py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-sm font-cinzel tracking-widest transition-all shadow-md"
-    >
-      📋 COPY EMBED
-    </button>
-  </div>
-</div>
+        {/* RIGHT: EMBED BUTTON */}
+        <div className="flex items-center">
+          <button 
+            onClick={() => {
+              navigator.clipboard.writeText(`https://www.embersoflight.net/chat-embed?room=${activeRoom}`);
+              alert(`Embed link for ${activeChannelName} copied!`);
+            }}
+            className="px-3 md:px-4 py-1.5 md:py-2 bg-black/60 border border-orange-900/50 hover:bg-orange-600/80 hover:border-orange-500 text-gray-300 hover:text-white rounded-lg cursor-pointer text-xs md:text-sm font-cinzel tracking-widest transition-all shadow-md"
+          >
+            📋 COPY EMBED
+          </button>
+        </div>
+      </div>
 
-      <div className="flex-1 flex overflow-hidden w-full z-10 relative">
+      <div className="flex-1 flex overflow-hidden w-full z-10 relative max-w-full">
         
         <div className="hidden md:flex w-64 flex-col border-r border-orange-900/30 p-4 overflow-y-auto bg-black/40 backdrop-blur-sm">
-       {PUBLIC_CHANNELS.map(ch => (
+          {PUBLIC_CHANNELS.map(ch => (
             <button 
               key={ch.id} 
               onClick={() => {
@@ -578,7 +587,7 @@ const startRecording = async () => {
                 setUnreadRooms(prev => prev.filter(r => r !== ch.id));
               }} 
               className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest transition-all mb-1 flex justify-between items-center ${
-                activeRoom === ch.id && !privateRecipient // <-- Removes highlight if you are currently whispering
+                activeRoom === ch.id && !privateRecipient 
                   ? 'bg-orange-600/90 text-white shadow-[0_0_10px_rgba(234,88,12,0.5)]' 
                   : 'text-gray-400 hover:text-orange-500 hover:bg-white/5'
               }`}
@@ -592,7 +601,7 @@ const startRecording = async () => {
             </button>
           ))}
 
-         {/* DIRECT MESSAGES SECTION */}
+          {/* DIRECT MESSAGES SECTION */}
           <div className="mt-8 mb-4">
             <h3 className="text-orange-500/80 font-cinzel text-sm font-bold mb-3 uppercase tracking-wider px-4">
               Direct Messages
@@ -603,7 +612,6 @@ const startRecording = async () => {
                   <button
                     onClick={() => {
                       setPrivateRecipient(dmUser);
-                      // This clears the red dot when you click their name!
                       setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
                     }}
                     className={`w-full text-left px-4 py-2 rounded-lg transition-all flex justify-between items-center ${
@@ -624,11 +632,11 @@ const startRecording = async () => {
             </ul>
           </div>
           
-         {isAdmin && (
+          {isAdmin && (
             <button 
               onClick={() => {
                 setActiveRoom('admin-chat');
-                setPrivateRecipient(null); // <-- Added here to unlock the vault!
+                setPrivateRecipient(null); // <-- Unlocks the vault!
               }} 
               className={`w-full text-left p-3 rounded-lg font-cinzel text-lg uppercase tracking-widest border border-red-900/50 mt-auto ${
                 activeRoom === 'admin-chat' && !privateRecipient
@@ -640,24 +648,36 @@ const startRecording = async () => {
             </button>
           )}
         </div>
-        <div className="flex-1 flex flex-col min-w-0 h-full">
+
+        <div className="flex-1 flex flex-col min-w-0 h-full w-full max-w-full">
           
-          <div className="flex-none bg-black/60 border-b border-orange-500/30 p-3 shrink-0 backdrop-blur-sm z-10 relative">
-            <div className="flex justify-between items-center mb-2 px-1">
-              <span className="text-orange-400 font-cinzel text-lg uppercase tracking-widest flex items-center gap-2">
+          {/* RESPONSIVE ZENO PLAYER WITH COLLAPSE TOGGLE */}
+          <div className="flex-none bg-black/60 border-b border-orange-500/30 p-2 md:p-3 shrink-0 backdrop-blur-sm z-10 relative max-w-full">
+            <div className="flex justify-between items-center mb-1 md:mb-2 px-1">
+              <span className="text-orange-400 font-cinzel text-sm md:text-lg uppercase tracking-widest flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                 Live Broadcast
               </span>
+              <button 
+                onClick={() => setShowRadio(!showRadio)} 
+                className="text-gray-400 hover:text-white text-xs font-cinzel border border-gray-600 rounded px-2 py-0.5 md:py-1 transition-colors"
+              >
+                {showRadio ? 'HIDE RADIO' : 'SHOW RADIO'}
+              </button>
             </div>
             
-            <iframe 
-              src="https://zeno.fm/player/rise-radio-woqo" 
-              width="100%" 
-              height="120" 
-              frameBorder="0" 
-              scrolling="no" 
-              className="rounded-lg shadow-xl shrink-0"
-            ></iframe>
+            {showRadio && (
+              <div className="w-full h-[70px] md:h-[120px] transition-all duration-300">
+                <iframe 
+                  src="https://zeno.fm/player/rise-radio-woqo" 
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0" 
+                  scrolling="no" 
+                  className="rounded-lg shadow-xl shrink-0"
+                ></iframe>
+              </div>
+            )}
           </div>
 
           {activeRoom === 'group-songs' && (
@@ -669,7 +689,7 @@ const startRecording = async () => {
                     placeholder="Paste Smule link to play..."
                     value={inputLink}
                     onChange={(e) => setInputLink(e.target.value)}
-                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-base font-cinzel transition-colors"
+                    className="flex-grow bg-black/80 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:border-orange-500 outline-none text-base font-cinzel transition-colors min-w-0"
                   />
                   <button 
                     onClick={handleLoadSong}
@@ -693,8 +713,8 @@ const startRecording = async () => {
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden">
-           {currentMessages.map((msg) => {
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4 space-y-4 scroll-smooth [&::-webkit-scrollbar]:hidden w-full max-w-full">
+            {currentMessages.map((msg) => {
               const parentMsg = msg.parent_id ? currentMessages.find(m => m.id === msg.parent_id) : null;
               
               // 1. Check if you were tagged in this specific message!
@@ -702,13 +722,13 @@ const startRecording = async () => {
               const isMentioned = myUsername && (textToScan.includes(`@${myUsername.toLowerCase()}`) || textToScan.includes('@all')) && msg.user_id !== user?.id;
 
               return (
-                <div key={msg.id} className={`flex flex-col ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
-                  <span className="text-lg font-bold font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
+                <div key={msg.id} className={`flex flex-col max-w-full ${msg.user_id === user?.id ? 'items-end' : 'items-start'}`}>
+                  <span className="text-sm md:text-lg font-bold font-cinzel text-orange-500 mb-1 tracking-widest uppercase drop-shadow-md">
                     {msg.profiles?.username || msg.profiles?.full_name || 'Anonymous Seeker'}
                   </span>
                                     
                   {/* 2. Make the bubble glow red if isMentioned is true! */}
-                  <div className={`max-w-[85%] p-3 rounded-md text-lg font-bold font-cinzel shadow-xl flex flex-col ${
+                  <div className={`max-w-[90%] md:max-w-[85%] p-2 md:p-3 rounded-md text-base md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${
                     msg.user_id === user?.id 
                       ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' 
                       : isMentioned
@@ -717,30 +737,30 @@ const startRecording = async () => {
                   }`}>
                       
                     {msg.parent_id && (
-                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-lg text-gray-300/90">
-                        <span className="font-cinzel text-orange-300/80 text-lg uppercase tracking-widest block mb-1">
+                      <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-2 mb-2 text-sm md:text-lg text-gray-300/90 max-w-full overflow-hidden">
+                        <span className="font-cinzel text-orange-300/80 text-sm md:text-lg uppercase tracking-widest block mb-1">
                           Replying to {parentMsg?.profiles?.username || parentMsg?.profiles?.full_name || 'a seeker'}
                         </span>
-                        <span className="line-clamp-2 italic text-lg text-gray-400">
+                        <span className="line-clamp-2 italic text-gray-400">
                           {parentMsg ? (parentMsg.content || '[Attached Image]') : 'Message scroll has faded...'}
                         </span>
                       </div>
                     )}
 
                     {msg.content && (
-                      <div className="whitespace-pre-wrap">
+                      <div className="whitespace-pre-wrap break-words [word-break:break-word] max-w-full overflow-hidden">
                         <Linkify text={msg.content} />
                       </div>
                     )}
 
                   {msg.image_url && (
                     msg.image_url.includes('.webm') || msg.image_url.includes('.mp3') || msg.image_url.includes('.wav') || msg.image_url.includes('.ogg') || msg.image_url.includes('.m4a') ? (
-                    <audio controls className="mt-3 w-[250px] max-w-full rounded-full shadow-lg border border-orange-900/30">
+                    <audio controls className="mt-3 w-[200px] md:w-[250px] max-w-full rounded-full shadow-lg border border-orange-900/30">
                     <source src={msg.image_url} />
                        Your browser does not support the audio element.
                     </audio>
                     ) : msg.image_url.includes('.mp4') ? (
-                    <video controls className="mt-3 w-[250px] rounded-lg shadow-lg border border-orange-900/30">
+                    <video controls className="mt-3 w-[200px] md:w-[250px] max-w-full rounded-lg shadow-lg border border-orange-900/30">
                     <source src={msg.image_url} type="video/mp4" />
                     </video>
                      ) : (
@@ -749,7 +769,7 @@ const startRecording = async () => {
                       alt="Attached media" 
                       width={250}
                       height={250}
-                      className="mt-3 md:w-[250px] md:h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
+                      className="mt-3 w-auto max-w-[200px] md:max-w-[250px] max-h-[250px] object-contain rounded-lg border border-black/30 shadow-lg" 
                        />
                        )
                       )}
@@ -763,7 +783,7 @@ const startRecording = async () => {
                           <button 
                             key={emoji}
                             onClick={() => toggleReaction(msg.id, msg.reactions, emoji)}
-                            className={`text-lg px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
+                            className={`text-sm md:text-lg px-2 py-0.5 rounded-full border transition-colors ${hasReacted ? 'bg-orange-500/40 border-orange-400 text-white' : 'bg-black/30 border-gray-600 hover:border-gray-400 text-gray-300'}`}
                           >
                             {emoji} {users.length}
                           </button>
@@ -773,7 +793,7 @@ const startRecording = async () => {
                       <div className="relative">
                         <button 
                           onClick={() => setActivePickerId(activePickerId === msg.id ? null : msg.id)}
-                          className={`text-lg px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
+                          className={`text-sm md:text-lg px-2 py-0.5 rounded-full border transition-all ${activePickerId === msg.id ? 'bg-black/50 border-gray-400 text-white' : 'text-gray-400 border-transparent hover:bg-black/30 hover:text-white'}`}
                         >
                           +😀
                         </button>
@@ -787,7 +807,7 @@ const startRecording = async () => {
                                   toggleReaction(msg.id, msg.reactions, em);
                                   setActivePickerId(null); 
                                 }}
-                                className="text-lg hover:scale-125 transition-transform"
+                                className="text-base md:text-lg hover:scale-125 transition-transform"
                               >
                                 {em}
                               </button>
@@ -798,7 +818,7 @@ const startRecording = async () => {
 
                       <button 
                         onClick={() => setReplyingTo(msg)} 
-                        className="text-lg text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
+                        className="text-xs md:text-sm text-gray-300 hover:text-white ml-auto font-cinzel tracking-widest border border-transparent hover:border-orange-400/50 rounded px-2 py-1 transition-all"
                       >
                         ↩ REPLY
                       </button>
@@ -812,144 +832,144 @@ const startRecording = async () => {
           </div>
 
           {replyingTo && (
-            <div className="flex-none bg-orange-900/40 border-t border-orange-500/50 p-2 flex justify-between items-center px-4 backdrop-blur-md">
-              <span className="text-lg font-cinzel text-orange-200 truncate">
+            <div className="flex-none bg-orange-900/40 border-t border-orange-500/50 p-2 flex justify-between items-center px-2 md:px-4 backdrop-blur-md">
+              <span className="text-sm md:text-lg font-cinzel text-orange-200 truncate">
                 Replying to: <span className="text-white">"{replyingTo.content?.substring(0, 40)}..."</span>
               </span>
-              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-lg font-bold px-2 tracking-widest">
+              <button onClick={() => setReplyingTo(null)} className="text-red-400 hover:text-red-300 text-xs md:text-sm font-bold px-2 tracking-widest">
                 ✕ CANCEL
               </button>
             </div>
           )}
 
-          <div className="flex-none relative">
-  {/* EMOJI PICKER */}
-  {showEmojiPicker && (
-    <div className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl">
-      <EmojiPicker 
-        theme={Theme.DARK} 
-        onEmojiClick={(emojiObject) => {
-          setNewMessage(prev => prev + emojiObject.emoji);
-          setShowEmojiPicker(false);
-        }} 
-      />
-    </div>
-  )}
+          <div className="flex-none relative w-full max-w-full">
+            {/* EMOJI PICKER */}
+            {showEmojiPicker && (
+              <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl scale-90 origin-bottom-left md:scale-100">
+                <EmojiPicker 
+                  theme={Theme.DARK} 
+                  onEmojiClick={(emojiObject) => {
+                    setNewMessage(prev => prev + emojiObject.emoji);
+                    setShowEmojiPicker(false);
+                  }} 
+                />
+              </div>
+            )}
 
-  {/* GIF PICKER */}
-  {showGifPicker && (
-    <div className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl bg-zinc-900 border border-orange-900/70 rounded-xl p-3 w-[320px] flex flex-col gap-3 max-h-[400px]">
-      <input
-        type="text"
-        placeholder="Search GIPHY..."
-        value={gifSearch}
-        onChange={(e) => setGifSearch(e.target.value)}
-        className="w-full bg-black/50 border border-gray-700 rounded-lg p-2 text-white outline-none focus:border-orange-500 font-cinzel text-sm"
-      />
-      <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden">
-        <Grid
-          width={294}
-          columns={2}
-          fetchGifs={fetchGifs}
-          key={gifSearch} 
-          onGifClick={(gif, e) => {
-            e.preventDefault();
-            sendGifMessage(gif.images.original.url);
-            setShowGifPicker(false);
-            setGifSearch(''); 
-          }}
-        />
-      </div>
-    </div>
-  )}
-  
-  {/* WHISPER INDICATOR */}
-  {privateRecipient && (
-    <div className="bg-purple-900/40 border-t border-x border-purple-500/50 rounded-t-xl px-4 py-2 flex justify-between items-center mb-[-1px] relative z-10 backdrop-blur-md">
-      <span className="text-purple-300 font-cinzel text-sm">
-        Whispering to: <span className="font-bold text-white">{privateRecipient.username}</span>
-      </span>
-      <button 
-        type="button"
-        onClick={() => setPrivateRecipient(null)}
-        className="text-gray-400 hover:text-red-400 transition-colors px-2"
-        title="Cancel private message"
-      >
-        ✖
-      </button>
-    </div>
-  )}
+            {/* GIF PICKER */}
+            {showGifPicker && (
+              <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl bg-zinc-900 border border-orange-900/70 rounded-xl p-3 w-[280px] md:w-[320px] flex flex-col gap-3 max-h-[350px] md:max-h-[400px]">
+                <input
+                  type="text"
+                  placeholder="Search GIPHY..."
+                  value={gifSearch}
+                  onChange={(e) => setGifSearch(e.target.value)}
+                  className="w-full bg-black/50 border border-gray-700 rounded-lg p-2 text-white outline-none focus:border-orange-500 font-cinzel text-xs md:text-sm min-w-0"
+                />
+                <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden">
+                  <Grid
+                    width={250}
+                    columns={2}
+                    fetchGifs={fetchGifs}
+                    key={gifSearch} 
+                    onGifClick={(gif, e) => {
+                      e.preventDefault();
+                      sendGifMessage(gif.images.original.url);
+                      setShowGifPicker(false);
+                      setGifSearch(''); 
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* WHISPER INDICATOR */}
+            {privateRecipient && (
+              <div className="bg-purple-900/40 border-t border-x border-purple-500/50 rounded-t-xl px-3 md:px-4 py-1.5 md:py-2 flex justify-between items-center mb-[-1px] relative z-10 backdrop-blur-md">
+                <span className="text-purple-300 font-cinzel text-xs md:text-sm">
+                  Whispering to: <span className="font-bold text-white">{privateRecipient.username}</span>
+                </span>
+                <button 
+                  type="button"
+                  onClick={() => setPrivateRecipient(null)}
+                  className="text-gray-400 hover:text-red-400 transition-colors px-2"
+                  title="Cancel private message"
+                >
+                  ✖
+                </button>
+              </div>
+            )}
 
-{/* CHAT INPUT FORM */}
-  <form onSubmit={sendMessage} className="p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-2 items-center">
-    
-    {/* HIDDEN FILE INPUT */}
-    <input 
-      type="file" 
-      accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,audio/webm,audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac"
-      className="hidden" 
-      ref={fileInputRef} 
-      onChange={handleFileUpload} 
-    />
+            {/* CHAT INPUT FORM */}
+            <form onSubmit={sendMessage} className="p-2 md:p-3 bg-black/80 backdrop-blur-md border-t border-orange-900/30 flex gap-1 md:gap-2 items-center w-full max-w-full overflow-hidden">
+              
+              <input 
+                type="file" 
+                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,audio/webm,audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac"
+                className="hidden" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+              />
 
-    {/* ATTACHMENT BUTTON */}
-    <button 
-      type="button" 
-      onClick={() => fileInputRef.current?.click()}
-      disabled={isUploading}
-      className={`text-xl transition-transform px-2 shrink-0 bg-transparent border-none cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed animate-pulse' : 'hover:scale-110 text-gray-400 hover:text-white'}`}
-      title="Attach a file"
-    >
-      📎
-    </button>
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className={`text-lg md:text-xl transition-transform px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed animate-pulse' : 'hover:scale-110 text-gray-400 hover:text-white'}`}
+                title="Attach a file"
+              >
+                📎
+              </button>
 
-    <button 
-      type="button" 
-      onClick={() => {
-        setShowGifPicker(!showGifPicker);
-        setShowEmojiPicker(false); 
-      }}
-      className="text-lg font-bold font-cinzel text-gray-400 hover:text-white transition-colors px-2 shrink-0 bg-transparent border-none cursor-pointer"
-      title="Add a GIF"
-    >
-      GIF
-    </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setShowGifPicker(!showGifPicker);
+                  setShowEmojiPicker(false); 
+                }}
+                className="text-sm md:text-lg font-bold font-cinzel text-gray-400 hover:text-white transition-colors px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer"
+                title="Add a GIF"
+              >
+                GIF
+              </button>
 
-    <button 
-      type="button" 
-      onClick={() => {
-        setShowEmojiPicker(!showEmojiPicker);
-        setShowGifPicker(false); 
-      }}
-      className="text-2xl hover:scale-110 transition-transform px-2 shrink-0 bg-transparent border-none cursor-pointer"
-      title="Add an emoji"
-    >
-      😀
-    </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setShowEmojiPicker(!showEmojiPicker);
+                  setShowGifPicker(false); 
+                }}
+                className="text-xl md:text-2xl hover:scale-110 transition-transform px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer"
+                title="Add an emoji"
+              >
+                😀
+              </button>
 
-    <input type="text" disabled={!user || isUploading} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isUploading ? "Uploading..." : "Speak your truth..."} className="flex-1 bg-zinc-950/80 border border-orange-900/50 rounded-full px-4 py-2 text-white text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
-    
-    <button type="submit" disabled={isUploading} className={`bg-orange-600 hover:bg-orange-500 text-white px-5 py-2 rounded-full font-cinzel text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-      SEND
-    </button>
-    <button 
-      type="button" 
-      onClick={isRecording ? stopRecording : startRecording}
-      disabled={isUploading && !isRecording}
-      className={`text-2xl transition-all px-2 shrink-0 bg-transparent border-none cursor-pointer ${
-        isRecording 
-          ? 'text-red-500 animate-pulse scale-125 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' 
-          : 'text-gray-400 hover:scale-110 hover:text-white'
-      }`}
-      title={isRecording ? "Tap to stop & send" : "Tap to record voice note"}
-    >
-      🎤
-    </button>
-  </form>
-</div>
+              {/* MAGIC MIN-W-0 FIX */}
+              <input type="text" disabled={!user || isUploading} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isUploading ? "Uploading..." : "Speak your truth..."} className="flex-1 min-w-0 bg-zinc-950/80 border border-orange-900/50 rounded-full px-3 md:px-4 py-1.5 md:py-2 text-white text-sm md:text-lg focus:outline-none focus:border-orange-500 font-cinzel" />
+              
+              <button type="submit" disabled={isUploading} className={`bg-orange-600 hover:bg-orange-500 text-white px-3 md:px-5 py-1.5 md:py-2 rounded-full font-cinzel text-sm md:text-lg tracking-widest transition-colors shadow-md shadow-orange-900/50 shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                SEND
+              </button>
+              
+              <button 
+                type="button" 
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={isUploading && !isRecording}
+                className={`text-xl md:text-2xl transition-all px-1 md:px-2 shrink-0 bg-transparent border-none cursor-pointer ${
+                  isRecording 
+                    ? 'text-red-500 animate-pulse scale-125 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]' 
+                    : 'text-gray-400 hover:scale-110 hover:text-white'
+                }`}
+                title={isRecording ? "Tap to stop & send" : "Tap to record voice note"}
+              >
+                🎤
+              </button>
+            </form>
+          </div>
 
-        {/* MOBILE NAVIGATION MENU */}
-          <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-3 pb-6 gap-2 [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x">
+          {/* MOBILE NAVIGATION MENU */}
+          <div className="md:hidden flex-none bg-black/90 backdrop-blur-md border-t border-orange-900/40 flex overflow-x-auto p-3 pb-6 gap-2 [&::-webkit-scrollbar]:hidden overscroll-x-contain touch-pan-x w-full max-w-full">
             {PUBLIC_CHANNELS.map(ch => (
               <button 
                 key={ch.id} 
@@ -958,7 +978,7 @@ const startRecording = async () => {
                   setPrivateRecipient(null); // <-- Return to public chat
                   setUnreadRooms(prev => prev.filter(r => r !== ch.id));
                 }} 
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-sm md:text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
                   activeRoom === ch.id && !privateRecipient
                     ? 'bg-orange-600 text-white border-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.6)]' 
                     : 'bg-zinc-900/50 text-gray-400 border-orange-900/30'
@@ -984,7 +1004,7 @@ const startRecording = async () => {
                   setPrivateRecipient(dmUser);
                   setUnreadDMs(prev => prev.filter(id => id !== dmUser.id)); 
                 }}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-sm md:text-base tracking-tighter border transition-colors relative flex items-center gap-1 ${
                   privateRecipient?.id === dmUser.id
                     ? 'bg-purple-900/90 text-purple-200 border-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]'
                     : 'bg-zinc-900/50 text-gray-400 border-purple-900/30 hover:bg-zinc-800'
@@ -1003,7 +1023,7 @@ const startRecording = async () => {
                   setActiveRoom('admin-chat');
                   setPrivateRecipient(null);
                 }} 
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-base tracking-tighter border ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full font-cinzel text-sm md:text-base tracking-tighter border ${
                   activeRoom === 'admin-chat' && !privateRecipient 
                     ? 'bg-red-800 text-white border-red-500' 
                     : 'bg-red-950/50 text-red-600 border-red-900/30'
@@ -1029,7 +1049,7 @@ const Linkify = ({ text }: { text: string }) => {
     <span>
       {parts.map((part, i) => 
         urlRegex.test(part) ? (
-          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold transition-colors">
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold break-all transition-colors">
             {part}
           </a>
         ) : (
