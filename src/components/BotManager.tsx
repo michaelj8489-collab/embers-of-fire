@@ -177,22 +177,29 @@ export default function BotManager() {
           <p className="text-gray-500 italic">No bots deployed yet.</p>
         ) : (
           <div className="space-y-3">
-            {bots.map((bot) => (
-              <div key={bot.id} className="flex items-center justify-between bg-gray-900/50 border border-gray-800 p-3 rounded">
-                <div>
-                  <span className="font-bold text-orange-400 mr-3">"{bot.trigger_word}"</span>
-                  <span className="text-sm text-gray-400 truncate max-w-xs inline-block align-bottom">
-                    {bot.response_text ? bot.response_text : '[Image Only Bot]'}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => handleDelete(bot.id, bot.image_url)}
-                  className="text-red-500 hover:text-red-400 text-sm font-bold uppercase tracking-wider px-2 py-1 border border-red-900/30 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+           {bots.map((bot) => (
+          <div key={bot.id} className="flex items-center justify-between bg-gray-900/50 border border-gray-800 p-3 rounded gap-3">
+    
+            {/* flex-1 lets this take up the remaining space, min-w-0 allows it to shrink below its content width! */}
+            <div className="flex-1 min-w-0 flex items-center gap-2">
+              <span className="font-bold text-orange-400 shrink-0">
+               "{bot.trigger_word}"
+               </span>
+               <span className="text-sm text-gray-400 truncate">
+               {bot.response_text ? bot.response_text : '[Image Only Bot]'}
+              </span>
+            </div>
+
+    {/* shrink-0 guarantees the delete button NEVER gets pushed off screen or squished */}
+    <button 
+      onClick={() => handleDelete(bot.id, bot.image_url)}
+      className="shrink-0 text-red-500 hover:text-red-400 text-sm font-bold uppercase tracking-wider px-2 py-1 border border-red-900/30 rounded"
+    >
+      Delete
+    </button>
+    
+  </div>
+))}
           </div>
         )}
       </div>
