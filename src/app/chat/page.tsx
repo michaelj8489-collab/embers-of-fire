@@ -442,7 +442,8 @@ export default function ChatPage() {
   const isVideo = currentBackground.endsWith('.mp4');
 
   return (
-    <main className="h-[100dvh] w-[100vw] max-w-full flex flex-col bg-black overflow-hidden relative pb-[80px] md:pb-0">
+    // Make sure this main tag does NOT have pb-[80px] anymore
+<main className="h-[100dvh] w-[100vw] max-w-full flex flex-col bg-black overflow-hidden relative">
       
       {isVideo ? (
         <video 
