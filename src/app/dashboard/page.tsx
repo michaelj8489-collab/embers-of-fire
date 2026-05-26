@@ -123,8 +123,6 @@ function DashboardContent() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
 
-        <PushNotificationButton />
-
         <main className="flex-grow flex flex-col items-center pt-28 md:pt-40 pb-12 px-4 md:px-12 w-full">
           
           {/* HERO SECTION - THE TRINITY */}
@@ -167,6 +165,9 @@ function DashboardContent() {
               className="absolute inset-0 object-cover object-center opacity-55 z-0"
               sizes="100vw"
             />
+
+            <PushNotificationButton />
+
             <div className="absolute inset-0 bg-black/80" /> 
             
             <div className="relative z-10 p-10 md:p-16 flex flex-col items-center text-center">
