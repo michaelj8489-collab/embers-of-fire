@@ -124,6 +124,7 @@ export default function ChatPage() {
         table: 'chat_messages',
       }, async (payload: any) => {
         const incomingMsg = payload.new;
+        console.log("DEBUG: DM message received:", incomingMsg); // ADD THIS
         const isForMeFromThem = incomingMsg.recipient_id === user.id && incomingMsg.user_id === privateRecipient.id;
         const isFromMeToThem = incomingMsg.user_id === user.id && incomingMsg.recipient_id === privateRecipient.id;
         
@@ -161,6 +162,7 @@ export default function ChatPage() {
         table: 'chat_messages'
       }, (payload: any) => {
         const newMsg = payload.new;
+        console.log("DEBUG: Global message received:", newMsg); // ADD THIS
         
         if (newMsg.recipient_id === user.id) {
           if (privateRecipient?.id !== newMsg.user_id) {
@@ -404,7 +406,7 @@ const sendMessage = async (e: React.FormEvent) => {
     if (!user || !newMessage.trim()) return;
   
     const userMsg = newMessage.trim();
-    const recipientId = privateRecipient?.id || null; // Capture recipient ID for notification
+    const recipientId = privateRecipient?.id || null;
     setNewMessage(''); 
   
     // 1. Insert the message
@@ -423,33 +425,47 @@ const sendMessage = async (e: React.FormEvent) => {
       return;
     }
 
-    // 2. Trigger Push Notification if this was a Private Message (Whisper)
+    // 2. Trigger Push Notifications
     if (recipientId) {
-      fetch('/api/notify-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetUserId: recipientId,
-          title: `New Whisper from ${myUsername}`,
-          body: userMsg,
-          url: window.location.href // This ensures they are sent back to the specific chat room
-        })
-      }).catch(err => console.error("Notification failed to trigger:", err));
+      // Whisper logic
+      triggerPush(recipientId, `New Whisper from ${myUsername}`, userMsg, window.location.href);
+    } else {
+      // Mention logic: Look for @username
+      const mentionMatch = userMsg.match(/@(\w+)/);
+      if (mentionMatch) {
+        const usernameToFind = mentionMatch[1];
+        const { data: mentionedUser } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', usernameToFind)
+          .single();
+
+        if (mentionedUser) {
+          triggerPush(mentionedUser.id, `You were tagged by ${myUsername}`, userMsg, window.location.href);
+        }
+      }
     }
   
     // 3. Handle Bot Trigger
     const cleanMsg = userMsg.toLowerCase();
     const matchedBot = bots.find(bot => bot.trigger_word === cleanMsg);
-  
     if (matchedBot) {
-      const { error: botError } = await supabase.from('chat_messages').insert({
+      await supabase.from('chat_messages').insert({
         content: `🤖 SANCTUARY BOT:\n\n${matchedBot.response_text || ''}`,
         user_id: user.id, 
         room_name: activeRoom,
         image_url: matchedBot.image_url || null
       });
-      if (botError) console.error("Error deploying bot:", botError);
     }
+  };
+
+  // Helper function to keep the code clean
+  const triggerPush = (targetId: string, title: string, body: string, url: string) => {
+    fetch('/api/notify-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetUserId: targetId, title, body, url })
+    }).catch(err => console.error("Notification failed:", err));
   };
 
   if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em] text-lg">Igniting...</div>;
@@ -716,7 +732,7 @@ const sendMessage = async (e: React.FormEvent) => {
 
                     {msg.content && (
                       <div className="whitespace-pre-wrap break-words [word-break:break-word] max-w-full overflow-hidden leading-snug md:leading-normal">
-                        <Linkify text={msg.content} />
+                        <FormattedMessage text={msg.content} myUsername={myUsername} />
                       </div>
                     )}
 
@@ -865,15 +881,27 @@ const sendMessage = async (e: React.FormEvent) => {
   );
 }
 
-const Linkify = ({ text }: { text: string }) => {
+const FormattedMessage = ({ text, myUsername }: { text: string, myUsername: string }) => {
   if (!text) return null;
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
+  
+  // This regex matches URLs OR @mentions
+  const parts = text.split(/(https?:\/\/[^\s]+|@\w+)/g);
+  
   return (
     <span>
-      {parts.map((part, i) => urlRegex.test(part) ? (
-        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold break-all transition-colors">{part}</a>
-      ) : (<span key={i}>{part}</span>))}
+      {parts.map((part, i) => {
+        if (part.startsWith('http')) {
+          return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold break-all transition-colors">{part}</a>;
+        } else if (part.startsWith('@')) {
+          const isMe = part.toLowerCase() === `@${myUsername.toLowerCase()}`;
+          return (
+            <span key={i} className={`font-bold ${isMe ? 'text-red-500 bg-red-950/30 px-1 rounded' : 'text-orange-300'}`}>
+              {part}
+            </span>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
     </span>
   );
 };
