@@ -1,5 +1,6 @@
 'use client';
 
+import PushNotificationButton from '@/components/PushNotificationButton';
 import Image from 'next/image';
 import React, { useState, useEffect, Suspense } from 'react';
 import Header from '@/components/Header';
@@ -121,6 +122,8 @@ function DashboardContent() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
+
+        <PushNotificationButton />
 
         <main className="flex-grow flex flex-col items-center pt-28 md:pt-40 pb-12 px-4 md:px-12 w-full">
           
@@ -257,6 +260,7 @@ function DashboardContent() {
     </div>
   );
 }
+
 
 // 3. FINAL SUSPENSE WRAPPER (Prevents Build Errors)
 export default function DashboardPage() {
