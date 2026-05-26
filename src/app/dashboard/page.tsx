@@ -111,7 +111,7 @@ function DashboardContent() {
 
   return (
     <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
-      
+
       {/* FIXED PHOENIX BACKGROUND */}
       <div className="fixed inset-0 z-0">
         <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-30">
@@ -124,6 +124,9 @@ function DashboardContent() {
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-28 md:pt-40 pb-12 px-4 md:px-12 w-full">
+
+          {/* ALERTS BUTTON: Placed at the top level so it can float freely! */}
+        <PushNotificationButton />
           
           {/* HERO SECTION - THE TRINITY */}
           <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-12">

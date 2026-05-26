@@ -115,13 +115,18 @@ export default function PushNotificationButton() {
     return <div className="text-orange-500 font-cinzel text-sm">✅ Alerts Active</div>;
   }
 
+ // ... existing logic above ...
+
+  // Floating Action Button Style
   return (
-    <button 
-      onClick={subscribeToPush}
-      disabled={loading}
-      className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md font-cinzel transition-colors shadow-md disabled:opacity-50"
-    >
-      {loading ? 'Consulting Archives...' : 'Enable Notifications'}
-    </button>
+    <div className="fixed bottom-6 right-6 z-50">
+      <button 
+        onClick={subscribeToPush}
+        disabled={loading}
+        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-full font-cinzel transition-all shadow-lg hover:shadow-[0_0_20px_rgba(234,88,12,0.5)] disabled:opacity-50"
+      >
+        {loading ? 'Consulting Archives...' : '🔔 Enable Alerts'}
+      </button>
+    </div>
   );
 }
