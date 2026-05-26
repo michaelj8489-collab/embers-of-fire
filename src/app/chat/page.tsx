@@ -399,19 +399,21 @@ export default function ChatPage() {
     setIsRecording(false);
   };
 
-  const sendMessage = async (e: React.FormEvent) => {
+const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newMessage.trim()) return;
   
     const userMsg = newMessage.trim();
+    const recipientId = privateRecipient?.id || null; // Capture recipient ID for notification
     setNewMessage(''); 
   
-   const { error: userError } = await supabase.from('chat_messages').insert({
+    // 1. Insert the message
+    const { error: userError } = await supabase.from('chat_messages').insert({
       content: userMsg,
       user_id: user.id,
       room_name: activeRoom, 
       parent_id: replyingTo ? replyingTo.id : null,
-      recipient_id: privateRecipient ? privateRecipient.id : null
+      recipient_id: recipientId
     });
 
     setReplyingTo(null); 
@@ -420,7 +422,22 @@ export default function ChatPage() {
       alert("Failed to send: " + userError.message);
       return;
     }
+
+    // 2. Trigger Push Notification if this was a Private Message (Whisper)
+    if (recipientId) {
+      fetch('/api/notify-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetUserId: recipientId,
+          title: `New Whisper from ${myUsername}`,
+          body: userMsg,
+          url: window.location.href // This ensures they are sent back to the specific chat room
+        })
+      }).catch(err => console.error("Notification failed to trigger:", err));
+    }
   
+    // 3. Handle Bot Trigger
     const cleanMsg = userMsg.toLowerCase();
     const matchedBot = bots.find(bot => bot.trigger_word === cleanMsg);
   

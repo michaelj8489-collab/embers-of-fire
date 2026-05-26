@@ -3,10 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
-import ChatBot from '@/components/BotManager';
-import BotManager from '@/components/BotManager';
+import BotManager from '@/components/BotManager'; // Correct import
 
-// SYNCED NAMES: These match your Supabase database exactly
 const TIERS = [
   { id: 'seeker', label: 'Seeker' },
   { id: 'keepers-of-the-embers', label: 'Keepers' },
@@ -32,7 +30,6 @@ export default function AdminDashboard() {
         return;
       }
 
-      // Check the profile table for the 'admin' role
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -42,7 +39,6 @@ export default function AdminDashboard() {
       if (profile?.role === 'admin') {
         setIsAdmin(true);
       } else {
-        // Kick regular users back to the dashboard
         window.location.href = '/dashboard'; 
       }
       setLoading(false);
@@ -54,7 +50,6 @@ export default function AdminDashboard() {
     if (!message) return;
     setStatus('Sending Signal...');
 
-    // This inserts the message into your new broadcasts table
     const { error } = await supabase
       .from('broadcasts')
       .insert([{ 
@@ -76,17 +71,18 @@ export default function AdminDashboard() {
     </div>
   );
 
+  // If NOT admin, return null (nothing rendered)
+  if (!isAdmin) return null;
+
   return (
     <main className="min-h-screen bg-black text-white font-cinzel overflow-x-hidden">
       <Header />
       <div className="max-w-4xl mx-auto pt-32 px-6 pb-20">
         
-        {/* 1. THE TITLE */}
         <h1 className="text-4xl text-orange-500 mb-8 border-b border-orange-900/30 pb-4 uppercase tracking-[0.2em]">
           Admin Command Center
         </h1>
         
-        {/* 2. SANCTUARY INSPECTION LINKS (The "Teleport" Panel) */}
         <section className="mb-12">
           <h2 className="text-sm text-gray-500 mb-4 tracking-[0.3em] uppercase font-bold">
             Sanctuary Inspection Links
@@ -104,7 +100,6 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        {/* 3. BROADCAST CONTROL BOX */}
         <section className="bg-zinc-900/50 p-8 rounded-2xl border border-orange-900/30 backdrop-blur-md shadow-2xl">
           <label className="block text-xs text-orange-400 mb-2 uppercase tracking-[0.2em] font-bold">
             Target Frequency
