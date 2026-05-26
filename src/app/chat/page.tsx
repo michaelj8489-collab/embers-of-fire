@@ -425,28 +425,40 @@ const sendMessage = async (e: React.FormEvent) => {
       return;
     }
 
-    // 2. Trigger Push Notifications
+    // 2. Trigger Whisper Notifications
     if (recipientId) {
-      // Whisper logic
       triggerPush(recipientId, `New Whisper from ${myUsername}`, userMsg, window.location.href);
-    } else {
-      // Mention logic: Look for @username
-      const mentionMatch = userMsg.match(/@(\w+)/);
-      if (mentionMatch) {
-        const usernameToFind = mentionMatch[1];
-        const { data: mentionedUser } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('username', usernameToFind)
-          .single();
+    }
 
-        if (mentionedUser) {
-          triggerPush(mentionedUser.id, `You were tagged by ${myUsername}`, userMsg, window.location.href);
-        }
+    // 3. Trigger Mention Notifications (@username)
+    const mentionMatch = userMsg.match(/@(\w+)/);
+    if (mentionMatch) {
+      const usernameToFind = mentionMatch[1];
+      const { data: mentionedUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', usernameToFind)
+        .single();
+
+      if (mentionedUser) {
+        triggerPush(mentionedUser.id, `You were tagged by ${myUsername}`, userMsg, window.location.href);
       }
     }
+
+    // 4. Trigger Broadcast Notifications (@all)
+    if (userMsg.toLowerCase().includes('@all')) {
+       fetch('/api/notify-all', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           title: `Announcement from ${myUsername}`,
+           body: userMsg,
+           url: window.location.href
+         })
+       }).catch(err => console.error("Broadcast failed:", err));
+    }
   
-    // 3. Handle Bot Trigger
+    // 5. Handle Bot Trigger
     const cleanMsg = userMsg.toLowerCase();
     const matchedBot = bots.find(bot => bot.trigger_word === cleanMsg);
     if (matchedBot) {
@@ -458,7 +470,7 @@ const sendMessage = async (e: React.FormEvent) => {
       });
     }
   };
-
+  
   // Helper function to keep the code clean
   const triggerPush = (targetId: string, title: string, body: string, url: string) => {
     fetch('/api/notify-user', {
@@ -885,7 +897,7 @@ const FormattedMessage = ({ text, myUsername }: { text: string, myUsername: stri
   if (!text) return null;
   
   // This regex matches URLs OR @mentions
-  const parts = text.split(/(https?:\/\/[^\s]+|@\w+)/g);
+  const parts = text.split(/(https?:\/\/[^\s]+|@\w+|@all)/gi);
   
   return (
     <span>
