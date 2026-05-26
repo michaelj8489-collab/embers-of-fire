@@ -470,7 +470,7 @@ const sendMessage = async (e: React.FormEvent) => {
       });
     }
   };
-  
+
   // Helper function to keep the code clean
   const triggerPush = (targetId: string, title: string, body: string, url: string) => {
     fetch('/api/notify-user', {
@@ -723,13 +723,13 @@ const sendMessage = async (e: React.FormEvent) => {
                   </span>
                                     
                   {/* SCALED MESSAGE BUBBLE */}
-                  <div className={`max-w-[85%] md:max-w-[70%] p-2 md:p-3 rounded-md text-sm md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${
+                 <div className={`max-w-[85%] md:max-w-[70%] p-2 md:p-3 rounded-md text-sm md:text-lg font-bold font-cinzel shadow-xl flex flex-col ${
                     msg.user_id === user?.id 
-                      ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' 
-                      : isMentioned
-                        ? 'bg-red-950/90 text-white rounded-tl-none border-2 border-red-500 backdrop-blur-sm shadow-[0_0_15px_rgba(239,68,68,0.6)]'
-                        : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'
-                  }`}>
+                    ? 'bg-orange-600/90 text-white rounded-tr-none backdrop-blur-sm' 
+                    : isMentioned
+                    ? 'bg-red-950/90 text-white rounded-tl-none border-2 border-yellow-400 backdrop-blur-md shadow-[0_0_20px_rgba(253,224,71,0.7)] animate-pulse'
+                    : 'bg-zinc-900/80 text-gray-200 rounded-tl-none border border-orange-900/30 backdrop-blur-sm'
+                    }`}>
                       
                     {msg.parent_id && (
                       <div className="bg-black/30 border-l-4 border-orange-400/50 rounded-r p-1.5 md:p-2 mb-1.5 md:mb-2 text-xs md:text-sm text-gray-300/90 max-w-full overflow-hidden">
@@ -896,22 +896,41 @@ const sendMessage = async (e: React.FormEvent) => {
 const FormattedMessage = ({ text, myUsername }: { text: string, myUsername: string }) => {
   if (!text) return null;
   
-  // This regex matches URLs OR @mentions
-  const parts = text.split(/(https?:\/\/[^\s]+|@\w+|@all)/gi);
+  // The 'gi' flag makes this entirely case-insensitive
+  const parts = text.split(/(https?:\/\/[^\s]+|@\w+)/gi);
   
   return (
     <span>
       {parts.map((part, i) => {
-        if (part.startsWith('http')) {
-          return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 underline font-bold break-all transition-colors">{part}</a>;
-        } else if (part.startsWith('@')) {
-          const isMe = part.toLowerCase() === `@${myUsername.toLowerCase()}`;
-          return (
-            <span key={i} className={`font-bold ${isMe ? 'text-red-500 bg-red-950/30 px-1 rounded' : 'text-orange-300'}`}>
-              {part}
-            </span>
-          );
+        const lowerPart = part.toLowerCase();
+        
+        // 1. Handle Links
+        if (lowerPart.startsWith('http')) {
+          return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline font-bold break-all transition-colors">{part}</a>;
+        } 
+        // 2. Handle Mentions
+        else if (lowerPart.startsWith('@')) {
+          const isMe = myUsername && lowerPart === `@${myUsername.toLowerCase()}`;
+          const isAll = lowerPart === '@all';
+          
+          // If it's tagging ME or ALL, make it glow aggressively
+          if (isMe || isAll) {
+            return (
+              <span key={i} className="text-yellow-300 font-bold bg-yellow-900/40 border border-yellow-500/50 px-1.5 py-0.5 rounded-md shadow-[0_0_10px_rgba(253,224,71,0.6)] animate-pulse mx-1">
+                {part}
+              </span>
+            );
+          } 
+          // If it's tagging someone else, just color it orange
+          else {
+            return (
+              <span key={i} className="text-orange-400 font-bold cursor-pointer hover:underline mx-1">
+                {part}
+              </span>
+            );
+          }
         }
+        // 3. Regular Text
         return <span key={i}>{part}</span>;
       })}
     </span>
