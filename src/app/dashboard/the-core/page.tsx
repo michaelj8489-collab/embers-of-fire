@@ -87,7 +87,7 @@ export default function TheCorePage() {
            className="absolute inset-0 w-full h-full object-cover z-0 fixed opacity-20"
          >
            {/* Placeholder video until the user drops in the new MP4 */}
-           <source src="/images/jmc-edits-palettes/defining-your-character-bg.mp4" type="video/mp4" />
+           <source src="/images/jmc-edits-palettes/phoenix-arriving.mp4" type="video/mp4" />
          </video>
          <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none fixed" /> 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
