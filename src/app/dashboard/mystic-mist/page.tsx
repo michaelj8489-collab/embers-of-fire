@@ -5,6 +5,7 @@ import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 export default function MysticMistPage() {
   return (
@@ -61,14 +62,7 @@ export default function MysticMistPage() {
                 </div>
                 
                 <div className="w-full flex justify-center">
-                  <iframe 
-                    src="https://zeno.fm/player/rise-radio-woqo" 
-                    width="100%" 
-                    height="120" 
-                    frameBorder="0" 
-                    scrolling="no" 
-                    className="rounded-lg shadow-2xl"
-                  ></iframe>
+                  <GlobalZenoPlayer className="shadow-2xl" />
                 </div>
                 
                 <p className="font-cormorant text-center text-orange-400 mt-4 italic text-lg tracking-wide font-bold">

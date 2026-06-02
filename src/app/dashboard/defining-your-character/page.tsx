@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 // --- TYPESCRIPT BLUEPRINTS ---
 interface Episode {
@@ -133,14 +134,7 @@ export default function DefiningYourCharacterPage() {
                   </div>
                   
                   <div className="w-full flex justify-center">
-                    <iframe 
-                      src="https://zeno.fm/player/rise-radio-woqo" 
-                      width="100%" 
-                      height="120" 
-                      frameBorder="0" 
-                      scrolling="no" 
-                      className="rounded-lg shadow-2xl"
-                    ></iframe>
+                    <GlobalZenoPlayer className="shadow-2xl" />
                   </div>
                   
                   <p className="font-cormorant text-center text-gray-500 mt-4 italic text-sm tracking-wide">

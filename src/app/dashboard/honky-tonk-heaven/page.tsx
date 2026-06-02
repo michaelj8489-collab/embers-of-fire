@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 // --- TYPESCRIPT BLUEPRINTS ---
 interface Episode {
@@ -133,14 +134,7 @@ export default function HonkyTonkPage() {
             <div className="w-full max-w-4xl mx-auto bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-orange-500/20 shadow-2xl mb-8">
                <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">Honky Tonk Heaven: Live Broadcast</h3>
                <div className="w-full flex justify-center">
-                 <iframe 
-                   src="https://zeno.fm/player/rise-radio-woqo" 
-                   width="100%" 
-                   height="120" 
-                   frameBorder="0" 
-                   scrolling="no" 
-                   className="rounded-lg shadow-2xl"
-                 ></iframe>
+                 <GlobalZenoPlayer className="shadow-2xl" />
                </div>
             </div>
 

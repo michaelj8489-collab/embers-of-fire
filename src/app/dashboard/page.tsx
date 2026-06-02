@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation'; // Removed the unused useRouter
 import { createClient } from '@/utils/supabase/client';
 import { getStripe } from '@/utils/stripe/client';
+import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 function DashboardContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -212,16 +213,9 @@ function DashboardContent() {
             </div>
 
             <div className="bg-black/60 backdrop-blur-md border border-red-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl">
-              <h3 className="font-cinzel text-red-500 text-xl md:text-2xl mb-12 tracking-widest uppercase">Frequencies</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="w-full">
-                  <h4 className="font-cinzel text-white text-xs tracking-[0.3em] uppercase mb-6 opacity-50">Rise Radio: The Signal</h4>
-                  <iframe src="https://zeno.fm/player/rise-radio-woqo" width="100%" height="180" frameBorder="0" scrolling="no" className="rounded-2xl bg-orange-900/5"></iframe>
-                </div>
-                <div className="w-full">
-                  <h4 className="font-cinzel text-white text-xs tracking-[0.3em] uppercase mb-6 opacity-50">Rise Awakenings: The Core</h4>
-                  <iframe src="https://zeno.fm/player/rise-awakenings" width="100%" height="180" frameBorder="0" scrolling="no" className="rounded-2xl bg-red-900/5"></iframe>
-                </div>
+              <h3 className="font-cinzel text-red-500 text-xl md:text-2xl mb-8 tracking-widest uppercase">Frequencies</h3>
+              <div className="w-full">
+                <GlobalZenoPlayer className="rounded-2xl" />
               </div>
             </div>
           </div>

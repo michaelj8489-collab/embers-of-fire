@@ -6,6 +6,7 @@ import Link from 'next/link';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { GiphyFetch } from '@giphy/js-fetch-api';
 import { Grid } from '@giphy/react-components';
+import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
@@ -668,15 +669,8 @@ const sendMessage = async (e: React.FormEvent) => {
             </div>
             
             {showRadio && (
-              <div className="w-full h-[70px] md:h-[120px] transition-all duration-300">
-                <iframe 
-                  src="https://zeno.fm/player/rise-radio-woqo" 
-                  width="100%" 
-                  height="100%" 
-                  frameBorder="0" 
-                  scrolling="no" 
-                  className="rounded-lg shadow-xl shrink-0"
-                ></iframe>
+              <div className="w-full transition-all duration-300 mt-2">
+                <GlobalZenoPlayer />
               </div>
             )}
           </div>
