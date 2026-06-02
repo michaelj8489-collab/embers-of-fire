@@ -100,7 +100,6 @@ function DashboardContent() {
     { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
     { name: "Honky Tonk Heaven", day: "Wednesdays", time: "9:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
     { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core" },
-    { name: "Illuminate", day: "Fridays", time: "11:00 AM EST", href: "/dashboard/illuminate" },
     { name: "Defining Your Character", day: "Thursdays", time: "5:00 PM EST", href: "/dashboard/defining-your-character"},
     { name: "Mystic Mist", day: "Sundays", time: "Coming May 10", href: "/dashboard/mystic-mist" },
   ];

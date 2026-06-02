@@ -105,7 +105,6 @@ export default function Header() {
     { name: "Brindle's Vision", href: "/dashboard/brindles-vision" },
     { name: "Phoenix Talks", href: "/dashboard/phoenix-talks" },
     { name: "The CORE", href: "/dashboard/the-core" },
-    { name: "Illuminate", href: "/dashboard/illuminate" },
     { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
     { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
     { name: "Mystic Mist", href: "/dashboard/mystic-mist" }

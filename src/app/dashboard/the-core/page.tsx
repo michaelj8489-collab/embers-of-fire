@@ -78,16 +78,18 @@ export default function TheCorePage() {
        // 1. THIS DIV IS THE PAGE WRAPPER (Keep it!)
        <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
          
-         {/* 2. THE BACKGROUND IMAGE (Placed inside the wrapper, absolute position) */}
-         <div className="fixed inset-0 z-0">
-           <Image
-              src="/images/jmc-edits-palettes/the-core-bg.png" 
-              alt="The CORE Background"
-              className="w-full h-full object-cover opacity-30"
-              fill
-           />
-           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10 pointer-events-none"></div>
-         </div> 
+         {/* VIDEO BACKGROUND - 20% Opacity */}
+         <video 
+           autoPlay 
+           loop 
+           muted 
+           playsInline 
+           className="absolute inset-0 w-full h-full object-cover z-0 fixed opacity-20"
+         >
+           {/* Placeholder video until the user drops in the new MP4 */}
+           <source src="/images/jmc-edits-palettes/defining-your-character-bg.mp4" type="video/mp4" />
+         </video>
+         <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none fixed" /> 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />
 
@@ -183,7 +185,7 @@ export default function TheCorePage() {
               <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
-                    src="/images/jmc-edits-palettes/the-core-3-in-1.png" 
+                    src="/images/jmc-edits-palettes/the-core-new-trio.png" 
                     alt="Welcome to The CORE" 
                     className="w-full h-full object-contain" 
                   />
@@ -191,7 +193,7 @@ export default function TheCorePage() {
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
                   <div className="font-cormorant text-xl text-gray-300 space-y-5 leading-relaxed">
                     <p>
-                      Step into a one-of-a-kind guidance experience you simply won't find anywhere else. <em className="text-orange-400 font-semibold">The CORE</em> is where Karrie "Lunaria" Lynne, Michka "BrindleWolf" Grant, and Rev. Diane R. DeBiasi come together to illuminate your path.
+                      Step into a one-of-a-kind guidance experience you simply won't find anywhere else. <em className="text-orange-400 font-semibold">The CORE</em> is where Michka "BrindleWolf" Grant, Rev. Diane R. DeBiasi, and Michael J. Cox come together to illuminate your path.
                     </p>
                     <p>
                       Each week, to kick off the show, this dynamic trio performs a vital ritual: sitting in entirely different states, within the sanctity of their own spaces, they each pull a single card from their individual tarot decks. The crucial factor that makes this guidance unique is that none of them have any clue what the others have pulled until the show actually starts.
@@ -206,7 +208,7 @@ export default function TheCorePage() {
               <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <img 
-                    src="/images/jmc-edits-palettes/the-core-bio-2.png" 
+                    src="/images/jmc-edits-palettes/the-core-new-trio.png" 
                     alt="The CORE Origin" 
                     className="w-full h-full object-contain" 
                   />
@@ -224,6 +226,9 @@ export default function TheCorePage() {
                     </blockquote>
                     <p>
                       By combining their individual spiritual gifts and coaching styles into one unified voice, they brought that vision to life—and <em className="text-orange-400 font-semibold">The CORE</em> was born.
+                    </p>
+                    <p>
+                      Recently, Karrie decided to step back from her role, leaving a profound legacy behind. To ensure the show's powerful guidance continues, Michael J. Cox has picked up the slack and stepped in, bringing his own unique energy to honor the show's original vision and guide it into its next chapter.
                     </p>
                   </div>
                 </div>
