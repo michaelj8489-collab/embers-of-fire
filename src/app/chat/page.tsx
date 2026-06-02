@@ -3,10 +3,12 @@ import Image from 'next/image';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
+import dynamic from 'next/dynamic';
 import { GiphyFetch } from '@giphy/js-fetch-api';
-import { Grid } from '@giphy/react-components';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
+
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+const GiphyGrid = dynamic<any>(() => import('@giphy/react-components').then(mod => mod.Grid as any), { ssr: false });
 
 const PUBLIC_CHANNELS = [
   { id: 'global', name: 'Global Sanctuary', shortName: 'GLOBAL', desc: 'Main community chat' },
@@ -826,7 +828,7 @@ const sendMessage = async (e: React.FormEvent) => {
           <div className="flex-none relative w-full max-w-full">
             {showEmojiPicker && (
               <div className="absolute bottom-full left-2 md:left-4 mb-2 z-50 shadow-2xl scale-90 md:scale-100 origin-bottom-left">
-                <EmojiPicker theme={Theme.DARK} onEmojiClick={(emojiObject) => { setNewMessage(prev => prev + emojiObject.emoji); setShowEmojiPicker(false); }} />
+                <EmojiPicker theme={"dark" as any} onEmojiClick={(emojiObject) => { setNewMessage(prev => prev + emojiObject.emoji); setShowEmojiPicker(false); }} />
               </div>
             )}
 
@@ -839,8 +841,8 @@ const sendMessage = async (e: React.FormEvent) => {
                   onChange={(e) => setGifSearch(e.target.value)}
                   className="w-full bg-black/50 border border-gray-700 rounded-lg p-1.5 md:p-2 text-white outline-none focus:border-orange-500 font-cinzel text-xs md:text-sm min-w-0"
                 />
-                <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden">
-                  <Grid width={230} columns={2} fetchGifs={fetchGifs} key={gifSearch} onGifClick={(gif, e) => { e.preventDefault(); sendGifMessage(gif.images.original.url); setShowGifPicker(false); setGifSearch(''); }} />
+                <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden w-full max-w-full">
+                  <GiphyGrid width={230} columns={2} fetchGifs={fetchGifs} key={gifSearch} onGifClick={(gif: any, e: any) => { e.preventDefault(); sendGifMessage(gif.images.original.url); setShowGifPicker(false); setGifSearch(''); }} />
                 </div>
               </div>
             )}
