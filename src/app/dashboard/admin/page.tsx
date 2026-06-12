@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
 import BotManager from '@/components/BotManager'; // Correct import
-import StarMakerScraper from '@/components/StarMakerScraper';
 
 const TIERS = [
   { id: 'seeker', label: 'Seeker' },
@@ -136,8 +135,6 @@ export default function AdminDashboard() {
             </p>
           )}
         </section>
-        
-        <StarMakerScraper />
         
         <BotManager />
 
