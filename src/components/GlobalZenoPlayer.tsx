@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 
 const STATIONS = [
   { id: 'rise-radio-woqo', name: 'Rise Radio Main' },
-  { id: 'hvh0vw6jdowtv', name: 'Rise Awakenings' },
+  { id: 'rise-awakenings', name: 'Rise Awakenings' },
   { id: 'rise-frequencies', name: 'Rise Frequencies' }
 ];
 
@@ -43,6 +43,7 @@ export default function GlobalZenoPlayer({ className = '' }: GlobalZenoPlayerPro
           height="100%" 
           frameBorder="0" 
           scrolling="no" 
+          sandbox="allow-scripts allow-same-origin"
           className="absolute inset-0 w-full h-full"
         ></iframe>
       </div>
