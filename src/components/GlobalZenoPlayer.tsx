@@ -43,11 +43,9 @@ export default function GlobalZenoPlayer({ className = '' }: GlobalZenoPlayerPro
           height="100%" 
           frameBorder="0" 
           scrolling="no" 
-          sandbox="allow-scripts allow-same-origin"
           className="absolute inset-0 w-full h-full"
         ></iframe>
       </div>
     </div>
   );
 }
-
