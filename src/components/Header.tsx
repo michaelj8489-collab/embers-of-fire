@@ -133,6 +133,13 @@ export default function Header() {
                 </Link>
               )}
 
+              <Link 
+                href="/community-standards" 
+                className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 transition-colors"
+              >
+                Standards
+              </Link>
+
               {/* THE GLOWING CHAT LINK */}
               <Link 
                 href="/chat" 
@@ -232,6 +239,14 @@ export default function Header() {
                   <span className="absolute top-1 -right-5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
                 )}
               </div>
+
+              <Link 
+                href="/community-standards" 
+                onClick={() => setIsOpen(false)} 
+                className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel"
+              >
+                Standards
+              </Link>
               
               <button 
                 onClick={() => setShowsOpen(!showsOpen)}
