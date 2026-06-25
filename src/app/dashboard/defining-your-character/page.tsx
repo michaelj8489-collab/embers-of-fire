@@ -7,7 +7,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
-import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 // --- TYPESCRIPT BLUEPRINTS ---
 interface Episode {
@@ -44,7 +43,15 @@ export default function DefiningYourCharacterPage() {
   // --- RSS FEED STATE ---
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState<'archive' | 'live'>('live');
+  const [parentDomain, setParentDomain] = useState('');
   const [activeEpisode, setActiveEpisode] = useState<Episode | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setParentDomain(window.location.hostname);
+    }
+  }, []);
 
   // --- FETCH RSS FEED DATA ---
   useEffect(() => {
@@ -120,80 +127,102 @@ export default function DefiningYourCharacterPage() {
 
             <SectionDivider />
 
-            {/* PLAYER CONTAINER */}
-            <div className="flex flex-col gap-8">
-              {/* LIVE AUDIO PLAYER BOX */}
-              <section className="max-w-2xl mx-auto w-full">
-                <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
-                  <div className="flex items-center justify-center gap-3 mb-6">
-                    <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
-                    </span>
-                    <h2 className="font-cinzel text-xs uppercase tracking-[0.4em] text-gray-400 font-bold">Live Broadcast Stream</h2>
-                  </div>
-                  
-                  <div className="w-full flex justify-center">
-                    <GlobalZenoPlayer className="shadow-2xl" />
-                  </div>
-                  
-                  <p className="font-cormorant text-center text-gray-500 mt-4 italic text-sm tracking-wide">
-                    Saturday's at 6 PM EST
-                  </p>
-                </div>
-              </section>
+            {/* --- SMART PLAYER & CHAT SECTION --- */}
+            <div className="mb-12 relative">
+              <div className="flex justify-center gap-4 mb-8">
+                <button 
+                  onClick={() => setActiveView('live')}
+                  className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'live' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}
+                >
+                  🔴 Live Stream & Chat
+                </button>
+                <button 
+                  onClick={() => setActiveView('archive')}
+                  className={`px-6 py-2 font-cinzel text-sm border transition-all rounded-full uppercase tracking-widest active:scale-95 ${activeView === 'archive' ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(234,88,12,0.3)]' : 'border-gray-600 text-gray-500'}`}
+                >
+                  🎬 The Archives
+                </button>
+              </div>
 
-              {/* ARCHIVE PLAYER SECTION */}
-              <section className="max-w-2xl mx-auto w-full">
-                 <div className="bg-zinc-900/60 border border-orange-500/20 p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
-                   <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
-                   
-                   {loading ? (
-                      <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
-                   ) : episodes.length > 0 ? (
-                      <div className="flex flex-col gap-6">
-                        {activeEpisode ? (
-                          <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
-                            <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
-                            <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg accent-orange-500" autoPlay>
-                              Your browser does not support the audio element.
-                            </audio>
-                          </div>
-                        ) : (
-                          <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
-                             <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
-                          </div>
-                        )}
+              <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-black relative">
+                {activeView === 'live' ? (
+                  <div className="flex flex-col md:flex-row w-full md:h-[600px]">
+                    {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
+                    <div className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full bg-black">
+                      {parentDomain && (
+                        <iframe
+                          src={`https://player.twitch.tv/?channel=michaelj8489&parent=${parentDomain}&muted=false&autoplay=true`}
+                          className="w-full h-full" 
+                          frameBorder="0" 
+                          allowFullScreen={true}
+                        />
+                      )}
+                    </div>
+                    {/* CHAT: Capped height on mobile, full height/width on desktop */}
+                    <div className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
+                      {parentDomain && (
+                        <iframe
+                          src={`https://www.twitch.tv/embed/michaelj8489/chat?parent=${parentDomain}&darkpopout`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                        />
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full bg-zinc-900/60 p-8">
+                     <h3 className="font-cinzel text-orange-400 text-center mb-8 tracking-[0.2em] uppercase font-bold">The Archives: Past Episodes</h3>
+                     
+                     {loading ? (
+                        <p className="text-center font-cormorant text-orange-200/60 italic text-xl animate-pulse">Loading the vault...</p>
+                     ) : episodes.length > 0 ? (
+                        <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+                          {activeEpisode ? (
+                            <div className="bg-orange-900/20 border border-orange-500/40 p-4 rounded-xl">
+                              <h4 className="font-cinzel text-orange-300 font-bold mb-4 text-lg">{activeEpisode.title}</h4>
+                              <audio controls src={activeEpisode.enclosureUrl} className="w-full h-12 outline-none rounded-lg accent-orange-500" autoPlay>
+                                Your browser does not support the audio element.
+                              </audio>
+                            </div>
+                          ) : (
+                            <div className="bg-black/40 border border-gray-800 p-4 rounded-xl text-center">
+                               <p className="font-cinzel text-gray-400 tracking-wide text-sm">SELECT AN EPISODE BELOW TO PLAY</p>
+                            </div>
+                          )}
 
-                        <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
-                          {episodes.map((ep, idx) => {
-                            const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
-                            return (
-                              <button
-                                key={idx}
-                                onClick={() => setActiveEpisode(ep)}
-                                className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
-                                  isPlaying
-                                    ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
-                                    : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
-                                }`}
-                              >
-                                <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
-                                  {ep.title}
-                                </div>
-                                <div className="font-cormorant text-sm opacity-60">
-                                  {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                </div>
-                              </button>
-                            );
-                          })}
+                          <div className="max-h-80 overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-black/40">
+                            {episodes.map((ep, idx) => {
+                              const isPlaying = activeEpisode?.enclosureUrl === ep.enclosureUrl;
+                              return (
+                                <button
+                                  key={idx}
+                                  onClick={() => setActiveEpisode(ep)}
+                                  className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                                    isPlaying
+                                      ? 'bg-orange-600/30 border-orange-500 text-white shadow-lg'
+                                      : 'bg-black/50 border-gray-800 text-gray-300 hover:border-orange-500/50 hover:bg-orange-900/20'
+                                  }`}
+                                >
+                                  <div className={`font-cinzel font-bold text-lg mb-1 ${isPlaying ? 'text-orange-300' : ''}`}>
+                                    {ep.title}
+                                  </div>
+                                  <div className="font-cormorant text-sm opacity-60">
+                                    {new Date(ep.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                   ) : (
-                      <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
-                   )}
-                 </div>
-              </section>
+                     ) : (
+                        <p className="text-center font-cormorant text-gray-400 italic text-xl">No archived episodes found.</p>
+                     )}
+                  </div>
+                )}
+              </div>
+              <p className="text-center font-cormorant italic text-gray-500 mt-4">
+                {activeView === 'live' ? "You are watching Defining Your Character Live! Saturday's at 6 PM EST" : 'Viewing Defining Your Character Archives.'}
+              </p>
             </div>
 
             <SectionDivider />
