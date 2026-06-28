@@ -20,6 +20,7 @@ const cormorant = Cormorant({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://embers-of-light-d763.vercel.app'),
   title: 'Rise Radio Network | Embers of Light Hub',
   manifest: '/manifest.json', 
   description: 'The exclusive sanctuary and hub for the Rise Radio community. Join the awareness.',
