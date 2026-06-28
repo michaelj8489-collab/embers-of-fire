@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: 'Rise Radio Network',
     images: [
       {
-        url: '/opengraph-image.png',
+        url: '/images/jmc-edits-palettes/new-embers-logo.jpg',
         width: 1200,
         height: 630,
         alt: 'Embers of Light Phoenix Logo',

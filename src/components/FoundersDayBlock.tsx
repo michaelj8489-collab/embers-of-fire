@@ -105,6 +105,20 @@ export default function FoundersDayBlock() {
             </div>
             <p className="text-xs text-gray-400 mt-3 uppercase tracking-wide font-cinzel">Listed as Shawn Grant</p>
           </div>
+
+          {/* PayPal Option */}
+          <div className="flex flex-col items-center p-6 border border-blue-500/50 rounded-xl bg-black/60 w-full max-w-xs shadow-[0_0_15px_rgba(59,130,246,0.15)] backdrop-blur-sm">
+            <h3 className="text-xl font-cinzel text-blue-400 mb-3">PayPal</h3>
+            <a 
+              href="https://www.paypal.me/brindlewolf" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-black px-4 py-3 rounded-lg font-mono text-blue-300 border border-blue-500/30 w-full text-center tracking-wider text-[16px] hover:bg-blue-900/30 transition-colors"
+            >
+              paypal.me/brindlewolf
+            </a>
+            <p className="text-xs text-gray-400 mt-3 uppercase tracking-wide font-cinzel">Direct Link</p>
+          </div>
         </div>
 
       </div>

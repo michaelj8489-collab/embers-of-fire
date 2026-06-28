@@ -122,6 +122,25 @@ export default function DonateTierPage() {
             </div>
           ))}
         </div>
+
+        {/* PayPal One-Time Donation Section */}
+        <div className="mt-20 flex flex-col items-center w-full max-w-4xl px-4">
+          <h2 className="text-3xl md:text-4xl font-cinzel font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 drop-shadow-[0_2px_10px_rgba(0,112,186,0.3)] text-center">
+            One-Time Contribution
+          </h2>
+          <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent mb-8 shadow-[0_0_10px_rgba(0,112,186,0.5)]" />
+          <p className="text-gray-200 text-xl font-medium italic mb-8 text-center max-w-2xl leading-relaxed">
+            Prefer to make a single contribution? Support the network directly via PayPal.
+          </p>
+          <a 
+            href="https://www.paypal.me/brindlewolf" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="bg-gradient-to-r from-[#0070ba] to-[#005ea6] hover:brightness-110 text-white font-bold py-4 px-12 rounded-xl transition-all duration-300 shadow-[0_10px_20px_rgba(0,112,186,0.4)] hover:scale-105 active:scale-95 uppercase tracking-wider flex items-center justify-center text-lg"
+          >
+            Donate via PayPal
+          </a>
+        </div>
       </main>
       <Footer />
     </div>
