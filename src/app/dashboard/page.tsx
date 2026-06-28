@@ -10,6 +10,7 @@ import { useSearchParams } from 'next/navigation'; // Removed the unused useRout
 import { createClient } from '@/utils/supabase/client';
 import { getStripe } from '@/utils/stripe/client';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
+import FoundersDayBlock from '@/components/FoundersDayBlock';
 
 function DashboardContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -127,6 +128,8 @@ function DashboardContent() {
           {/* ALERTS BUTTON: Placed at the top level so it can float freely! */}
         <PushNotificationButton />
           
+          <FoundersDayBlock />
+          
           {/* HERO SECTION - THE TRINITY */}
           <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-12">
             
@@ -158,48 +161,7 @@ function DashboardContent() {
             </Link>
           </div>
 
-          {/* NEW: FEED THE FIRE DONATION BLOCK */}
-          <div className="w-full max-w-7xl relative rounded-3xl overflow-hidden shadow-2xl mb-24 border border-orange-500/30">
-           <Image 
-              src="images/jmc-edits-palettes/feeding-the-phoenix.png"
-              alt="Description"
-              fill
-              className="absolute inset-0 object-cover object-center opacity-55 z-0"
-              sizes="100vw"
-            />
 
-            <PushNotificationButton />
-
-            <div className="absolute inset-0 bg-black/80" /> 
-            
-            <div className="relative z-10 p-10 md:p-16 flex flex-col items-center text-center">
-              <h2 className="text-3xl md:text-4xl font-cinzel text-orange-400 mb-6 tracking-widest uppercase">Feed the Fire</h2>
-              
-              <p className="text-xl md:text-2xl font-cormorant text-gray-200 max-w-4xl mb-10 leading-relaxed italic">
-                No flame can stay lit without fuel to burn. A phoenix cant rise without an ember to form from. No matter how great or small, we appreciate any help keeping the embers burning so that Rise can continue to bring you the shows and stations you love and give those who want it a stage to stand on to kindle their own spark. Help feed the fire and keep it burning through the night.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 w-full justify-center mt-4">
-                {/* Cash App Option */}
-                <div className="flex flex-col items-center p-6 border border-emerald-500/50 rounded-xl bg-black/60 w-full max-w-xs shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                  <h3 className="text-xl font-cinzel text-emerald-400 mb-3">Cash App</h3>
-                  <div className="bg-black px-4 py-3 rounded-lg font-mono text-emerald-300 border border-emerald-500/30 w-full text-center tracking-wider text-lg">
-                    $Brindlewolf
-                  </div>
-                  <p className="text-xs text-gray-400 mt-3 uppercase tracking-wide font-cinzel">Listed as Michka Grant</p>
-                </div>
-
-                {/* Venmo Option */}
-                <div className="flex flex-col items-center p-6 border border-sky-500/50 rounded-xl bg-black/60 w-full max-w-xs shadow-[0_0_15px_rgba(14,165,233,0.15)]">
-                  <h3 className="text-xl font-cinzel text-sky-400 mb-3">Venmo</h3>
-                  <div className="bg-black px-4 py-3 rounded-lg font-mono text-sky-300 border border-sky-500/30 w-full text-center tracking-wider text-lg">
-                    @Brindlewolf
-                  </div>
-                  <p className="text-xs text-gray-400 mt-3 uppercase tracking-wide font-cinzel">Listed as Shawn Grant</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <div className="w-full max-w-5xl flex flex-col gap-12 mb-24">
             <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
