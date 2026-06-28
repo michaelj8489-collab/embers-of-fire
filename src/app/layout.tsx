@@ -20,23 +20,13 @@ const cormorant = Cormorant({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://embers-of-light-d763.vercel.app'),
   title: 'Rise Radio Network | Embers of Light Hub',
   manifest: '/manifest.json', 
   description: 'The exclusive sanctuary and hub for the Rise Radio community. Join the awareness.',
   openGraph: {
     title: 'Rise Radio Network | Embers of Light Hub',
     description: 'Join the sanctuary. Fuel the journey.',
-    url: 'https://embers-of-light-d763.vercel.app',
     siteName: 'Rise Radio Network',
-    images: [
-      {
-        url: '/images/jmc-edits-palettes/new-embers-logo.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Embers of Light Phoenix Logo',
-      },
-    ],
     locale: 'en_US',
     type: 'website',
   },
