@@ -39,16 +39,16 @@ export default function FoundersDayBlock() {
   }, []);
 
   return (
-    <div className="w-full max-w-7xl relative rounded-[2.5rem] overflow-hidden shadow-2xl mb-12 border border-orange-500/30">
+    <div className="w-[100vw] relative left-1/2 -translate-x-1/2 overflow-hidden mb-12 pt-12 pb-8">
       
       {/* VIDEO BACKGROUND */}
-      <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-80 z-0">
+      <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-100 z-0">
         <source src="/images/jmc-edits-palettes/raise-the-phoenix.mp4" type="video/mp4" />
       </video>
       
       {/* OVERLAY TO MAKE TEXT READABLE */}
-      <div className="absolute inset-0 bg-black/75 z-0" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-0" />
+      <div className="absolute inset-0 bg-black/40 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black z-0" />
 
       <div className="relative z-10 p-8 md:p-16 flex flex-col items-center text-center">
         
