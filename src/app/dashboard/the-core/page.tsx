@@ -78,17 +78,14 @@ export default function TheCorePage() {
        // 1. THIS DIV IS THE PAGE WRAPPER (Keep it!)
        <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
          
-         {/* VIDEO BACKGROUND - 20% Opacity */}
-         <video 
-           autoPlay 
-           loop 
-           muted 
-           playsInline 
-           className="absolute inset-0 w-full h-full object-cover z-0 fixed opacity-20"
-         >
-           {/* Placeholder video until the user drops in the new MP4 */}
-           <source src="/images/jmc-edits-palettes/phoenix-arriving.mp4" type="video/mp4" />
-         </video>
+         {/* IMAGE BACKGROUND - 20% Opacity */}
+         <Image 
+           src="/images/jmc-edits-palettes/core-new-trio-bio.png"
+           alt="The CORE Background"
+           fill
+           className="object-cover z-0 fixed opacity-20 pointer-events-none"
+           priority
+         />
          <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none fixed" /> 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Header />

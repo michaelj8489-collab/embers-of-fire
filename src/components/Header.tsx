@@ -101,7 +101,6 @@ export default function Header() {
     
   const shows = [
     { name: "The Bloom", href: "/dashboard/the-bloom" },
-    { name: "The Messengers", href: "/dashboard/the-messengers" },
     { name: "Brindle's Vision", href: "/dashboard/brindles-vision" },
     { name: "Phoenix Talks", href: "/dashboard/phoenix-talks" },
     { name: "The CORE", href: "/dashboard/the-core" },

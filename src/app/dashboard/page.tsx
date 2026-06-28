@@ -96,7 +96,6 @@ function DashboardContent() {
 
   const schedule = [
     { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
-    { name: "The Messengers", day: "Mondays", time: "6:00 PM EST", href: "/dashboard/the-messengers"},
     { name: "Brindle's Vision", day: "Tuesdays", time: "12:00 PM EST", href: "/dashboard/brindles-vision" },
     { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
     { name: "Honky Tonk Heaven", day: "Wednesdays", time: "9:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
@@ -136,7 +135,7 @@ function DashboardContent() {
               className="flex-1 group">
               <div className="relative aspect-square rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-orange-500 group-hover:shadow-[0_0_50px_rgba(234,88,12,0.3)]">
                 <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
-                  <source src="/images/eol-come-alive.mp4" type="video/mp4" />
+                  <source src="/images/jmc-edits-palettes/embers-new-logo.mp4" type="video/mp4" />
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12">
                   <h2 className="font-cinzel text-2xl md:text-3xl lg:text-4xl text-orange-400 tracking-[0.2em] uppercase">The Sanctuary</h2>
