@@ -39,7 +39,7 @@ export default function FoundersDayBlock() {
   }, []);
 
   return (
-    <div className="w-[100vw] relative left-1/2 -translate-x-1/2 overflow-hidden mb-12 pt-12 pb-8">
+    <div className="w-[100vw] relative left-1/2 -translate-x-1/2 overflow-hidden mb-12 -mt-28 md:-mt-40 pt-[120px] md:pt-[180px] pb-12">
       
       {/* VIDEO BACKGROUND */}
       <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-100 z-0">
