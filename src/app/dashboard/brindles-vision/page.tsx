@@ -177,7 +177,7 @@ export default function BrindlesVisionPage() {
                 )}
               </div>
               <p className="text-center font-cormorant italic text-gray-500 mt-4">
-                {activeView === 'live' ? 'You are watching LIVE. Join the chat!' : 'Viewing Brindle Archives. Join us live Tuesdays at 12 PM EST.'}
+                {activeView === 'live' ? 'You are watching LIVE. Join the chat!' : 'Viewing Brindle Archives. Join us live Mondays at 6 PM EST.'}
               </p>
             </div>
 

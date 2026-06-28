@@ -96,7 +96,7 @@ function DashboardContent() {
 
   const schedule = [
     { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
-    { name: "Brindle's Vision", day: "Tuesdays", time: "12:00 PM EST", href: "/dashboard/brindles-vision" },
+    { name: "Brindle's Vision", day: "Mondays", time: "6:00 PM EST", href: "/dashboard/brindles-vision" },
     { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
     { name: "Honky Tonk Heaven", day: "Wednesdays", time: "9:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
     { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core" },
