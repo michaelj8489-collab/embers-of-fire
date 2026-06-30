@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-const TARGET_DATE = new Date('2026-07-02T11:00:00-04:00').getTime(); // July 2, 2026, 11:00 AM EDT (Eastern)
+const TARGET_DATE = new Date('2026-07-16T11:00:00-04:00').getTime(); // July 16, 2026, 11:00 AM EDT (Eastern)
 
 export default function FoundersDayBlock() {
   const [timeLeft, setTimeLeft] = useState({
