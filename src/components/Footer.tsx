@@ -49,7 +49,6 @@ export default function Footer() {
               Host Websites
             </h4>
             <a href="https://www.lnk.bio/brindlewolf" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Brindle Wolf</a>
-            <a href="https://lnk.bio/lunaria555" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Lunaria's Space</a>
             <a href="https://www.healingrose.org/" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Rev Diane R. Dibiasi</a>
           </div>
 
