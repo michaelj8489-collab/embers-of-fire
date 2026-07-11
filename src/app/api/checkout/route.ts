@@ -1,33 +1,71 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-
-// Initialize Stripe securely
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2023-10-16' as any, 
-});
+import { createClient } from '@/utils/supabase/server';
+import {
+  CHECKOUT_TIERS,
+  STRIPE_API_VERSION,
+  jsonError,
+  normalizeTierName,
+  normalizeTrustedAppUrl,
+  readJsonObject,
+  getRequiredEnv,
+} from '@/utils/api/security';
 
 export async function POST(req: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    console.warn('checkout: failed to authenticate user.', {
+      message: userError.message,
+      status: userError.status,
+    });
+    return jsonError('Authentication required.', 401);
+  }
+
+  if (!user) {
+    return jsonError('Authentication required.', 401);
+  }
+
+  if (!user.email) {
+    return jsonError('Authenticated user must have an email address.', 400);
+  }
+
+  const body = await readJsonObject(req);
+  if (!body.ok) return jsonError(body.error, 400);
+
+  const tier = normalizeTierName(body.value.tierName);
+  if (!tier.ok) return jsonError(tier.error, 400);
+
+  const stripeSecretKey = getRequiredEnv('STRIPE_SECRET_KEY');
+  const appUrl = normalizeTrustedAppUrl();
+
+  if (!stripeSecretKey.ok || !appUrl.ok) {
+    console.error('checkout: missing required server configuration.', {
+      missingStripeKey: !stripeSecretKey.ok,
+      appUrlError: appUrl.ok ? null : appUrl.error,
+    });
+    return jsonError('Checkout is not configured.', 500);
+  }
+
+  const stripe = new Stripe(stripeSecretKey.value, {
+    apiVersion: STRIPE_API_VERSION,
+  });
+
+  const tierName = tier.value;
+  const metadata = {
+    supabase_user_id: user.id,
+    requested_tier: tierName,
+    tier_name: tierName,
+  };
+
   try {
-    // 1. ADDED userEmail HERE so the API knows to look for it
-    const { tierName, userEmail } = await req.json();
-
-    // 1. Map the Tier to the correct price in cents
-    let priceInCents = 0;
-    if (tierName === 'Keepers of the Embers') priceInCents = 500;
-    else if (tierName === 'Flame Bearers') priceInCents = 1500;
-    else if (tierName === 'Phoenix Circle') priceInCents = 3300;
-    else if (tierName === 'Wings of the Phoenix') priceInCents = 7500;
-    else if (tierName === 'Phoenix Ascending') priceInCents = 15000;
-    else {
-      return NextResponse.json({ error: 'Invalid Tier' }, { status: 400 });
-    }
-
-    const origin = req.headers.get('origin') || 'https://www.embersoflight.net';
-
-    // 2. Create the Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
-      // 2. ADDED THIS LINE: Locks the user's email into the Stripe checkout
-      customer_email: userEmail, 
+      customer_email: user.email,
+      client_reference_id: user.id,
       line_items: [
         {
           price_data: {
@@ -35,26 +73,38 @@ export async function POST(req: Request) {
             product_data: {
               name: tierName,
             },
-            unit_amount: priceInCents,
-            // THE FIX: We lock in the exact string literal so TypeScript doesn't panic
+            unit_amount: CHECKOUT_TIERS[tierName],
             recurring: {
-              interval: 'month' as 'month',
+              interval: 'month',
             },
           },
           quantity: 1,
         },
       ],
       mode: 'subscription',
-      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/dashboard`,
-      metadata: {
-        tier_name: tierName, // This is what your Webhook reads!
+      success_url: `${appUrl.value}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl.value}/dashboard`,
+      metadata,
+      subscription_data: {
+        metadata,
       },
     });
 
     return NextResponse.json({ sessionId: session.id });
-  } catch (err: any) {
-    console.error('Checkout Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error('checkout: Stripe session creation failed.', {
+        type: error.type,
+        code: error.code,
+        statusCode: error.statusCode,
+        requestId: error.requestId,
+      });
+    } else {
+      console.error('checkout: unexpected session creation failure.', {
+        errorName: error instanceof Error ? error.name : 'UnknownError',
+      });
+    }
+
+    return jsonError('Unable to start checkout.', 500);
   }
 }

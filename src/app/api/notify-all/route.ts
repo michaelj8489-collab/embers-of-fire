@@ -1,38 +1,62 @@
 import { NextResponse } from 'next/server';
-import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
-
-webpush.setVapidDetails(
-  'mailto:admin@embersoflight.net',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+import {
+  configureWebPush,
+  createSupabaseServiceRoleClient,
+  jsonError,
+  parseNotificationPayload,
+  readJsonObject,
+  requireAdminUser,
+  sendPushNotifications,
+  type PushSubscriptionRow,
+} from '@/utils/api/security';
 
 export async function POST(req: Request) {
+  const auth = await requireAdminUser();
+  if (!auth.ok) return auth.response;
+
+  const body = await readJsonObject(req);
+  if (!body.ok) return jsonError(body.error, 400);
+
+  const payload = parseNotificationPayload(body.value);
+  if (!payload.ok) return jsonError(payload.error, 400);
+
+  const pushConfig = configureWebPush();
+  if (!pushConfig.ok) return jsonError(pushConfig.error, 500);
+
+  const supabaseAdmin = createSupabaseServiceRoleClient();
+  if (!supabaseAdmin.ok) return supabaseAdmin.response;
+
   try {
-    const { title, body, url } = await req.json();
-
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    // Get all subscriptions
-    const { data: allSubs, error } = await supabaseAdmin
+    const { data: subscriptions, error } = await supabaseAdmin.client
       .from('push_subscriptions')
       .select('subscription');
 
-    if (error) throw error;
-    if (!allSubs || allSubs.length === 0) return NextResponse.json({ success: true });
+    if (error) {
+      console.error('notify-all: failed to fetch push subscriptions.', {
+        code: error.code,
+        message: error.message,
+      });
+      return jsonError('Unable to load notification recipients.', 500);
+    }
 
-    // Send to everyone (This is a simplified broadcast)
-    const payload = JSON.stringify({ title, body, url });
-    await Promise.all(allSubs.map((sub) => 
-        webpush.sendNotification(sub.subscription, payload).catch(() => null)
-    ));
+    const rows = (subscriptions ?? []) as PushSubscriptionRow[];
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    if (rows.length === 0) {
+      return NextResponse.json({ success: true, sent: 0 });
+    }
+
+    const summary = await sendPushNotifications(
+      supabaseAdmin.client,
+      rows,
+      payload.value,
+      'notify-all'
+    );
+
+    return NextResponse.json({ success: true, ...summary });
+  } catch (error: unknown) {
+    console.error('notify-all: unexpected notification failure.', {
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+    });
+    return jsonError('Unable to send notifications.', 500);
   }
 }

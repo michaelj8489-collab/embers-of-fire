@@ -1,60 +1,70 @@
 import { NextResponse } from 'next/server';
-import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
-
-// 1. Configure the Push Service with your Keys
-webpush.setVapidDetails(
-  'mailto:admin@embersoflight.net', // Just needs to be a valid admin email
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+import {
+  configureWebPush,
+  createSupabaseServiceRoleClient,
+  jsonError,
+  parseBroadcastPayload,
+  readJsonObject,
+  requireAdminUser,
+  sendPushNotifications,
+  type PushSubscriptionRow,
+} from '@/utils/api/security';
 
 export async function POST(req: Request) {
+  const auth = await requireAdminUser();
+  if (!auth.ok) return auth.response;
+
+  const body = await readJsonObject(req);
+  if (!body.ok) return jsonError(body.error, 400);
+
+  const payload = parseBroadcastPayload(body.value);
+  if (!payload.ok) return jsonError(payload.error, 400);
+
+  const pushConfig = configureWebPush();
+  if (!pushConfig.ok) return jsonError(pushConfig.error, 500);
+
+  const supabaseAdmin = createSupabaseServiceRoleClient();
+  if (!supabaseAdmin.ok) return supabaseAdmin.response;
+
   try {
-    // We expect a Title, Body, and URL from whoever clicks the "Send" button
-    const { title, body, url } = await req.json();
-
-    // 2. Use the Service Role Key to bypass RLS and fetch ALL devices
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY! 
-    );
-
-    const { data: subscriptions, error } = await supabaseAdmin
+    const { data: subscriptions, error } = await supabaseAdmin.client
       .from('push_subscriptions')
       .select('subscription');
 
-    if (error) throw error;
-    if (!subscriptions || subscriptions.length === 0) {
-        return NextResponse.json({ success: true, message: 'No devices registered yet.' });
+    if (error) {
+      console.error('broadcast: failed to fetch push subscriptions.', {
+        code: error.code,
+        message: error.message,
+      });
+      return jsonError('Unable to load broadcast recipients.', 500);
     }
 
-    // 3. Package the payload
-    const payload = JSON.stringify({ 
-        title: title || "Embers of Light", 
-        body: body || "A new event has begun.", 
-        url: url || "/dashboard" 
-    });
+    const rows = (subscriptions ?? []) as PushSubscriptionRow[];
 
-    // 4. Fire the flare to all devices!
-    const sendPromises = subscriptions.map((sub) =>
-      webpush.sendNotification(sub.subscription, payload).catch((err) => {
-        // If a user revokes permission on their phone, it will throw an error here.
-        // In the future, we can add logic here to delete dead tokens!
-        console.error('Failed to send to a specific device.', err);
-      })
+    if (rows.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'No devices registered yet.',
+        sent: 0,
+      });
+    }
+
+    const summary = await sendPushNotifications(
+      supabaseAdmin.client,
+      rows,
+      payload.value,
+      'broadcast'
     );
 
-    // Wait for all messages to be sent
-    await Promise.all(sendPromises);
-
-    return NextResponse.json({ 
-        success: true, 
-        message: `Flare fired successfully to ${subscriptions.length} devices!` 
+    return NextResponse.json({
+      success: true,
+      message: `Broadcast sent to ${summary.sent} device(s).`,
+      ...summary,
     });
-
-  } catch (error: any) {
-    console.error('Broadcast Error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('broadcast: unexpected notification failure.', {
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+    });
+    return jsonError('Unable to send broadcast.', 500);
   }
 }

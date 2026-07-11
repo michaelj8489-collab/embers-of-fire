@@ -1,46 +1,71 @@
 import { NextResponse } from 'next/server';
-import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
-
-webpush.setVapidDetails(
-  'mailto:admin@embersoflight.net',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+import {
+  configureWebPush,
+  createSupabaseServiceRoleClient,
+  jsonError,
+  parseNotificationPayload,
+  readJsonObject,
+  requireAdminUser,
+  sendPushNotifications,
+  validateTargetUserId,
+  type PushSubscriptionRow,
+} from '@/utils/api/security';
 
 export async function POST(req: Request) {
+  const auth = await requireAdminUser();
+  if (!auth.ok) return auth.response;
+
+  const body = await readJsonObject(req);
+  if (!body.ok) return jsonError(body.error, 400);
+
+  const targetUserId = validateTargetUserId(body.value.targetUserId);
+  if (!targetUserId.ok) return jsonError(targetUserId.error, 400);
+
+  const payload = parseNotificationPayload(body.value);
+  if (!payload.ok) return jsonError(payload.error, 400);
+
+  const pushConfig = configureWebPush();
+  if (!pushConfig.ok) return jsonError(pushConfig.error, 500);
+
+  const supabaseAdmin = createSupabaseServiceRoleClient();
+  if (!supabaseAdmin.ok) return supabaseAdmin.response;
+
   try {
-    const { targetUserId, title, body, url } = await req.json();
-
-    // 1. Initialize admin client to find the user's subscription
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    // 2. Find the device subscription for THIS specific user
-    const { data: userSubs, error } = await supabaseAdmin
+    const { data: subscriptions, error } = await supabaseAdmin.client
       .from('push_subscriptions')
       .select('subscription')
-      .eq('user_id', targetUserId);
+      .eq('user_id', targetUserId.value);
 
-    if (error) throw error;
-    if (!userSubs || userSubs.length === 0) {
-        return NextResponse.json({ success: false, message: 'User has no registered devices.' });
+    if (error) {
+      console.error('notify-user: failed to fetch push subscriptions.', {
+        code: error.code,
+        message: error.message,
+      });
+      return jsonError('Unable to load notification recipients.', 500);
     }
 
-    // 3. Send to all devices owned by this user
-    const payload = JSON.stringify({ title, body, url });
-    const sendPromises = userSubs.map((sub) =>
-      webpush.sendNotification(sub.subscription, payload).catch((err) => {
-        console.error('Failed to send to device:', err);
-      })
+    const rows = (subscriptions ?? []) as PushSubscriptionRow[];
+
+    if (rows.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'No registered devices found for that user.',
+        sent: 0,
+      });
+    }
+
+    const summary = await sendPushNotifications(
+      supabaseAdmin.client,
+      rows,
+      payload.value,
+      'notify-user'
     );
 
-    await Promise.all(sendPromises);
-
-    return NextResponse.json({ success: true, message: 'Notification sent to user.' });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, ...summary });
+  } catch (error: unknown) {
+    console.error('notify-user: unexpected notification failure.', {
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+    });
+    return jsonError('Unable to send notification.', 500);
   }
 }
