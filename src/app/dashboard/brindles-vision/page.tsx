@@ -193,9 +193,11 @@ export default function BrindlesVisionPage() {
                 <div className="flex flex-col items-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.1)]">
                     <Image
-                      src="/images/jmc-edits-palettes/brindle-bio-pic.png" 
+                      src="/images/jmc-edits-palettes/brindle-bio-pic.png"
                       alt="Michka Grant"
-                      className="w-full h-full object-contain" 
+                      fill
+                      sizes="280px"
+                      className="object-contain"
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent"></div>
                   </div>
