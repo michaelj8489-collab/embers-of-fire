@@ -1,19 +1,49 @@
-/* eslint-disable */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 
 export default function LivePage() {
-  // Hardcoded to true so you can see it working immediately!
-  const [isLive, setIsLive] = useState(true); 
-  const [parentDomain, setParentDomain] = useState('');
+  const [liveSession, setLiveSession] = useState<LiveSessionSummary | null>(null);
+  const [statusUnavailable, setStatusUnavailable] = useState(false);
+  const [parentDomain] = useState(() =>
+    typeof window === 'undefined' ? '' : window.location.hostname
+  );
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setParentDomain(window.location.hostname);
-    }
+    let cancelled = false;
+
+    const loadLiveStatus = async () => {
+      try {
+        const response = await fetch('/api/show-live', { cache: 'no-store' });
+        const data = (await response.json()) as LiveStatusResponse;
+
+        if (cancelled) return;
+
+        if (!response.ok || !data.success) {
+          setLiveSession(null);
+          setStatusUnavailable(true);
+          return;
+        }
+
+        setStatusUnavailable(data.unavailable);
+        setLiveSession(data.activeSessions[0] ?? null);
+      } catch {
+        if (!cancelled) {
+          setLiveSession(null);
+          setStatusUnavailable(true);
+        }
+      }
+    };
+
+    void loadLiveStatus();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const twitchChannel = liveSession?.twitchChannel;
 
   return (
     <main className="min-h-screen bg-black pt-24 pb-32 px-4 flex flex-col items-center overflow-x-hidden">
@@ -24,13 +54,13 @@ export default function LivePage() {
           <GlobalZenoPlayer />
         </div>
 
-        {/* 2. TWITCH BROADCAST (Exact clone of Phoenix Talks Layout) */}
+        {/* 2. TWITCH BROADCAST */}
         <div className="w-full border border-orange-900/50 rounded-xl overflow-hidden shadow-2xl bg-black relative md:h-[600px]">
-          {isLive ? (
+          {twitchChannel ? (
             <div className="flex flex-col md:flex-row w-full h-full">
               {/* VIDEO */}
               <iframe 
-                src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}&autoplay=true`} 
+                src={`https://player.twitch.tv/?channel=${encodeURIComponent(twitchChannel)}&parent=${parentDomain || 'embersoflight.net'}&autoplay=true`}
                 className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
                 frameBorder="0" 
                 allowFullScreen
@@ -38,7 +68,7 @@ export default function LivePage() {
               
               {/* CHAT */}
               <iframe 
-                src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                src={`https://www.twitch.tv/embed/${encodeURIComponent(twitchChannel)}/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`}
                 className="w-full h-[400px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
                 frameBorder="0"
               ></iframe>
@@ -47,7 +77,11 @@ export default function LivePage() {
             <div className="w-full h-full aspect-video md:aspect-auto flex items-center justify-center bg-gradient-to-br from-orange-950/20 via-black to-black relative">
                <div className="absolute w-64 h-64 bg-orange-600/5 rounded-full blur-[100px]"></div>
                <div className="relative z-10 font-cinzel text-orange-500/80 text-sm md:text-xl tracking-[0.5em] uppercase animate-pulse text-center px-6">
-                  Broadcast Resting
+                  {liveSession
+                    ? `${liveSession.showName} is live outside Twitch`
+                    : statusUnavailable
+                      ? 'Live Status Unavailable'
+                      : 'Broadcast Resting'}
                </div>
             </div>
           )}
@@ -57,3 +91,20 @@ export default function LivePage() {
     </main>
   );
 }
+
+type LiveSessionSummary = {
+  id: string;
+  showName: string;
+  twitchChannel: string | null;
+};
+
+type LiveStatusResponse =
+  | {
+      success: true;
+      unavailable: boolean;
+      activeSessions: LiveSessionSummary[];
+    }
+  | {
+      success: false;
+      error: string;
+    };

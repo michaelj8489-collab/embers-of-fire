@@ -39,6 +39,8 @@ export type NotificationPayload = {
   title: string;
   body: string;
   url: string;
+  icon?: string;
+  image?: string;
   eventId?: string;
   tag?: string;
 };

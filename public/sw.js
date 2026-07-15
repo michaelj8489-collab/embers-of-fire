@@ -22,11 +22,13 @@ async function handlePush(event) {
   const title = sanitizeText(data.title, DEFAULT_NOTIFICATION.title, 120);
   const body = sanitizeText(data.body, DEFAULT_NOTIFICATION.body, MAX_TEXT_LENGTH);
   const url = normalizeInternalPath(data.url, DEFAULT_NOTIFICATION.url);
+  const icon = normalizeInternalPath(data.icon, NOTIFICATION_ICON);
+  const image = normalizeInternalPath(data.image, '');
   const tag = normalizeNotificationTag(data.eventId, 'event') || normalizeNotificationTag(data.tag, 'tag');
 
   const options = {
     body,
-    icon: NOTIFICATION_ICON,
+    icon,
     badge: NOTIFICATION_BADGE,
     vibrate: [100, 50, 100],
     data: {
@@ -38,6 +40,10 @@ async function handlePush(event) {
   if (tag) {
     options.tag = tag;
     options.renotify = false;
+  }
+
+  if (image) {
+    options.image = image;
   }
 
   await self.registration.showNotification(title, options);
