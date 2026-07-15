@@ -6,6 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { GiphyFetch } from '@giphy/js-fetch-api';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
+import { usernamesMatch } from '@/utils/usernamePolicy';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 const GiphyGrid = dynamic<any>(() => import('@giphy/react-components').then(mod => mod.Grid as any), { ssr: false });
@@ -37,6 +38,22 @@ const ROOM_BACKGROUNDS: Record<string, string> = {
 
 const gf = new GiphyFetch('8IJKtjYvrjEQjtwpcGUkKMqqMaQaazIy');
 
+const clearConsumedChatParams = (paramNames: string[]) => {
+  const url = new URL(window.location.href);
+  let changed = false;
+
+  for (const paramName of paramNames) {
+    if (url.searchParams.has(paramName)) {
+      url.searchParams.delete(paramName);
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+};
+
 export default function ChatPage() {
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, any[]>>({});
   const [newMessage, setNewMessage] = useState('');
@@ -54,6 +71,7 @@ export default function ChatPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [unreadDMs, setUnreadDMs] = useState<string[]>([]);
+  const [pushDispatchNotice, setPushDispatchNotice] = useState('');
   const [myUsername, setMyUsername] = useState<string>('');
   const [unreadRooms, setUnreadRooms] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
@@ -67,6 +85,8 @@ export default function ChatPage() {
   
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const deepLinkAppliedRef = useRef(false);
+  const pushDispatchNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentMessages = useMemo(() => {
     if (privateRecipient) return privateMessages;
     return messagesByRoom[activeRoom] || [];
@@ -190,6 +210,52 @@ export default function ChatPage() {
   }, [myUsername, activeRoom, user, privateRecipient, supabase]);
 
   useEffect(() => {
+    if (deepLinkAppliedRef.current || loading) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+    const whisperParam = params.get('whisper');
+
+    if (whisperParam) {
+      if (!user) {
+        clearConsumedChatParams(['whisper']);
+        deepLinkAppliedRef.current = true;
+        return;
+      }
+
+      if (dmUsers.length === 0) return;
+
+      const whisperRecipient = dmUsers.find((dmUser) =>
+        usernamesMatch(dmUser.username, whisperParam)
+      );
+
+      if (whisperRecipient) {
+        setPrivateRecipient(whisperRecipient);
+        setUnreadDMs((prev) => prev.filter((id) => id !== whisperRecipient.id));
+      }
+
+      clearConsumedChatParams(['whisper']);
+      deepLinkAppliedRef.current = true;
+      return;
+    }
+
+    if (roomParam) {
+      const validPublicRoom = PUBLIC_CHANNELS.some((room) => room.id === roomParam);
+      const validAdminRoom = roomParam === 'admin-chat' && isAdmin;
+
+      if (validPublicRoom || validAdminRoom) {
+        setActiveRoom(roomParam);
+        setPrivateRecipient(null);
+        setUnreadRooms((prev) => prev.filter((room) => room !== roomParam));
+      }
+
+      clearConsumedChatParams(['room']);
+    }
+
+    deepLinkAppliedRef.current = true;
+  }, [dmUsers, isAdmin, loading, user]);
+
+  useEffect(() => {
     if (loading) return;
 
     const fetchRoomMessages = async () => {
@@ -254,6 +320,14 @@ export default function ChatPage() {
   }, [supabase, activeRoom, loading]);
 
   useEffect(() => {
+    return () => {
+      if (pushDispatchNoticeTimerRef.current) {
+        clearTimeout(pushDispatchNoticeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const scrollToBottom = () => {
       if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: 'smooth' });
     };
@@ -285,16 +359,59 @@ export default function ChatPage() {
     return gifSearch ? gf.search(gifSearch, { offset, limit: 10 }) : gf.trending({ offset, limit: 10 });
   };
 
+  const showPushDispatchNotice = () => {
+    setPushDispatchNotice('Message sent; notification delivery unavailable');
+
+    if (pushDispatchNoticeTimerRef.current) {
+      clearTimeout(pushDispatchNoticeTimerRef.current);
+    }
+
+    pushDispatchNoticeTimerRef.current = setTimeout(() => {
+      setPushDispatchNotice('');
+      pushDispatchNoticeTimerRef.current = null;
+    }, 5000);
+  };
+
+  const dispatchChatPush = async (messageId: string | null | undefined) => {
+    if (!messageId) return;
+
+    try {
+      const response = await fetch('/api/chat-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId }),
+      });
+
+      if (!response.ok) {
+        console.warn('Chat push dispatch failed.', { status: response.status });
+        if (response.status >= 500) {
+          showPushDispatchNotice();
+        }
+      }
+    } catch (error) {
+      console.warn('Chat push dispatch failed.', {
+        errorName: error instanceof Error ? error.name : 'UnknownError',
+      });
+      showPushDispatchNotice();
+    }
+  };
+
   const sendGifMessage = async (gifUrl: string) => {
     if (!user) return;
-    const { error } = await supabase.from('chat_messages').insert({
-      user_id: user.id,
-      room_name: activeRoom,
-      image_url: gifUrl,
-      parent_id: replyingTo ? replyingTo.id : null
-    });
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert({
+        user_id: user.id,
+        room_name: activeRoom,
+        image_url: gifUrl,
+        parent_id: replyingTo ? replyingTo.id : null,
+        recipient_id: privateRecipient ? privateRecipient.id : null
+      })
+      .select('id')
+      .single();
     setReplyingTo(null);
     if (error) alert("Failed to send GIF: " + error.message);
+    else await dispatchChatPush(data?.id);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -318,14 +435,20 @@ export default function ChatPage() {
 
       const { data: { publicUrl } } = supabase.storage.from('chat_uploads').getPublicUrl(fileName);
 
-      const { error: messageError } = await supabase.from('chat_messages').insert({
-        user_id: user.id,
-        room_name: activeRoom,
-        image_url: publicUrl,
-        parent_id: replyingTo ? replyingTo.id : null
-      });
+      const { data: messageData, error: messageError } = await supabase
+        .from('chat_messages')
+        .insert({
+          user_id: user.id,
+          room_name: activeRoom,
+          image_url: publicUrl,
+          parent_id: replyingTo ? replyingTo.id : null,
+          recipient_id: privateRecipient ? privateRecipient.id : null
+        })
+        .select('id')
+        .single();
 
       if (messageError) throw messageError;
+      await dispatchChatPush(messageData?.id);
       setReplyingTo(null);
     } catch (error: any) {
       alert("Upload failed: " + error.message);
@@ -381,15 +504,20 @@ export default function ChatPage() {
 
         const { data: { publicUrl } } = supabase.storage.from('chat_uploads').getPublicUrl(fileName);
 
-        const { error: messageError } = await supabase.from('chat_messages').insert({
-          user_id: user.id,
-          room_name: activeRoom,
-          image_url: publicUrl, 
-          parent_id: replyingTo ? replyingTo.id : null,
-          recipient_id: privateRecipient ? privateRecipient.id : null
-        });
+        const { data: messageData, error: messageError } = await supabase
+          .from('chat_messages')
+          .insert({
+            user_id: user.id,
+            room_name: activeRoom,
+            image_url: publicUrl,
+            parent_id: replyingTo ? replyingTo.id : null,
+            recipient_id: privateRecipient ? privateRecipient.id : null
+          })
+          .select('id')
+          .single();
 
         if (messageError) throw messageError;
+        await dispatchChatPush(messageData?.id);
         setReplyingTo(null);
       } catch (error: any) {
         alert("Voice note failed: " + error.message);
@@ -410,14 +538,17 @@ const sendMessage = async (e: React.FormEvent) => {
     const recipientId = privateRecipient?.id || null;
     setNewMessage(''); 
   
-    // 1. Insert the message
-    const { error: userError } = await supabase.from('chat_messages').insert({
-      content: userMsg,
-      user_id: user.id,
-      room_name: activeRoom, 
-      parent_id: replyingTo ? replyingTo.id : null,
-      recipient_id: recipientId
-    });
+    const { data: messageData, error: userError } = await supabase
+      .from('chat_messages')
+      .insert({
+        content: userMsg,
+        user_id: user.id,
+        room_name: activeRoom,
+        parent_id: replyingTo ? replyingTo.id : null,
+        recipient_id: recipientId
+      })
+      .select('id')
+      .single();
 
     setReplyingTo(null); 
 
@@ -426,40 +557,8 @@ const sendMessage = async (e: React.FormEvent) => {
       return;
     }
 
-    // 2. Trigger Whisper Notifications
-    if (recipientId) {
-      triggerPush(recipientId, `New Whisper from ${myUsername}`, userMsg, window.location.href);
-    }
-
-    // 3. Trigger Mention Notifications (@username)
-    const mentionMatch = userMsg.match(/@(\w+)/);
-    if (mentionMatch) {
-      const usernameToFind = mentionMatch[1];
-      const { data: mentionedUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', usernameToFind)
-        .single();
-
-      if (mentionedUser) {
-        triggerPush(mentionedUser.id, `You were tagged by ${myUsername}`, userMsg, window.location.href);
-      }
-    }
-
-    // 4. Trigger Broadcast Notifications (@all)
-    if (userMsg.toLowerCase().includes('@all')) {
-       fetch('/api/notify-all', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({
-           title: `Announcement from ${myUsername}`,
-           body: userMsg,
-           url: window.location.href
-         })
-       }).catch(err => console.error("Broadcast failed:", err));
-    }
+    await dispatchChatPush(messageData?.id);
   
-    // 5. Handle Bot Trigger
     const cleanMsg = userMsg.toLowerCase();
     const matchedBot = bots.find(bot => bot.trigger_word === cleanMsg);
     if (matchedBot) {
@@ -470,15 +569,6 @@ const sendMessage = async (e: React.FormEvent) => {
         image_url: matchedBot.image_url || null
       });
     }
-  };
-
-  // Helper function to keep the code clean
-  const triggerPush = (targetId: string, title: string, body: string, url: string) => {
-    fetch('/api/notify-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetUserId: targetId, title, body, url })
-    }).catch(err => console.error("Notification failed:", err));
   };
 
   if (loading) return <div className="h-[100dvh] bg-black flex items-center justify-center font-cinzel text-orange-500 animate-pulse uppercase tracking-[0.3em] text-lg">Igniting...</div>;
@@ -842,6 +932,12 @@ const sendMessage = async (e: React.FormEvent) => {
                 <div className="overflow-y-auto flex-1 rounded bg-black/20 [&::-webkit-scrollbar]:hidden w-full max-w-full">
                   <GiphyGrid width={230} columns={2} fetchGifs={fetchGifs} key={gifSearch} onGifClick={(gif: any, e: any) => { e.preventDefault(); sendGifMessage(gif.images.original.url); setShowGifPicker(false); setGifSearch(''); }} />
                 </div>
+              </div>
+            )}
+
+            {pushDispatchNotice && (
+              <div className="px-3 md:px-4 py-1 bg-black/70 border-t border-orange-900/30 text-[10px] md:text-xs text-orange-300/80 font-cinzel tracking-wide">
+                {pushDispatchNotice}
               </div>
             )}
             

@@ -39,6 +39,8 @@ export type NotificationPayload = {
   title: string;
   body: string;
   url: string;
+  eventId?: string;
+  tag?: string;
 };
 
 export type PushSubscriptionRow = {
@@ -426,7 +428,7 @@ function validateNotificationUrl(value: unknown, defaultUrl: string): Validation
   }
 }
 
-function toPushSubscription(value: unknown): PushSubscription | null {
+export function toPushSubscription(value: unknown): PushSubscription | null {
   if (!isPlainObject(value)) {
     return null;
   }
@@ -452,7 +454,7 @@ function toPushSubscription(value: unknown): PushSubscription | null {
   };
 }
 
-async function removeExpiredPushSubscription(
+export async function removeExpiredPushSubscription(
   supabaseAdmin: SupabaseClient,
   endpoint: string,
   logContext: string
