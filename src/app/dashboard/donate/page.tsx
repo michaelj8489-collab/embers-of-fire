@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getStripe } from '@/utils/stripe/client'; // <-- Added to handle the checkout
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 // Copying your established tiers
 const subscriptionTiers = [
@@ -54,9 +55,151 @@ const subscriptionTiers = [
   }
 ];
 
+type MembershipProfile = {
+  subscription_tier: string | null;
+  subscription_status: string | null;
+};
+
+type ApiResponse = {
+  sessionId?: string;
+  url?: string;
+  error?: string;
+  code?: string;
+};
+
+type Notice = {
+  type: 'error' | 'info';
+  message: string;
+};
+
+const PAID_TIER_NAMES = new Set(subscriptionTiers.map((tier) => tier.name));
+
+function isActivePaidMembership(tier: string, status: string) {
+  return status === 'active' && PAID_TIER_NAMES.has(tier);
+}
+
+function normalizeDisplayedTier(tier: string | null | undefined) {
+  if (!tier || tier.toLowerCase() === 'none') {
+    return 'Seeker';
+  }
+
+  return tier;
+}
+
+function normalizeDisplayedStatus(status: string | null | undefined) {
+  if (!status || status.toLowerCase() === 'inactive') {
+    return 'inactive';
+  }
+
+  return status;
+}
+
+async function readApiResponse(response: Response): Promise<ApiResponse> {
+  try {
+    return (await response.json()) as ApiResponse;
+  } catch {
+    return {};
+  }
+}
+
+function getCheckoutFailureMessage(response: ApiResponse) {
+  switch (response.code) {
+    case 'ACTIVE_SUBSCRIPTION_EXISTS':
+      return 'You already have an active paid membership. Please use billing management instead.';
+    case 'CHECKOUT_ALREADY_PENDING':
+      return 'A membership checkout is already pending. Please finish or abandon that checkout before starting another.';
+    case 'SUBSCRIPTION_PROCESSING':
+      return 'Your membership is still processing. Please wait a few minutes before trying again.';
+    case 'BILLING_VERIFICATION_FAILED':
+      return 'We could not verify your billing status right now. Please try again shortly.';
+    default:
+      return response.error ?? 'Unable to start checkout. Please try again.';
+  }
+}
+
 export default function DonateTierPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [isLoadingMembership, setIsLoadingMembership] = useState(true);
+  const [currentTier, setCurrentTier] = useState('Seeker');
+  const [currentStatus, setCurrentStatus] = useState('inactive');
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const [processingAction, setProcessingAction] = useState<string | null>(null);
+
+  const userHasActivePaidMembership = useMemo(
+    () => isActivePaidMembership(currentTier, currentStatus),
+    [currentTier, currentStatus]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadMembership = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (!isMounted) return;
+
+      if (userError) {
+        setNotice({
+          type: 'error',
+          message: 'We could not verify your sign-in. Please log in again.',
+        });
+        setIsLoadingMembership(false);
+        return;
+      }
+
+      if (!user) {
+        router.replace(`/login?returnTo=${encodeURIComponent('/dashboard/donate')}`);
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('subscription_tier, subscription_status')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!isMounted) return;
+
+      if (profileError) {
+        setNotice({
+          type: 'error',
+          message: 'We could not load your current membership. Please try again.',
+        });
+        setIsLoadingMembership(false);
+        return;
+      }
+
+      const membershipProfile = profile as MembershipProfile | null;
+      setCurrentTier(normalizeDisplayedTier(membershipProfile?.subscription_tier));
+      setCurrentStatus(normalizeDisplayedStatus(membershipProfile?.subscription_status));
+      setIsLoadingMembership(false);
+    };
+
+    void loadMembership();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router, supabase]);
   
   const handleCheckout = async (tierName: string) => {
+    if (processingAction) return;
+
+    if (userHasActivePaidMembership) {
+      setNotice({
+        type: 'info',
+        message: 'You already have an active paid membership. Use billing management to change plans.',
+      });
+      return;
+    }
+
+    setProcessingAction(tierName);
+    setNotice(null);
+
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -64,19 +207,102 @@ export default function DonateTierPage() {
         body: JSON.stringify({ tierName }),
       });
       
-      // We now actively use the 'response' to redirect the user
-      const resData = await response.json();
-      const stripe = await getStripe();
-      
-     if (stripe && resData.sessionId) {
-         
-        const { error } = await (stripe as any).redirectToCheckout({ sessionId: resData.sessionId });
-        if (error) console.error("Stripe redirect error:", error);
-    }
+      const resData = await readApiResponse(response);
+
+      if (response.status === 401) {
+        router.replace(`/login?returnTo=${encodeURIComponent('/dashboard/donate')}`);
+        return;
+      }
+
+      if (!response.ok) {
+        setNotice({
+          type: 'error',
+          message: getCheckoutFailureMessage(resData),
+        });
+        return;
+      }
+
+      if (!resData.sessionId) {
+        setNotice({
+          type: 'error',
+          message: 'Checkout did not return a valid session. Please try again.',
+        });
+        return;
+      }
+
+      if (!resData.url) {
+        setNotice({
+          type: 'error',
+          message: 'Checkout did not return a valid redirect link. Please try again.',
+        });
+        return;
+      }
+
+      window.location.assign(resData.url);
     } catch (err) {
       console.error("Stripe Error:", err);
+      setNotice({
+        type: 'error',
+        message: 'Unable to start checkout. Please try again.',
+      });
+    } finally {
+      setProcessingAction(null);
     }
   };
+
+  const handleBillingPortal = async () => {
+    if (processingAction) return;
+
+    setProcessingAction('billing-portal');
+    setNotice(null);
+
+    try {
+      const response = await fetch('/api/billing-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const resData = await readApiResponse(response);
+
+      if (response.status === 401) {
+        router.replace(`/login?returnTo=${encodeURIComponent('/dashboard/donate')}`);
+        return;
+      }
+
+      if (!response.ok) {
+        setNotice({
+          type: 'error',
+          message: resData.error ?? 'Unable to open billing management. Please try again.',
+        });
+        return;
+      }
+
+      if (!resData.url) {
+        setNotice({
+          type: 'error',
+          message: 'Billing management did not return a valid link. Please try again.',
+        });
+        return;
+      }
+
+      window.location.assign(resData.url);
+    } catch (err) {
+      console.error("Billing Portal Error:", err);
+      setNotice({
+        type: 'error',
+        message: 'Unable to open billing management. Please try again.',
+      });
+    } finally {
+      setProcessingAction(null);
+    }
+  };
+
+  if (isLoadingMembership) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 font-cinzel text-xl animate-pulse">
+        Gathering your membership...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-gray-200 flex flex-col relative bg-cover bg-center bg-fixed font-cormorant" 
@@ -84,9 +310,51 @@ export default function DonateTierPage() {
       <Header />
       <main className="flex-grow flex flex-col items-center pt-32 pb-20 px-4 relative z-10">
         <h1 className="text-5xl md:text-7xl font-cinzel font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-yellow-500 drop-shadow-[0_5px_15px_rgba(255,69,0,0.4)]">
-          Tiers of Light
+          {userHasActivePaidMembership ? 'Manage Membership' : 'Tiers of Light'}
         </h1>
         <div className="w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent mb-16 shadow-[0_0_10px_rgba(255,165,0,0.8)]" />
+
+        <section className="w-full max-w-4xl mb-12 bg-black/60 backdrop-blur-md border border-orange-900/40 rounded-2xl p-6 md:p-8 text-center shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
+          <p className="font-cinzel text-xs uppercase tracking-[0.3em] text-orange-400/80 mb-3">
+            Current Membership
+          </p>
+          <h2 className="font-cinzel text-2xl md:text-4xl text-white mb-2">{currentTier}</h2>
+          <p className="text-gray-300 text-lg italic mb-6">
+            Status: <span className="text-orange-300">{currentStatus}</span>
+          </p>
+
+          {userHasActivePaidMembership ? (
+            <div className="flex flex-col items-center gap-5">
+              <p className="text-gray-200 text-lg md:text-xl max-w-2xl leading-relaxed">
+                Stripe securely handles plan changes, cancellation, payment methods, and invoices.
+              </p>
+              <button
+                type="button"
+                onClick={handleBillingPortal}
+                disabled={processingAction !== null}
+                className="bg-gradient-to-r from-orange-700 to-red-700 text-white px-8 md:px-12 py-4 rounded-xl font-cinzel text-base md:text-xl tracking-[0.15em] uppercase font-bold transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {processingAction === 'billing-portal' ? 'Opening Billing...' : 'Manage Membership and Billing'}
+              </button>
+            </div>
+          ) : (
+            <p className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+              Choose a paid tier below to upgrade your Seeker membership.
+            </p>
+          )}
+        </section>
+
+        {notice && (
+          <div
+            className={`w-full max-w-4xl mb-10 rounded-xl border px-5 py-4 text-center font-cinzel text-sm uppercase tracking-widest ${
+              notice.type === 'error'
+                ? 'border-red-500/50 bg-red-950/40 text-red-200'
+                : 'border-orange-500/50 bg-orange-950/40 text-orange-100'
+            }`}
+          >
+            {notice.message}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl px-4">
           {subscriptionTiers.map((tier) => (
@@ -113,10 +381,22 @@ export default function DonateTierPage() {
                   ))}
                 </ul>
                 <button 
-                  onClick={() => handleCheckout(tier.name)}
-                  className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg bg-gradient-to-r ${tier.color} text-white hover:brightness-110 active:scale-[0.98] uppercase tracking-wider`}
+                  onClick={() => {
+                    if (userHasActivePaidMembership) {
+                      void handleBillingPortal();
+                      return;
+                    }
+
+                    void handleCheckout(tier.name);
+                  }}
+                  disabled={processingAction !== null}
+                  className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg bg-gradient-to-r ${tier.color} text-white hover:brightness-110 active:scale-[0.98] uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  Unlock {tier.name}
+                  {userHasActivePaidMembership
+                    ? 'Manage Membership'
+                    : processingAction === tier.name
+                      ? 'Opening Checkout...'
+                      : `Upgrade to ${tier.name}`}
                 </button>
               </div>
             </div>

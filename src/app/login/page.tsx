@@ -7,6 +7,28 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+function getSafePostLoginPath() {
+  const fallbackPath = `/dashboard${window.location.search}`;
+  const searchParams = new URLSearchParams(window.location.search);
+  const returnTo = searchParams.get('returnTo');
+
+  if (!returnTo) {
+    return fallbackPath;
+  }
+
+  try {
+    const parsedReturnTo = new URL(returnTo, window.location.origin);
+
+    if (parsedReturnTo.origin !== window.location.origin) {
+      return fallbackPath;
+    }
+
+    return `${parsedReturnTo.pathname}${parsedReturnTo.search}${parsedReturnTo.hash}`;
+  } catch {
+    return fallbackPath;
+  }
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +52,7 @@ export default function LoginPage() {
     } else {
       // THE FIX: This keeps the ?trigger_checkout=... attached 
       // so the dashboard knows to open Stripe immediately.
-      router.push('/dashboard' + window.location.search);
+      router.push(getSafePostLoginPath());
     }
     setLoading(false);
   };

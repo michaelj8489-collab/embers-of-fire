@@ -1,26 +1,68 @@
 'use client';
 
 import PushNotificationButton from '@/components/PushNotificationButton';
-import Image from 'next/image';
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation'; // Removed the unused useRouter
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { getStripe } from '@/utils/stripe/client';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
 import FoundersDayBlock from '@/components/FoundersDayBlock';
+
+type CheckoutApiResponse = {
+  sessionId?: string;
+  url?: string;
+  error?: string;
+  code?: string;
+};
+
+const PAID_TIER_NAMES = new Set([
+  'Keepers of the Embers',
+  'Flame Bearers',
+  'Phoenix Circle',
+  'Wings of the Phoenix',
+  'Phoenix Ascending',
+]);
+
+function normalizeDashboardTier(tier: string | null | undefined) {
+  if (!tier || tier.toLowerCase() === 'none') {
+    return 'seeker';
+  }
+
+  return tier;
+}
+
+function formatDashboardTier(tier: string) {
+  return tier === 'seeker' ? 'Seeker' : tier;
+}
+
+function isActivePaidMembership(tier: string, status: string) {
+  return status === 'active' && PAID_TIER_NAMES.has(tier);
+}
+
+async function readCheckoutApiResponse(response: Response): Promise<CheckoutApiResponse> {
+  try {
+    return (await response.json()) as CheckoutApiResponse;
+  } catch {
+    return {};
+  }
+}
 
 function DashboardContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTier, setUserTier] = useState<string>('seeker'); 
+  const [userSubscriptionStatus, setUserSubscriptionStatus] = useState<string>('inactive');
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const autoCheckoutTierRef = useRef<string | null>(null);
+  const userHasActivePaidMembership = isActivePaidMembership(userTier, userSubscriptionStatus);
   
-  // Removed the unused router and userRole state to satisfy the linter
+  // Removed the unused userRole state to satisfy the linter
 
   // 1. SESSION & DATA FETCHING
   useEffect(() => {
@@ -33,12 +75,13 @@ function DashboardContent() {
 
         const { data: profile } = await supabase
           .from('profiles')
-          .select('subscription_tier, role')
+          .select('subscription_tier, subscription_status, role')
           .eq('id', session.user.id)
           .single();
           
         if (profile) {
-          if (profile.subscription_tier) setUserTier(profile.subscription_tier);
+          setUserTier(normalizeDashboardTier(profile.subscription_tier));
+          setUserSubscriptionStatus(profile.subscription_status || 'inactive');
           // We removed setUserRole here since it was causing the unused variable error
         }
       }
@@ -53,9 +96,11 @@ function DashboardContent() {
       const tierSlug = searchParams.get('trigger_checkout');
       
       if (!tierSlug || loading) return; 
+
+      if (autoCheckoutTierRef.current === tierSlug) return;
       
       if (!isLoggedIn || !userEmail) {
-        console.log("Waiting for mobile session...");
+        router.replace(`/login?trigger_checkout=${encodeURIComponent(tierSlug)}`);
         return;
       }
 
@@ -70,30 +115,53 @@ function DashboardContent() {
       const tierName = tierMap[tierSlug];
       if (!tierName) return;
 
+      autoCheckoutTierRef.current = tierSlug;
+      setCheckoutNotice(null);
+
       try {
         console.log("🚀 Triggering Stripe for:", userEmail);
         const response = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tierName, userEmail }), 
+          body: JSON.stringify({ tierName }),
         });
 
-        const resData = await response.json();
-        const stripe = await getStripe();
-        
-        if (stripe && resData.sessionId) {
-          // Added the ESLint override here to fix the "Unexpected any" error!
-           
-          const { error } = await (stripe as any).redirectToCheckout({ sessionId: resData.sessionId });
-          if (error) console.error("Stripe redirect error:", error);
+        const resData = await readCheckoutApiResponse(response);
+
+        if (response.status === 401) {
+          autoCheckoutTierRef.current = null;
+          router.replace(`/login?trigger_checkout=${encodeURIComponent(tierSlug)}`);
+          return;
         }
+
+        if (!response.ok) {
+          setCheckoutNotice(
+            resData.code === 'ACTIVE_SUBSCRIPTION_EXISTS'
+              ? 'You already have an active paid membership. Use Manage Membership for billing changes.'
+              : resData.error ?? 'Unable to start checkout. Please try again from the membership page.'
+          );
+          return;
+        }
+
+        if (!resData.sessionId) {
+          setCheckoutNotice('Checkout did not return a valid session. Please try again.');
+          return;
+        }
+
+        if (!resData.url) {
+          setCheckoutNotice('Checkout did not return a valid redirect link. Please try again.');
+          return;
+        }
+
+        window.location.assign(resData.url);
       } catch (err) {
         console.error("Auto-checkout failed:", err);
+        setCheckoutNotice('Unable to start checkout. Please try again from the membership page.');
       }
     };
 
     triggerCheckout();
-  }, [loading, isLoggedIn, searchParams, userEmail]);
+  }, [loading, isLoggedIn, router, searchParams, userEmail]);
 
   const schedule = [
     { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
@@ -127,6 +195,12 @@ function DashboardContent() {
 
           {/* ALERTS BUTTON: Placed at the top level so it can float freely! */}
         <PushNotificationButton />
+
+          {checkoutNotice && (
+            <div className="w-full max-w-4xl mb-8 rounded-xl border border-red-500/50 bg-red-950/40 px-5 py-4 text-center font-cinzel text-sm uppercase tracking-widest text-red-200">
+              {checkoutNotice}
+            </div>
+          )}
           
           <FoundersDayBlock />
           
@@ -204,11 +278,16 @@ function DashboardContent() {
 
           <section className="w-full max-w-7xl bg-gradient-to-b from-orange-950/20 to-black/80 border border-orange-900/40 py-20 px-8 text-center rounded-[4rem] mb-24 shadow-2xl">
             <h3 className="font-cinzel text-4xl md:text-7xl text-orange-500 mb-8 uppercase tracking-widest">Ascend the Embers</h3>
+            {isLoggedIn && (
+              <p className="font-cinzel text-xs md:text-sm uppercase tracking-[0.3em] text-orange-300/80 mb-5">
+                Current Membership: {formatDashboardTier(userTier)}
+              </p>
+            )}
             <p className="text-xl md:text-3xl italic text-gray-300 mb-14 max-w-4xl mx-auto font-cormorant leading-relaxed">
               Unlock the secrets of the Sanctuary and fuel independent voices.
             </p>
             <Link href="/dashboard/donate" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 text-white px-12 md:px-24 py-5 md:py-8 rounded-full font-cinzel text-xl md:text-3xl tracking-[0.2em] transition-all hover:scale-105 active:scale-95 uppercase font-bold shadow-[0_0_50px_rgba(234,88,12,0.3)]">
-              Become a Subscriber
+              {userHasActivePaidMembership ? 'Manage Membership' : 'Become a Subscriber'}
             </Link>
           </section>
 
