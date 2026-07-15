@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
+import { buildTwitchChatSrc, buildTwitchPlayerSrc } from '@/utils/twitchEmbed';
 
 export default function LivePage() {
   const [liveSession, setLiveSession] = useState<LiveSessionSummary | null>(null);
@@ -60,17 +61,22 @@ export default function LivePage() {
             <div className="flex flex-col md:flex-row w-full h-full">
               {/* VIDEO */}
               <iframe 
-                src={`https://player.twitch.tv/?channel=${encodeURIComponent(twitchChannel)}&parent=${parentDomain || 'embersoflight.net'}&autoplay=true`}
+                src={buildTwitchPlayerSrc(twitchChannel, parentDomain, { autoplay: true })}
+                title={`${liveSession.showName} Twitch player`}
                 className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
-                frameBorder="0" 
+                frameBorder="0"
+                allow="autoplay; fullscreen"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               ></iframe>
               
               {/* CHAT */}
               <iframe 
-                src={`https://www.twitch.tv/embed/${encodeURIComponent(twitchChannel)}/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`}
+                src={buildTwitchChatSrc(twitchChannel, parentDomain)}
+                title={`${liveSession.showName} Twitch chat`}
                 className="w-full h-[400px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
                 frameBorder="0"
+                referrerPolicy="strict-origin-when-cross-origin"
               ></iframe>
             </div>
           ) : (

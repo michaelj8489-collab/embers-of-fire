@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+import { buildTwitchChatSrc, buildTwitchPlayerSrc } from '@/utils/twitchEmbed';
 
 const phoenixProducts = [
   { 
@@ -131,16 +132,21 @@ export default function PhoenixTalksPage() {
                   <div className="flex flex-col md:flex-row w-full h-full">
                     {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
                     <iframe 
-                      src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
+                      src={buildTwitchPlayerSrc('riseradionetworks', parentDomain)}
+                      title="Phoenix Talks Twitch player"
                       className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
-                      frameBorder="0" 
+                      frameBorder="0"
+                      allow="autoplay; fullscreen"
+                      referrerPolicy="strict-origin-when-cross-origin"
                       allowFullScreen
                     ></iframe>
                     {/* CHAT: Capped height on mobile, full height/width on desktop */}
                     <iframe 
-                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                      src={buildTwitchChatSrc('riseradionetworks', parentDomain)}
+                      title="Phoenix Talks Twitch chat"
                       className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
                       frameBorder="0"
+                      referrerPolicy="strict-origin-when-cross-origin"
                     ></iframe>
                   </div>
                 ) : (

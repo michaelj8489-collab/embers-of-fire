@@ -20,7 +20,41 @@ const cormorant = Cormorant({
   variable: "--font-cormorant",
 });
 
+const PRODUCTION_METADATA_BASE = new URL('https://www.embersoflight.net');
+
+function getMetadataBase(): URL {
+  const appUrl = process.env.APP_URL?.trim();
+
+  if (!appUrl) {
+    return PRODUCTION_METADATA_BASE;
+  }
+
+  try {
+    const parsedUrl = new URL(appUrl);
+    const isSupportedProtocol =
+      parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:';
+    const hasCredentials = Boolean(parsedUrl.username || parsedUrl.password);
+    const isLocalhost =
+      parsedUrl.hostname === 'localhost' ||
+      parsedUrl.hostname === '127.0.0.1' ||
+      parsedUrl.hostname === '[::1]';
+
+    if (
+      !isSupportedProtocol ||
+      hasCredentials ||
+      (process.env.NODE_ENV === 'production' && isLocalhost)
+    ) {
+      return PRODUCTION_METADATA_BASE;
+    }
+
+    return new URL(parsedUrl.origin);
+  } catch {
+    return PRODUCTION_METADATA_BASE;
+  }
+}
+
 export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
   title: 'Rise Radio Network | Embers of Light Hub',
   manifest: '/manifest.json', 
   description: 'The exclusive sanctuary and hub for the Rise Radio community. Join the awareness.',

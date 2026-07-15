@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+import { buildTwitchChatSrc, buildTwitchPlayerSrc } from '@/utils/twitchEmbed';
 
 const brindleProducts = [
   { 
@@ -145,9 +146,12 @@ export default function BrindlesVisionPage() {
                     <div className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full bg-black">
                       {parentDomain && (
                         <iframe
-                          src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain}&muted=false&autoplay=true`}
+                          src={buildTwitchPlayerSrc('riseradionetworks', parentDomain, { muted: false, autoplay: true })}
+                          title="Brindle's Vision Twitch player"
                           className="w-full h-full" 
-                          frameBorder="0" 
+                          frameBorder="0"
+                          allow="autoplay; fullscreen"
+                          referrerPolicy="strict-origin-when-cross-origin"
                           allowFullScreen={true}
                         />
                       )}
@@ -155,9 +159,11 @@ export default function BrindlesVisionPage() {
                     <div className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       {parentDomain && (
                         <iframe
-                          src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain}&parent=localhost&parent=embersoflight.net&parent=www.embersoflight.net&darkpopout`}
+                          src={buildTwitchChatSrc('riseradionetworks', parentDomain)}
+                          title="Brindle's Vision Twitch chat"
                           className="w-full h-full"
                           frameBorder="0"
+                          referrerPolicy="strict-origin-when-cross-origin"
                         />
                       )}
                     </div>

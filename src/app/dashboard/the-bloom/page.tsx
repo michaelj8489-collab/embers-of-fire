@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import MerchGallery from '@/components/MerchGallery';
+import { buildTwitchChatSrc, buildTwitchPlayerSrc } from '@/utils/twitchEmbed';
 
 const bloomProducts = [
   { id: 1, name: "Low Profile Baseball Cap", price: "$17.36", image: "https://images-api.printify.com/mockup/69cec66addebb5f8370786f2/104280/53890/the-bloom-low-profile-baseball-cap.jpg?camera_label=front&revision=1775159095182&s=2048", link: "https://embers-of-light.printify.me/product/27752482" },
@@ -80,16 +81,21 @@ export default function TheBloomPage() {
                   <div className="flex flex-col md:flex-row w-full h-full">
                     {/* VIDEO: Aspect-video on mobile, fills height on desktop */}
                     <iframe 
-                      src={`https://player.twitch.tv/?channel=riseradionetworks&parent=${parentDomain || 'embersoflight.net'}`} 
+                      src={buildTwitchPlayerSrc('riseradionetworks', parentDomain)}
+                      title="The Bloom Twitch player"
                       className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full" 
-                      frameBorder="0" 
+                      frameBorder="0"
+                      allow="autoplay; fullscreen"
+                      referrerPolicy="strict-origin-when-cross-origin"
                       allowFullScreen
                     ></iframe>
                     {/* CHAT: Capped height on mobile, full height/width on desktop */}
                     <iframe 
-                      src={`https://www.twitch.tv/embed/riseradionetworks/chat?parent=${parentDomain || 'embersoflight.net'}&darkpopout`} 
+                      src={buildTwitchChatSrc('riseradionetworks', parentDomain)}
+                      title="The Bloom Twitch chat"
                       className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-l border-orange-900/30" 
                       frameBorder="0"
+                      referrerPolicy="strict-origin-when-cross-origin"
                     ></iframe>
                   </div>
                 ) : (
