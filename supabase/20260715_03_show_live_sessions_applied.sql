@@ -1,14 +1,21 @@
--- PROPOSED — NOT EXECUTED
--- Rise Radio live-show session foundation.
+-- APPLIED TO PRODUCTION - 2026-07-15
+-- Rise Radio live-show session foundation record.
+--
+-- Confirmed production outcome:
+--   * public.show_live_sessions exists.
+--   * All columns, constraints, and indexes below are present.
+--   * created_by references public.profiles(id) on delete set null.
+--   * RLS is enabled.
+--   * No anon or authenticated policies exist.
+--   * service_role is the intended server-side access path.
+--   * public.set_embers_show_live_session_updated_at() uses
+--     search_path = public, pg_temp.
+--   * set_embers_show_live_session_updated_at trigger is present.
 --
 -- Purpose:
---   Creates a durable, server-owned record of explicit show-live sessions.
+--   Durable, server-owned records for explicit hosted-show live sessions.
 --   Zeno player presence or audio playback does not create rows and does not
 --   imply that a hosted show is live.
---
--- Production execution:
---   This file is local documentation and review material only. It has not been
---   executed by Codex. Run manually in Supabase only after review.
 
 create extension if not exists pgcrypto with schema extensions;
 
@@ -67,6 +74,7 @@ create index if not exists show_live_sessions_created_by_idx
 create or replace function public.set_embers_show_live_session_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   new.updated_at = now();
@@ -101,7 +109,7 @@ comment on index public.show_live_sessions_one_active_show_uidx is
 comment on index public.show_live_sessions_external_event_uidx is
   'Deduplicates repeated provider events with the same external session identifier.';
 
--- Verification queries after manual execution:
+-- Read-only verification queries for the applied schema:
 --
 -- select column_name, data_type, is_nullable
 -- from information_schema.columns
@@ -123,7 +131,7 @@ comment on index public.show_live_sessions_external_event_uidx is
 -- from pg_policy
 -- where polrelid = 'public.show_live_sessions'::regclass;
 --
--- Rollback notes, if the migration must be removed:
+-- Rollback notes, if this applied migration must be removed:
 --
 -- drop trigger if exists set_embers_show_live_session_updated_at on public.show_live_sessions;
 -- drop function if exists public.set_embers_show_live_session_updated_at();
@@ -131,13 +139,13 @@ comment on index public.show_live_sessions_external_event_uidx is
 --
 -- Destructive/potentially disruptive statements:
 --   * drop trigger if exists set_embers_show_live_session_updated_at on public.show_live_sessions;
---     This only replaces the project-scoped trigger created by this proposal.
+--     This only replaces the project-scoped trigger created by this migration.
 --   * rollback drop table would remove all live-session history and should not
 --     be run unless explicitly intended.
 --
--- Rows deleted, consolidated, overwritten, or reassigned by this proposal:
---   None. No data backfill, duplicate cleanup, reassignment, or deletion is performed.
+-- Rows deleted, consolidated, overwritten, or reassigned by this migration:
+--   None. No data backfill, duplicate cleanup, reassignment, or deletion was performed.
 --
 -- Locking/disruption:
---   Creating this new table and indexes should not block existing chat or push
---   operations. The trigger drop/create only affects public.show_live_sessions.
+--   Creating this table and indexes did not require changes to existing chat or
+--   push tables. The trigger drop/create only affects public.show_live_sessions.
