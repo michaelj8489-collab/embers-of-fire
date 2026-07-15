@@ -1,16 +1,37 @@
-/* eslint-disable */
 'use client';
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+
+const DEFAULT_USER_TIER = 'seeker';
+
+type HeaderProfile = {
+  subscription_tier: string | null;
+  role: string | null;
+  username: string | null;
+};
+
+type HeaderChatMessage = {
+  [key: string]: unknown;
+  content?: string | null;
+  recipient_id?: string | null;
+  user_id?: string | null;
+};
+
+type HeaderChatPayload = {
+  new: HeaderChatMessage;
+};
+
+type RealtimeSubscribeStatus = 'SUBSCRIBED' | 'TIMED_OUT' | 'CLOSED' | 'CHANNEL_ERROR';
+type RealtimeRemovalStatus = 'ok' | 'timed out' | 'error';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false); // Main Mobile Menu
   const [showsOpen, setShowsOpen] = useState(false); // Shows Dropdown Toggle
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const [userTier, setUserTier] = useState('seeker');
+  const [userTier, setUserTier] = useState(DEFAULT_USER_TIER);
   const [isAdmin, setIsAdmin] = useState(false); // <-- NEW ADMIN STATE
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const [myUsername, setMyUsername] = useState<string>('');
@@ -18,60 +39,107 @@ export default function Header() {
 
   const router = useRouter();
   const supabase = createClient();
+  const activeProfileUserIdRef = useRef<string | null>(null);
+  const profileRequestIdRef = useRef(0);
+  const isHeaderActiveRef = useRef(false);
+
+  const resetUserState = useCallback(() => {
+    activeProfileUserIdRef.current = null;
+    profileRequestIdRef.current += 1;
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    setUserTier(DEFAULT_USER_TIER);
+    setMyUsername('');
+    setUserId('');
+    setHasUnreadChat(false);
+    setIsOpen(false);
+    setShowsOpen(false);
+  }, []);
+
+  const loadProfileForUser = useCallback(async (authUser: User) => {
+    setIsLoggedIn(true);
+    setUserId(authUser.id);
+
+    if (activeProfileUserIdRef.current === authUser.id) {
+      return;
+    }
+
+    activeProfileUserIdRef.current = authUser.id;
+    const requestId = profileRequestIdRef.current + 1;
+    profileRequestIdRef.current = requestId;
+
+    setIsAdmin(false);
+    setUserTier(DEFAULT_USER_TIER);
+    setMyUsername('');
+    setHasUnreadChat(false);
+    setIsOpen(false);
+    setShowsOpen(false);
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('subscription_tier, role, username')
+      .eq('id', authUser.id)
+      .single();
+
+    if (!isHeaderActiveRef.current || profileRequestIdRef.current !== requestId) {
+      return;
+    }
+
+    if (error) {
+      activeProfileUserIdRef.current = null;
+      console.error('Header profile query failed.', error.code);
+      setIsAdmin(false);
+      setUserTier(DEFAULT_USER_TIER);
+      setMyUsername('');
+      setHasUnreadChat(false);
+      return;
+    }
+
+    const profile = data as HeaderProfile | null;
+    setUserTier(profile?.subscription_tier || DEFAULT_USER_TIER);
+    setIsAdmin(profile?.role === 'admin');
+    setMyUsername(profile?.username || '');
+  }, [supabase]);
 
   useEffect(() => {
-    setIsMounted(true);
-    
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
-      
-      if (session?.user) {
-        setUserId(session.user.id); // <-- Added this to save your ID
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('subscription_tier, role, username') // <-- Added username here
-          .eq('id', session.user.id)
-          .single();
+    isHeaderActiveRef.current = true;
 
-        if (profile) {
-          if (profile.subscription_tier) setUserTier(profile.subscription_tier);
-          if (profile.role === 'admin') setIsAdmin(true);
-          if (profile.username) setMyUsername(profile.username); // <-- Saved your username
-        }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+      if (!isHeaderActiveRef.current) {
+        return;
       }
-    };
-    
-    checkUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-      if (event === 'SIGNED_IN') {
-        checkUser();
+      if (event === 'SIGNED_OUT' || !session?.user) {
+        resetUserState();
+        return;
       }
-      if (event === 'SIGNED_OUT') {
-        setIsAdmin(false); // Reset admin status on logout
-        setUserTier('seeker'); // Reset tier on logout
-      }
+
+      void loadProfileForUser(session.user);
     });
 
     return () => {
-      if (authListener && authListener.subscription) {
-        authListener.subscription.unsubscribe();
-      }
+      isHeaderActiveRef.current = false;
+      profileRequestIdRef.current += 1;
+      subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [loadProfileForUser, resetUserState, supabase]);
 
   // GLOBAL CHAT NOTIFICATION LISTENER FOR THE HEADER
   useEffect(() => {
     if (!myUsername || !userId) return;
+    let isListening = true;
+    const normalizedUsername = myUsername.toLowerCase();
 
-    const headerChannel = supabase.channel('header_notifications')
+    const headerChannel = supabase.channel(`header_notifications_${userId}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'chat_messages'
-      }, (payload: any) => {
+      }, (payload: HeaderChatPayload) => {
+        if (!isListening) {
+          return;
+        }
+
         const newMsg = payload.new;
         
         // 1. Did someone whisper to you?
@@ -82,20 +150,39 @@ export default function Header() {
 
         // 2. Did someone tag you in a public room?
         const text = newMsg.content?.toLowerCase() || '';
-        const isTagged = text.includes(`@${myUsername.toLowerCase()}`) || text.includes('@all');
+        const isTagged = text.includes(`@${normalizedUsername}`) || text.includes('@all');
         
         if (isTagged && newMsg.user_id !== userId) {
           setHasUnreadChat(true);
         }
-      }).subscribe();
+      }).subscribe((status: RealtimeSubscribeStatus, error?: Error) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('Header notification subscription failed.', error);
+        }
+      });
 
     return () => {
-      supabase.removeChannel(headerChannel);
+      isListening = false;
+      void supabase.removeChannel(headerChannel).then((status: RealtimeRemovalStatus) => {
+        if (status === 'error') {
+          console.error('Header notification channel cleanup failed.');
+        }
+      });
     };
   }, [myUsername, userId, supabase]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Header sign-out failed.', error.message);
+      return;
+    }
+
+    if (!isHeaderActiveRef.current) {
+      return;
+    }
+
+    resetUserState();
     router.push('/login');
   };
     
@@ -123,7 +210,7 @@ export default function Header() {
 
         {/* DESKTOP NAVIGATION */}
         <nav className="hidden lg:flex items-center gap-10">
-          {isMounted && isLoggedIn ? (
+          {isLoggedIn ? (
             <>
               {/* DESKTOP ADMIN LINK */}
               {isAdmin && (
@@ -209,7 +296,7 @@ export default function Header() {
       {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
         <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-8 py-6 flex flex-col gap-6 max-h-[85vh] overflow-y-auto shadow-2xl">
-          {isMounted && isLoggedIn ? (
+          {isLoggedIn ? (
             <>
              {/* NEW MOBILE ADMIN LINK */}
 {isAdmin && (

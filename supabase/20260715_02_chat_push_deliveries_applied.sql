@@ -1,26 +1,22 @@
--- PROPOSED — NOT EXECUTED
--- Phase 2B-2 durable chat-push delivery tracking proposal.
--- This file documents a future reviewed Supabase migration. It has not been
--- executed locally or remotely. Review and test it in a disposable database
--- before applying it to production.
+-- APPLIED TO PRODUCTION - 2026-07-15
+-- Durable chat push delivery tracking record.
 --
--- Security model:
---   * Clients must not read or manipulate chat push delivery rows.
---   * Push endpoints remain server/service-role only.
---   * Supabase service-role workflows bypass RLS and are responsible for
---     creating, claiming, retrying, and finalizing delivery rows.
+-- Confirmed production outcome:
+--   * public.chat_push_deliveries was created.
+--   * All applied columns and constraints are present.
+--   * All applied indexes are present.
+--   * RLS is enabled.
+--   * No anon/authenticated policies exist.
+--   * service_role has access.
+--   * public.set_embers_chat_push_delivery_updated_at() is present.
+--   * set_embers_chat_push_delivery_updated_at trigger is present.
 --
--- Runtime behavior documented for reviewers:
---   * Runtime treats pending delivery rows older than 5 minutes as stale and
---     may reclaim them with a conditional update.
---   * attempts counts provider-send claims, not reads or skips. Runtime caps
---     attempts at 3.
---   * Delivery is at-least-once, not exactly-once. If provider delivery
---     succeeds but the later sent update fails, a future stale reclaim can
---     retry the stable eventId/tag.
---   * Future retention should delete old delivery rows after an accepted
---     audit window, for example sent/expired rows older than 30-90 days and
---     permanently failed rows older than the operational support window.
+-- Runtime behavior:
+--   * pending rows older than 5 minutes may be reclaimed by the server route.
+--   * attempts counts provider-send claims, not reads or skips.
+--   * runtime caps attempts at 3.
+--   * delivery is at-least-once, not exactly-once.
+--   * old sent/expired/failed rows need future reviewed retention cleanup.
 
 create extension if not exists pgcrypto;
 
@@ -62,7 +58,7 @@ create index if not exists chat_push_deliveries_retryable_idx
   on public.chat_push_deliveries(status, updated_at)
   where status in ('pending', 'failed');
 
-create or replace function public.set_chat_push_deliveries_updated_at()
+create or replace function public.set_embers_chat_push_delivery_updated_at()
 returns trigger
 language plpgsql
 as $$
@@ -72,11 +68,11 @@ begin
 end;
 $$;
 
-drop trigger if exists set_chat_push_delivery_updated_at on public.chat_push_deliveries;
-create trigger set_chat_push_delivery_updated_at
+drop trigger if exists set_embers_chat_push_delivery_updated_at on public.chat_push_deliveries;
+create trigger set_embers_chat_push_delivery_updated_at
 before update on public.chat_push_deliveries
 for each row
-execute function public.set_chat_push_deliveries_updated_at();
+execute function public.set_embers_chat_push_delivery_updated_at();
 
 alter table public.chat_push_deliveries enable row level security;
 
@@ -89,7 +85,7 @@ grant all on public.chat_push_deliveries to service_role;
 -- or delete delivery rows. Service-role server code remains the trusted writer.
 --
 -- Future cleanup examples for a reviewed scheduled job; do not execute as part
--- of this proposed migration:
+-- of this applied migration record:
 --
 -- delete from public.chat_push_deliveries
 -- where status in ('sent', 'expired')
@@ -99,6 +95,3 @@ grant all on public.chat_push_deliveries to service_role;
 -- where status = 'failed'
 --   and attempts >= 3
 --   and updated_at < now() - interval '30 days';
---
--- Dead push subscriptions that could not be deleted during provider 404/410
--- handling need a separate reviewed cleanup job against public.push_subscriptions.
