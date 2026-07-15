@@ -20,6 +20,7 @@ export const dynamic = 'force-dynamic';
 
 const MAX_BODY_BYTES = 2048;
 const MAX_EXTERNAL_SESSION_ID_LENGTH = 160;
+const SHOW_LIVE_ADMIN_TEST_MODE_ENV = 'SHOW_LIVE_ADMIN_TEST_MODE';
 
 type ShowLiveAction = 'start' | 'end';
 
@@ -60,6 +61,14 @@ export async function POST(req: Request) {
 
   const supabaseAdmin = createSupabaseServiceRoleClient();
   if (!supabaseAdmin.ok) return supabaseAdmin.response;
+  const testMode = parseShowLiveAdminTestMode();
+
+  if (!testMode.ok) {
+    return NextResponse.json(
+      { success: false, error: testMode.error, code: 'SHOW_LIVE_ADMIN_TEST_MODE_INVALID' },
+      { status: 500 }
+    );
+  }
 
   if (action.value === 'end') {
     const result = await endShowLiveSession(supabaseAdmin.client, show);
@@ -75,7 +84,19 @@ export async function POST(req: Request) {
       action: 'end',
       status: result.status,
       session: result.session,
+      testMode: testMode.enabled,
     });
+  }
+
+  if (process.env.NODE_ENV !== 'production' && !testMode.enabled) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `${SHOW_LIVE_ADMIN_TEST_MODE_ENV}=true is required for local show-live start requests.`,
+        code: 'SHOW_LIVE_ADMIN_TEST_MODE_REQUIRED',
+      },
+      { status: 500 }
+    );
   }
 
   const platform = parsePlatform(body.value.platform, 'manual');
@@ -97,6 +118,7 @@ export async function POST(req: Request) {
     platform: platform.value,
     externalSessionId: externalSessionId.value,
     createdBy: auth.profile.id,
+    notificationRecipientUserId: testMode.enabled ? auth.profile.id : undefined,
   });
 
   if (!result.ok) {
@@ -113,9 +135,37 @@ export async function POST(req: Request) {
       status: result.status,
       session: result.session,
       notification: result.notification,
+      testMode: testMode.enabled,
+      recipientScope: testMode.enabled ? 'authenticated-admin' : 'all-subscribers',
     },
     { status: result.status === 'started' ? 201 : 200 }
   );
+}
+
+function parseShowLiveAdminTestMode():
+  | { ok: true; enabled: boolean }
+  | { ok: false; error: string } {
+  const rawValue = process.env[SHOW_LIVE_ADMIN_TEST_MODE_ENV];
+
+  if (rawValue === undefined || rawValue.trim() === '' || rawValue.trim() === 'false') {
+    return { ok: true, enabled: false };
+  }
+
+  if (rawValue.trim() === 'true') {
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        ok: false,
+        error: `${SHOW_LIVE_ADMIN_TEST_MODE_ENV} cannot be enabled in production.`,
+      };
+    }
+
+    return { ok: true, enabled: true };
+  }
+
+  return {
+    ok: false,
+    error: `${SHOW_LIVE_ADMIN_TEST_MODE_ENV} must be exactly true or false.`,
+  };
 }
 
 async function readBoundedJsonObject(req: Request): Promise<JsonObjectResult> {

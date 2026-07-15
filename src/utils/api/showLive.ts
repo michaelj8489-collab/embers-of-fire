@@ -56,6 +56,7 @@ export type StartShowLiveSessionInput = {
   platform: ShowLivePlatform;
   externalSessionId: string | null;
   createdBy: string;
+  notificationRecipientUserId?: string;
 };
 
 export type StartShowLiveSessionResult =
@@ -79,6 +80,7 @@ type LiveNotificationResult =
   | {
       attempted: true;
       configured: true;
+      recipientScope: LiveNotificationRecipientScope;
       summary: PushDeliverySummary;
       eventId: string;
       recordUpdated: boolean;
@@ -86,6 +88,7 @@ type LiveNotificationResult =
   | {
       attempted: false;
       configured: false;
+      recipientScope: LiveNotificationRecipientScope;
       error: string;
       eventId: string;
       recordUpdated: boolean;
@@ -93,10 +96,13 @@ type LiveNotificationResult =
   | {
       attempted: false;
       configured: true;
+      recipientScope: LiveNotificationRecipientScope;
       summary: PushDeliverySummary;
       eventId: string;
       recordUpdated: boolean;
     };
+
+type LiveNotificationRecipientScope = 'all-subscribers' | 'authenticated-admin';
 
 export async function getCurrentLiveStatus(
   supabaseAdmin: SupabaseClient
@@ -182,7 +188,9 @@ export async function startShowLiveSession(
   }
 
   const session = data as ShowLiveSessionRow;
-  const notification = await notifyLiveSessionStarted(supabaseAdmin, session, input.show);
+  const notification = await notifyLiveSessionStarted(supabaseAdmin, session, input.show, {
+    recipientUserId: input.notificationRecipientUserId,
+  });
 
   return {
     ok: true,
@@ -267,9 +275,15 @@ async function loadActiveSession(
 async function notifyLiveSessionStarted(
   supabaseAdmin: SupabaseClient,
   session: ShowLiveSessionRow,
-  show: ShowDefinition
+  show: ShowDefinition,
+  options: {
+    recipientUserId?: string;
+  }
 ): Promise<LiveNotificationResult> {
   const eventId = `show-live:${session.id}`;
+  const recipientScope: LiveNotificationRecipientScope = options.recipientUserId
+    ? 'authenticated-admin'
+    : 'all-subscribers';
   const configured = configureWebPush();
 
   if (!configured.ok) {
@@ -284,15 +298,22 @@ async function notifyLiveSessionStarted(
     return {
       attempted: false,
       configured: false,
+      recipientScope,
       error: configured.error,
       eventId,
       recordUpdated,
     };
   }
 
-  const { data: subscriptions, error } = await supabaseAdmin
+  let subscriptionQuery = supabaseAdmin
     .from('push_subscriptions')
     .select('subscription');
+
+  if (options.recipientUserId) {
+    subscriptionQuery = subscriptionQuery.eq('user_id', options.recipientUserId);
+  }
+
+  const { data: subscriptions, error } = await subscriptionQuery;
 
   if (error) {
     console.error('show-live: failed to load push subscriptions.', {
@@ -309,6 +330,7 @@ async function notifyLiveSessionStarted(
     return {
       attempted: false,
       configured: true,
+      recipientScope,
       summary: emptyDeliverySummary(),
       eventId,
       recordUpdated,
@@ -338,6 +360,7 @@ async function notifyLiveSessionStarted(
     return {
       attempted: false,
       configured: true,
+      recipientScope,
       summary,
       eventId,
       recordUpdated,
@@ -355,6 +378,7 @@ async function notifyLiveSessionStarted(
   return {
     attempted: true,
     configured: true,
+    recipientScope,
     summary,
     eventId,
     recordUpdated,

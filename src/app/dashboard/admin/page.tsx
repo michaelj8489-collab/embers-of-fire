@@ -140,7 +140,11 @@ export default function AdminDashboard() {
       } else if (data.status === 'not-active') {
         setShowLiveStatus('That show is not currently marked live.');
       } else if (data.status === 'started') {
-        setShowLiveStatus('Show marked live.');
+        setShowLiveStatus(
+          data.testMode
+            ? 'Show marked live. Admin test mode sent only to your devices.'
+            : 'Show marked live.'
+        );
       } else {
         setShowLiveStatus('Show marked offline.');
       }
@@ -307,6 +311,7 @@ type ShowLiveMutationResponse =
   | {
       success: true;
       status: 'started' | 'already-active' | 'ended' | 'not-active';
+      testMode?: boolean;
     }
   | {
       success: false;
