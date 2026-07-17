@@ -213,7 +213,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
-      <div className="w-full px-8 py-4 flex items-center">
+      <div className="w-full px-8 py-4 flex items-center justify-between">
         
         {/* LOGO */}
         <Link href="/" className="flex items-center shrink-0">
@@ -224,10 +224,10 @@ export default function Header() {
         </Link>
 
         {/* DESKTOP NAVIGATION */}
-        <nav className="hidden lg:flex flex-1 items-center ml-10">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-10 ml-auto">
           {isLoggedIn ? (
             <>
-              <div className="flex items-center gap-10">
+              <div className="flex items-center gap-6 xl:gap-10">
                 {/* DESKTOP ADMIN LINK */}
                 {isAdmin && (
                   <Link href="/dashboard/admin" className="text-orange-500 font-cinzel font-bold text-sm uppercase tracking-[0.2em] hover:text-orange-400 focus-visible:text-orange-400 transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
@@ -307,12 +307,12 @@ export default function Header() {
                 </div>
               </div>
               
-              <button onClick={handleSignOut} className="ml-auto text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 focus-visible:text-orange-400 hover:bg-orange-600/20 focus-visible:bg-orange-600/20 px-4 py-2 rounded transition-colors">
+              <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 focus-visible:text-orange-400 hover:bg-orange-600/20 focus-visible:bg-orange-600/20 px-4 py-2 rounded transition-colors">
                 Sign Out
               </button>
             </>
           ) : (
-            <Link href="/login" className="ml-auto text-orange-500 font-cinzel font-bold uppercase text-sm tracking-[0.3em] hover:text-orange-400 transition-colors">
+            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-[0.3em] hover:text-orange-400 transition-colors">
               Log In
             </Link>
           )}
