@@ -29,7 +29,7 @@ type RealtimeRemovalStatus = 'ok' | 'timed out' | 'error';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false); // Main Mobile Menu
-  const [showsOpen, setShowsOpen] = useState(false); // Shows Dropdown Toggle
+  const [hearthOpen, setHearthOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTier, setUserTier] = useState(DEFAULT_USER_TIER);
   const [isAdmin, setIsAdmin] = useState(false); // <-- NEW ADMIN STATE
@@ -42,6 +42,7 @@ export default function Header() {
   const activeProfileUserIdRef = useRef<string | null>(null);
   const profileRequestIdRef = useRef(0);
   const isHeaderActiveRef = useRef(false);
+  const hearthButtonRef = useRef<HTMLButtonElement>(null);
 
   const resetUserState = useCallback(() => {
     activeProfileUserIdRef.current = null;
@@ -53,7 +54,7 @@ export default function Header() {
     setUserId('');
     setHasUnreadChat(false);
     setIsOpen(false);
-    setShowsOpen(false);
+    setHearthOpen(false);
   }, []);
 
   const loadProfileForUser = useCallback(async (authUser: User) => {
@@ -73,7 +74,7 @@ export default function Header() {
     setMyUsername('');
     setHasUnreadChat(false);
     setIsOpen(false);
-    setShowsOpen(false);
+    setHearthOpen(false);
 
     const { data, error } = await supabase
       .from('profiles')
@@ -196,9 +197,23 @@ export default function Header() {
     { name: "Mystic Mist", href: "/dashboard/mystic-mist" }
   ];
 
+  const closeHearth = () => {
+    setHearthOpen(false);
+  };
+
+  const closeMobileMenu = () => {
+    setIsOpen(false);
+    closeHearth();
+  };
+
+  const closeMobileChat = () => {
+    closeMobileMenu();
+    setHasUnreadChat(false);
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full border-b border-orange-900/50 bg-black/95 backdrop-blur-md z-[100]">
-      <div className="w-full px-8 py-4 flex items-center justify-between">
+      <div className="w-full px-8 py-4 flex items-center">
         
         {/* LOGO */}
         <Link href="/" className="flex items-center shrink-0">
@@ -209,147 +224,164 @@ export default function Header() {
         </Link>
 
         {/* DESKTOP NAVIGATION */}
-        <nav className="hidden lg:flex items-center gap-10">
+        <nav className="hidden lg:flex flex-1 items-center ml-10">
           {isLoggedIn ? (
             <>
-              {/* DESKTOP ADMIN LINK */}
-              {isAdmin && (
-                <Link href="/dashboard/admin" className="text-orange-500 font-cinzel font-bold text-sm uppercase tracking-[0.2em] hover:text-orange-400 transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
-                  Admin Dashboard
-                </Link>
-              )}
-
-              <Link 
-                href="/community-standards" 
-                className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 transition-colors"
-              >
-                Standards
-              </Link>
-
-              {/* THE GLOWING CHAT LINK */}
-              <Link 
-                href="/chat" 
-                onClick={() => setHasUnreadChat(false)}
-                className="relative text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-500 transition-colors"
-              >
-                Chat
-                {hasUnreadChat && (
-                  <span className="absolute -top-2 -right-4 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+              <div className="flex items-center gap-10">
+                {/* DESKTOP ADMIN LINK */}
+                {isAdmin && (
+                  <Link href="/dashboard/admin" className="text-orange-500 font-cinzel font-bold text-sm uppercase tracking-[0.2em] hover:text-orange-400 focus-visible:text-orange-400 transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
+                    Admin Dashboard
+                  </Link>
                 )}
-              </Link>
 
-              <div className="relative">
-                <button 
-                  onClick={() => setShowsOpen(!showsOpen)}
-                  className="text-orange-500 font-cinzel font-bold uppercase tracking-[0.2em] hover:text-orange-400 transition-colors flex items-center gap-2"
+                <div
+                  className="relative"
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape' && hearthOpen) {
+                      event.preventDefault();
+                      closeHearth();
+                      hearthButtonRef.current?.focus();
+                    }
+                  }}
                 >
-                  Shows <span className={`transition-transform duration-300 ${showsOpen ? 'rotate-180' : ''}`}>▾</span>
-                </button>
-                
-                {showsOpen && (
-                  <div className="absolute top-full right-0 mt-4 w-64 bg-black/95 border border-orange-900/50 backdrop-blur-xl flex flex-col py-2 z-50 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
-                    <Link 
-                      href="/dashboard" 
-                      onClick={() => setShowsOpen(false)}
-                      className="px-4 py-3 text-orange-400 font-cinzel text-sm font-bold uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30"
-                    >
-                      Dashboard
-                    </Link>
-                    <Link 
-                      href={`/sanctuary/${userTier}`} 
-                      onClick={() => setShowsOpen(false)}
-                      className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 border-b border-orange-900/30"
-                    >
-                      My Sanctuary
-                    </Link>
-                    {shows.map((show) => (
-                      <Link 
-                        key={show.href} 
-                        href={show.href} 
-                        onClick={() => setShowsOpen(false)}
-                        className="px-4 py-2 text-gray-300 hover:text-orange-400 hover:bg-orange-900/20 font-cinzel text-sm uppercase tracking-widest"
+                  <button
+                    ref={hearthButtonRef}
+                    type="button"
+                    aria-expanded={hearthOpen}
+                    aria-controls="desktop-hearth-menu"
+                    onClick={() => setHearthOpen((open) => !open)}
+                    className="text-orange-500 font-cinzel font-bold uppercase tracking-[0.2em] hover:text-orange-400 focus-visible:text-orange-400 transition-colors flex items-center gap-2"
+                  >
+                    The Hearth <span aria-hidden="true" className={`transition-transform duration-300 ${hearthOpen ? 'rotate-180' : ''}`}>▾</span>
+                  </button>
+
+                  {hearthOpen && (
+                    <div id="desktop-hearth-menu" className="absolute top-full left-0 mt-4 w-64 bg-black/95 border border-orange-900/50 backdrop-blur-xl flex flex-col py-2 z-[120] shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
+                      <Link
+                        href="/dashboard"
+                        onClick={closeHearth}
+                        className="px-4 py-3 text-orange-400 font-cinzel text-sm font-bold uppercase tracking-widest hover:bg-orange-900/30 focus-visible:bg-orange-900/30 border-b border-orange-900/30"
                       >
-                        {show.name}
+                        Dashboard
                       </Link>
-                    ))}
-                  </div>
-                )}
+                      <Link
+                        href={`/sanctuary/${userTier}`}
+                        onClick={closeHearth}
+                        className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 focus-visible:bg-orange-900/30 border-b border-orange-900/30"
+                      >
+                        My Sanctuary
+                      </Link>
+                      <Link
+                        href="/chat"
+                        onClick={() => {
+                          closeHearth();
+                          setHasUnreadChat(false);
+                        }}
+                        className="relative px-4 py-3 text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-900/20 focus-visible:text-orange-400 focus-visible:bg-orange-900/20 border-b border-orange-900/30"
+                      >
+                        Chat
+                        {hasUnreadChat && (
+                          <span className="absolute top-3.5 right-4 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" aria-label="Unread chat messages"></span>
+                        )}
+                      </Link>
+                      <Link
+                        href="/community-standards"
+                        onClick={closeHearth}
+                        className="px-4 py-3 text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-900/20 focus-visible:text-orange-400 focus-visible:bg-orange-900/20 border-b border-orange-900/30"
+                      >
+                        Standards
+                      </Link>
+                      {shows.map((show) => (
+                        <Link
+                          key={show.href}
+                          href={show.href}
+                          onClick={closeHearth}
+                          className="px-4 py-2 text-gray-300 hover:text-orange-400 hover:bg-orange-900/20 focus-visible:text-orange-400 focus-visible:bg-orange-900/20 font-cinzel text-sm uppercase tracking-widest"
+                        >
+                          {show.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               
-              <button onClick={handleSignOut} className="text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 hover:bg-orange-600/20 px-4 py-2 rounded transition-colors">
+              <button onClick={handleSignOut} className="ml-auto text-gray-300 font-cinzel text-sm uppercase tracking-[0.2em] hover:text-orange-400 focus-visible:text-orange-400 hover:bg-orange-600/20 focus-visible:bg-orange-600/20 px-4 py-2 rounded transition-colors">
                 Sign Out
               </button>
             </>
           ) : (
-            <Link href="/login" className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-[0.3em] hover:text-orange-400 transition-colors">
+            <Link href="/login" className="ml-auto text-orange-500 font-cinzel font-bold uppercase text-sm tracking-[0.3em] hover:text-orange-400 transition-colors">
               Log In
             </Link>
           )}
         </nav>
 
         {/* MOBILE HAMBURGER BUTTON */}
-        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-orange-500 p-2 text-2xl">
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
+          aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          onClick={() => {
+            setIsOpen((open) => !open);
+            if (isOpen) closeHearth();
+          }}
+          className="ml-auto lg:hidden text-orange-500 p-2 text-2xl"
+        >
           {isOpen ? '✕' : '☰'}
         </button>
       </div>
 
       {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
-        <div className="lg:hidden bg-black/95 border-b border-orange-900/50 px-8 py-6 flex flex-col gap-6 max-h-[85vh] overflow-y-auto shadow-2xl">
+        <div id="mobile-navigation" className="lg:hidden bg-black/95 border-b border-orange-900/50 px-8 py-6 flex flex-col gap-6 max-h-[85vh] overflow-y-auto shadow-2xl">
           {isLoggedIn ? (
             <>
-             {/* NEW MOBILE ADMIN LINK */}
-{isAdmin && (
-  <Link href="/dashboard/admin" onClick={() => setIsOpen(false)} className="text-orange-500 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
-    Admin Dashboard
-  </Link>
-)}
-
-              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
-                Dashboard
-              </Link>
-              
-              <Link href={`/sanctuary/${userTier}`} onClick={() => setIsOpen(false)} className="text-orange-400 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel">
-                My Sanctuary
-              </Link>
-
-              <div className="relative w-max">
-                <Link 
-                  href="/chat" 
-                  onClick={() => { setIsOpen(false); setHasUnreadChat(false); }} 
-                  className="text-gray-300 uppercase text-sm tracking-widest font-cinzel block"
-                >
-                  Chat Sanctuary
+              {/* MOBILE ADMIN LINK */}
+              {isAdmin && (
+                <Link href="/dashboard/admin" onClick={closeMobileMenu} className="text-orange-500 font-bold uppercase text-sm tracking-widest border-b border-orange-900/30 pb-4 font-cinzel drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
+                  Admin Dashboard
                 </Link>
-                {hasUnreadChat && (
-                  <span className="absolute top-1 -right-5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
-                )}
-              </div>
+              )}
 
-              <Link 
-                href="/community-standards" 
-                onClick={() => setIsOpen(false)} 
-                className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel"
-              >
-                Standards
-              </Link>
-              
-              <button 
-                onClick={() => setShowsOpen(!showsOpen)}
+              <button
+                type="button"
+                aria-expanded={hearthOpen}
+                aria-controls="mobile-hearth-menu"
+                onClick={() => setHearthOpen((open) => !open)}
                 className="text-orange-500 font-cinzel font-bold uppercase text-sm tracking-widest flex items-center justify-between"
               >
-                <span>Shows</span>
-                <span className={`transition-transform duration-300 ${showsOpen ? 'rotate-180' : ''}`}>▾</span>
+                <span>The Hearth</span>
+                <span aria-hidden="true" className={`transition-transform duration-300 ${hearthOpen ? 'rotate-180' : ''}`}>▾</span>
               </button>
-              
-              {showsOpen && (
-                <div className="flex flex-col gap-4 pl-4 border-l border-orange-900/30">
+
+              {hearthOpen && (
+                <div id="mobile-hearth-menu" className="flex flex-col gap-4 pl-4 border-l border-orange-900/30">
+                  <Link href="/dashboard" onClick={closeMobileMenu} className="text-orange-400 font-bold uppercase text-sm tracking-widest font-cinzel">
+                    Dashboard
+                  </Link>
+                  <Link href={`/sanctuary/${userTier}`} onClick={closeMobileMenu} className="text-orange-400 font-bold uppercase text-sm tracking-widest font-cinzel">
+                    My Sanctuary
+                  </Link>
+                  <div className="relative w-max">
+                    <Link href="/chat" onClick={closeMobileChat} className="text-gray-300 uppercase text-sm tracking-widest font-cinzel block">
+                      Chat Sanctuary
+                    </Link>
+                    {hasUnreadChat && (
+                      <span className="absolute top-1 -right-5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" aria-label="Unread chat messages"></span>
+                    )}
+                  </div>
+                  <Link href="/community-standards" onClick={closeMobileMenu} className="text-gray-300 uppercase text-sm tracking-widest font-cinzel">
+                    Standards
+                  </Link>
                   {shows.map((show) => (
-                    <Link 
-                      key={show.href} 
-                      href={show.href} 
-                      onClick={() => {setIsOpen(false); setShowsOpen(false);}} 
-                      className="text-gray-300 uppercase text-sm tracking-widest block font-cinzel"
+                    <Link
+                      key={show.href}
+                      href={show.href}
+                      onClick={closeMobileMenu}
+                      className="text-gray-300 uppercase text-sm tracking-widest font-cinzel"
                     >
                       {show.name}
                     </Link>
@@ -357,7 +389,7 @@ export default function Header() {
                 </div>
               )}
 
-              <button onClick={() => { setIsOpen(false); setShowsOpen(false); handleSignOut(); }} className="text-left text-gray-400 uppercase text-sm font-cinzel tracking-widest pt-4 border-t border-orange-900/20">
+              <button onClick={() => { closeMobileMenu(); void handleSignOut(); }} className="text-left text-gray-400 uppercase text-sm font-cinzel tracking-widest pt-4 border-t border-orange-900/20">
                 Sign Out
               </button>
             </>

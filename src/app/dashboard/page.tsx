@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
-import FoundersDayBlock from '@/components/FoundersDayBlock';
 
 type CheckoutApiResponse = {
   sessionId?: string;
@@ -201,8 +200,6 @@ function DashboardContent() {
               {checkoutNotice}
             </div>
           )}
-          
-          <FoundersDayBlock />
           
           {/* HERO SECTION - THE TRINITY */}
           <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-12">
