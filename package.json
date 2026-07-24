@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test --experimental-strip-types tests/**/*.test.ts"
   },
   "dependencies": {
     "@giphy/js-fetch-api": "^5.8.0",

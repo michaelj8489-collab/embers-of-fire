@@ -200,6 +200,16 @@ function DashboardContent() {
               {checkoutNotice}
             </div>
           )}
+
+          {isLoggedIn && (
+            <section className="w-full max-w-7xl mb-8 rounded-2xl border border-orange-700/50 bg-black/70 px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p className="font-cinzel text-xs uppercase tracking-[0.2em] text-orange-300">Membership</p>
+                <p className="font-cinzel text-xl text-white mt-1">{formatDashboardTier(userTier)} <span className="text-sm text-gray-400">• {userSubscriptionStatus.replaceAll('_', ' ')}</span></p>
+              </div>
+              <Link href="/dashboard/membership" className="inline-flex justify-center rounded-xl bg-gradient-to-r from-orange-700 to-red-700 px-5 py-3 font-cinzel text-sm uppercase tracking-wider text-white">Change Membership</Link>
+            </section>
+          )}
           
           {/* HERO SECTION - THE TRINITY */}
           <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-12">
@@ -283,7 +293,7 @@ function DashboardContent() {
             <p className="text-xl md:text-3xl italic text-gray-300 mb-14 max-w-4xl mx-auto font-cormorant leading-relaxed">
               Unlock the secrets of the Sanctuary and fuel independent voices.
             </p>
-            <Link href="/dashboard/donate" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 text-white px-12 md:px-24 py-5 md:py-8 rounded-full font-cinzel text-xl md:text-3xl tracking-[0.2em] transition-all hover:scale-105 active:scale-95 uppercase font-bold shadow-[0_0_50px_rgba(234,88,12,0.3)]">
+            <Link href="/dashboard/membership" className="inline-block bg-gradient-to-r from-orange-700 to-red-700 text-white px-12 md:px-24 py-5 md:py-8 rounded-full font-cinzel text-xl md:text-3xl tracking-[0.2em] transition-all hover:scale-105 active:scale-95 uppercase font-bold shadow-[0_0_50px_rgba(234,88,12,0.3)]">
               {userHasActivePaidMembership ? 'Manage Membership' : 'Become a Subscriber'}
             </Link>
           </section>

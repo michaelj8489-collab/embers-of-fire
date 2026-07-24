@@ -6,21 +6,7 @@ import { createClient as createSupabaseServerClient } from '@/utils/supabase/ser
 
 export const STRIPE_API_VERSION = '2026-03-25.dahlia' as const;
 
-export const CHECKOUT_TIERS = {
-  'Keepers of the Embers': 500,
-  'Flame Bearers': 1500,
-  'Phoenix Circle': 3300,
-  'Wings of the Phoenix': 7500,
-  'Phoenix Ascending': 15000,
-} as const;
-
-const TIER_SLUGS: Record<string, TierName> = {
-  'keepers-of-the-embers': 'Keepers of the Embers',
-  'flame-bearers': 'Flame Bearers',
-  'phoenix-circle': 'Phoenix Circle',
-  'wings-of-the-phoenix': 'Wings of the Phoenix',
-  'phoenix-ascending': 'Phoenix Ascending',
-};
+import { validateTierName, type TierName } from '@/utils/membership';
 
 const MAX_TITLE_LENGTH = 120;
 const MAX_NOTIFICATION_BODY_LENGTH = 500;
@@ -29,7 +15,7 @@ const MAX_URL_LENGTH = 2048;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export type TierName = keyof typeof CHECKOUT_TIERS;
+export type { TierName } from '@/utils/membership';
 
 type ValidationResult<T> =
   | { ok: true; value: T }
@@ -176,22 +162,8 @@ export async function readJsonObject(req: Request): Promise<ValidationResult<Rec
 }
 
 export function normalizeTierName(value: unknown): ValidationResult<TierName> {
-  if (typeof value !== 'string') {
-    return { ok: false, error: 'tierName must be a string.' };
-  }
-
-  const trimmed = value.trim();
-
-  if (isTierName(trimmed)) {
-    return { ok: true, value: trimmed };
-  }
-
-  const slugMatch = TIER_SLUGS[trimmed.toLowerCase()];
-  if (slugMatch) {
-    return { ok: true, value: slugMatch };
-  }
-
-  return { ok: false, error: 'Invalid subscription tier.' };
+  const tier = validateTierName(value);
+  return tier.ok ? tier : { ok: false, error: tier.error };
 }
 
 export function normalizeTrustedAppUrl(): ValidationResult<string> {
@@ -477,9 +449,6 @@ export async function removeExpiredPushSubscription(
   return true;
 }
 
-function isTierName(value: string): value is TierName {
-  return Object.hasOwn(CHECKOUT_TIERS, value);
-}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);

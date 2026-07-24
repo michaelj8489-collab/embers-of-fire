@@ -3,7 +3,6 @@ import Stripe from 'stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/server';
 import {
-  CHECKOUT_TIERS,
   STRIPE_API_VERSION,
   createSupabaseServiceRoleClient,
   jsonError,
@@ -12,6 +11,8 @@ import {
   readJsonObject,
   getRequiredEnv,
 } from '@/utils/api/security';
+import { validateTierName } from '@/utils/membership';
+import { retrieveValidatedStripePrice } from '@/utils/membership.server';
 
 type ProfileSubscriptionRow = {
   subscription_tier: string | null;
@@ -165,6 +166,12 @@ export async function POST(req: Request) {
   };
 
   try {
+    const stripePrice = await retrieveValidatedStripePrice(stripe, tierName);
+    if (!stripePrice.ok) {
+      console.error('checkout: configured Stripe Price is invalid.', { configurationError: stripePrice.error });
+      return checkoutError('Checkout is not configured.', 500, 'BILLING_NOT_CONFIGURED');
+    }
+
     const customer = await getOrCreateStripeCustomerId(stripe, {
       userId: user.id,
       userEmail: user.email,
@@ -199,16 +206,7 @@ export async function POST(req: Request) {
       client_reference_id: user.id,
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: tierName,
-            },
-            unit_amount: CHECKOUT_TIERS[tierName],
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: stripePrice.value,
           quantity: 1,
         },
       ],
@@ -272,7 +270,7 @@ function hasLocalProcessingSubscription(subscription: SubscriptionCheckoutRow | 
 }
 
 function isPaidTier(tier: string | null | undefined) {
-  return typeof tier === 'string' && Object.hasOwn(CHECKOUT_TIERS, tier);
+  return validateTierName(tier).ok;
 }
 
 async function getOrCreateStripeCustomerId(

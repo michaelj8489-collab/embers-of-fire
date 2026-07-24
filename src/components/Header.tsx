@@ -266,6 +266,13 @@ export default function Header() {
                         Dashboard
                       </Link>
                       <Link
+                        href="/dashboard/membership"
+                        onClick={closeHearth}
+                        className="px-4 py-3 text-orange-300 font-cinzel text-sm font-bold uppercase tracking-widest hover:bg-orange-900/30 focus-visible:bg-orange-900/30 border-b border-orange-900/30"
+                      >
+                        Membership
+                      </Link>
+                      <Link
                         href={`/sanctuary/${userTier}`}
                         onClick={closeHearth}
                         className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 focus-visible:bg-orange-900/30 border-b border-orange-900/30"
@@ -361,6 +368,9 @@ export default function Header() {
                 <div id="mobile-hearth-menu" className="flex flex-col gap-4 pl-4 border-l border-orange-900/30">
                   <Link href="/dashboard" onClick={closeMobileMenu} className="text-orange-400 font-bold uppercase text-sm tracking-widest font-cinzel">
                     Dashboard
+                  </Link>
+                  <Link href="/dashboard/membership" onClick={closeMobileMenu} className="text-orange-300 font-bold uppercase text-sm tracking-widest font-cinzel">
+                    Membership
                   </Link>
                   <Link href={`/sanctuary/${userTier}`} onClick={closeMobileMenu} className="text-orange-400 font-bold uppercase text-sm tracking-widest font-cinzel">
                     My Sanctuary

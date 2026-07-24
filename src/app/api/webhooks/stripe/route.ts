@@ -8,6 +8,7 @@ import {
   normalizeTierName,
   type TierName,
 } from '@/utils/api/security';
+import { resolveSubscriptionMembership } from '@/utils/membership.server';
 
 type SubscriptionLookupRow = {
   user_id: string;
@@ -145,7 +146,7 @@ async function handleCheckoutSessionCompleted(
 ) {
   if (session.mode !== 'subscription') {
     console.warn('stripe-webhook: checkout session is not subscription mode.', {
-      sessionId: session.id,
+      hasSessionId: Boolean(session.id),
       mode: session.mode,
     });
     return;
@@ -163,7 +164,7 @@ async function handleCheckoutSessionCompleted(
 
   if (!subscriptionId || !customerId || !context.userId) {
     console.warn('stripe-webhook: checkout session missing required billing data.', {
-      sessionId: session.id,
+      hasSessionId: Boolean(session.id),
       hasSubscriptionId: Boolean(subscriptionId),
       hasCustomerId: Boolean(customerId),
       hasUserId: Boolean(context.userId),
@@ -205,7 +206,7 @@ async function handleSubscriptionDeleted(
 
   if (!context.userId || !customerId) {
     console.warn('stripe-webhook: deleted subscription missing resolvable billing data.', {
-      subscriptionId,
+      hasSubscriptionId: Boolean(subscriptionId),
       hasCustomerId: Boolean(customerId),
       hasUserId: Boolean(context.userId),
     });
@@ -244,7 +245,7 @@ async function handleSubscriptionUpdated(
 
   if (!context.userId || !customerId) {
     console.warn('stripe-webhook: updated subscription missing resolvable billing data.', {
-      subscriptionId,
+      hasSubscriptionId: Boolean(subscriptionId),
       hasCustomerId: Boolean(customerId),
       hasUserId: Boolean(context.userId),
     });
@@ -284,7 +285,7 @@ async function handleInvoicePaymentFailed(
 
   if (!subscriptionId || !customerId || !context.userId) {
     console.warn('stripe-webhook: failed invoice missing resolvable billing data.', {
-      invoiceId: invoice.id,
+      hasInvoiceId: Boolean(invoice.id),
       hasSubscriptionId: Boolean(subscriptionId),
       hasCustomerId: Boolean(customerId),
       hasUserId: Boolean(context.userId),
@@ -326,7 +327,7 @@ async function handleInvoicePaid(
 
   if (!subscriptionId || !customerId || !context.userId) {
     console.warn('stripe-webhook: paid invoice missing required billing data.', {
-      invoiceId: invoice.id,
+      hasInvoiceId: Boolean(invoice.id),
       hasSubscriptionId: Boolean(subscriptionId),
       hasCustomerId: Boolean(customerId),
       hasUserId: Boolean(context.userId),
@@ -470,25 +471,52 @@ async function applyCurrentSubscriptionDecision(
 ) {
   const currentCustomerId =
     getStripeObjectId(decision.currentSubscription.customer) ?? options.fallbackCustomerId;
-  const currentTier =
-    getTierFromMetadata(decision.currentSubscription.metadata) ??
-    normalizeExistingTier(decision.currentRow?.tier) ??
-    options.fallbackTier;
+  const membership = resolveSubscriptionMembership(
+    decision.currentSubscription,
+    decision.currentRow?.tier
+  );
   const periodEndIso = getSubscriptionPeriodEnd(decision.currentSubscription);
 
   if (!currentCustomerId) {
     console.warn('stripe-webhook: current subscription is missing customer ID.', {
       logContext: options.logContext,
-      subscriptionId: decision.currentSubscription.id,
+      hasSubscriptionId: Boolean(decision.currentSubscription.id),
     });
     return;
   }
+
+  if (membership.kind === 'configuration_error') {
+    console.error('stripe-webhook: membership Price configuration is invalid; leaving access unchanged for retry.', {
+      logContext: options.logContext,
+      hasSubscriptionId: Boolean(decision.currentSubscription.id),
+    });
+    throw new Error('Membership Price configuration is invalid.');
+  }
+
+  if (membership.kind === 'unknown_price') {
+    console.warn('stripe-webhook: configured membership tier was not found for subscription Price ID; access fails closed.', {
+      logContext: options.logContext,
+      hasSubscriptionId: Boolean(decision.currentSubscription.id),
+      status: decision.currentSubscription.status,
+    });
+    await deactivateSubscriptionAccess(supabaseAdmin, {
+      userId: decision.userId,
+      tier: null,
+      subscriptionId: decision.currentSubscription.id,
+      customerId: currentCustomerId,
+      status: decision.currentSubscription.status,
+      logContext: options.logContext,
+    });
+    return;
+  }
+
+  const currentTier = membership.tier;
 
   if (decision.access === 'grant') {
     if (!currentTier) {
       console.warn('stripe-webhook: current entitled subscription is missing tier metadata.', {
         logContext: options.logContext,
-        subscriptionId: decision.currentSubscription.id,
+        hasSubscriptionId: Boolean(decision.currentSubscription.id),
         status: decision.currentSubscription.status,
       });
       return;
@@ -713,11 +741,7 @@ async function retrieveCurrentSubscription(
   }
 }
 
-function classifySubscriptionAccess(
-  status: string,
-  subscriptionId: string,
-  logContext: string
-): SubscriptionAccessDecision {
+function classifySubscriptionAccess(status: string, _subscriptionId: string, logContext: string): SubscriptionAccessDecision {
   if (ACCESS_GRANTING_SUBSCRIPTION_STATUSES.has(status)) {
     return 'grant';
   }
@@ -728,7 +752,6 @@ function classifySubscriptionAccess(
 
   console.warn('stripe-webhook: unknown subscription status defaults to no access.', {
     logContext,
-    subscriptionId,
     status,
   });
   return 'revoke';
@@ -820,7 +843,10 @@ function normalizeExistingTier(tier: string | null | undefined): TierName | null
 }
 
 function getSubscriptionPeriodEnd(subscription: Stripe.Subscription) {
-  const periodEnd = subscription.items.data[0]?.current_period_end;
+  const recurringItems = subscription.items.data.filter(
+    (item) => item.price.recurring?.interval === 'month'
+  );
+  const periodEnd = recurringItems.length === 1 ? recurringItems[0].current_period_end : null;
   return unixToIso(periodEnd);
 }
 
