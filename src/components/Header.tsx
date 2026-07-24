@@ -10,22 +10,7 @@ const DEFAULT_USER_TIER = 'seeker';
 type HeaderProfile = {
   subscription_tier: string | null;
   role: string | null;
-  username: string | null;
 };
-
-type HeaderChatMessage = {
-  [key: string]: unknown;
-  content?: string | null;
-  recipient_id?: string | null;
-  user_id?: string | null;
-};
-
-type HeaderChatPayload = {
-  new: HeaderChatMessage;
-};
-
-type RealtimeSubscribeStatus = 'SUBSCRIBED' | 'TIMED_OUT' | 'CLOSED' | 'CHANNEL_ERROR';
-type RealtimeRemovalStatus = 'ok' | 'timed out' | 'error';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false); // Main Mobile Menu
@@ -33,9 +18,6 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTier, setUserTier] = useState(DEFAULT_USER_TIER);
   const [isAdmin, setIsAdmin] = useState(false); // <-- NEW ADMIN STATE
-  const [hasUnreadChat, setHasUnreadChat] = useState(false);
-  const [myUsername, setMyUsername] = useState<string>('');
-  const [userId, setUserId] = useState<string>('');
 
   const router = useRouter();
   const supabase = createClient();
@@ -50,17 +32,12 @@ export default function Header() {
     setIsLoggedIn(false);
     setIsAdmin(false);
     setUserTier(DEFAULT_USER_TIER);
-    setMyUsername('');
-    setUserId('');
-    setHasUnreadChat(false);
     setIsOpen(false);
     setHearthOpen(false);
   }, []);
 
   const loadProfileForUser = useCallback(async (authUser: User) => {
     setIsLoggedIn(true);
-    setUserId(authUser.id);
-
     if (activeProfileUserIdRef.current === authUser.id) {
       return;
     }
@@ -71,14 +48,12 @@ export default function Header() {
 
     setIsAdmin(false);
     setUserTier(DEFAULT_USER_TIER);
-    setMyUsername('');
-    setHasUnreadChat(false);
     setIsOpen(false);
     setHearthOpen(false);
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('subscription_tier, role, username')
+      .select('subscription_tier, role')
       .eq('id', authUser.id)
       .single();
 
@@ -91,15 +66,12 @@ export default function Header() {
       console.error('Header profile query failed.', error.code);
       setIsAdmin(false);
       setUserTier(DEFAULT_USER_TIER);
-      setMyUsername('');
-      setHasUnreadChat(false);
       return;
     }
 
     const profile = data as HeaderProfile | null;
     setUserTier(profile?.subscription_tier || DEFAULT_USER_TIER);
     setIsAdmin(profile?.role === 'admin');
-    setMyUsername(profile?.username || '');
   }, [supabase]);
 
   useEffect(() => {
@@ -124,53 +96,6 @@ export default function Header() {
       subscription.unsubscribe();
     };
   }, [loadProfileForUser, resetUserState, supabase]);
-
-  // GLOBAL CHAT NOTIFICATION LISTENER FOR THE HEADER
-  useEffect(() => {
-    if (!myUsername || !userId) return;
-    let isListening = true;
-    const normalizedUsername = myUsername.toLowerCase();
-
-    const headerChannel = supabase.channel(`header_notifications_${userId}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'chat_messages'
-      }, (payload: HeaderChatPayload) => {
-        if (!isListening) {
-          return;
-        }
-
-        const newMsg = payload.new;
-        
-        // 1. Did someone whisper to you?
-        if (newMsg.recipient_id === userId) {
-          setHasUnreadChat(true);
-          return;
-        }
-
-        // 2. Did someone tag you in a public room?
-        const text = newMsg.content?.toLowerCase() || '';
-        const isTagged = text.includes(`@${normalizedUsername}`) || text.includes('@all');
-        
-        if (isTagged && newMsg.user_id !== userId) {
-          setHasUnreadChat(true);
-        }
-      }).subscribe((status: RealtimeSubscribeStatus, error?: Error) => {
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.error('Header notification subscription failed.', error);
-        }
-      });
-
-    return () => {
-      isListening = false;
-      void supabase.removeChannel(headerChannel).then((status: RealtimeRemovalStatus) => {
-        if (status === 'error') {
-          console.error('Header notification channel cleanup failed.');
-        }
-      });
-    };
-  }, [myUsername, userId, supabase]);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -204,11 +129,6 @@ export default function Header() {
   const closeMobileMenu = () => {
     setIsOpen(false);
     closeHearth();
-  };
-
-  const closeMobileChat = () => {
-    closeMobileMenu();
-    setHasUnreadChat(false);
   };
 
   return (
@@ -278,19 +198,6 @@ export default function Header() {
                         className="px-4 py-3 text-orange-400 font-cinzel text-sm uppercase tracking-widest hover:bg-orange-900/30 focus-visible:bg-orange-900/30 border-b border-orange-900/30"
                       >
                         My Sanctuary
-                      </Link>
-                      <Link
-                        href="/chat"
-                        onClick={() => {
-                          closeHearth();
-                          setHasUnreadChat(false);
-                        }}
-                        className="relative px-4 py-3 text-gray-300 font-cinzel text-sm uppercase tracking-widest hover:text-orange-400 hover:bg-orange-900/20 focus-visible:text-orange-400 focus-visible:bg-orange-900/20 border-b border-orange-900/30"
-                      >
-                        Chat
-                        {hasUnreadChat && (
-                          <span className="absolute top-3.5 right-4 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" aria-label="Unread chat messages"></span>
-                        )}
                       </Link>
                       <Link
                         href="/community-standards"
@@ -375,14 +282,6 @@ export default function Header() {
                   <Link href={`/sanctuary/${userTier}`} onClick={closeMobileMenu} className="text-orange-400 font-bold uppercase text-sm tracking-widest font-cinzel">
                     My Sanctuary
                   </Link>
-                  <div className="relative w-max">
-                    <Link href="/chat" onClick={closeMobileChat} className="text-gray-300 uppercase text-sm tracking-widest font-cinzel block">
-                      Chat Sanctuary
-                    </Link>
-                    {hasUnreadChat && (
-                      <span className="absolute top-1 -right-5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" aria-label="Unread chat messages"></span>
-                    )}
-                  </div>
                   <Link href="/community-standards" onClick={closeMobileMenu} className="text-gray-300 uppercase text-sm tracking-widest font-cinzel">
                     Standards
                   </Link>

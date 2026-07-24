@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: '/chat', destination: '/dashboard', permanent: true },
+      { source: '/chat-embed', destination: '/dashboard', permanent: true },
+    ];
+  },
   images: {
     minimumCacheTTL: 31536000,
     remotePatterns: [
@@ -15,10 +21,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.embersoflight.net',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.giphy.com',
       },
       {
         protocol: 'https',

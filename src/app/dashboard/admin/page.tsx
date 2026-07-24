@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
-import BotManager from '@/components/BotManager'; // Correct import
 import { SHOWS } from '@/utils/showRegistry';
 
 const TIERS = [
@@ -282,8 +281,6 @@ export default function AdminDashboard() {
           )}
         </section>
         
-        <BotManager />
-
       </div>
     </main>
   );

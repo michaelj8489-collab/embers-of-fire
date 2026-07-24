@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { MEMBERSHIP_TIERS } from '../src/utils/membership.ts';
 import {
   getConfiguredStripePrices,
@@ -146,4 +148,36 @@ test('a pending update prevents the subscription update callback from being call
   });
   assert.deepEqual(updated, { kind: 'updated', value: { subscriptionId: 'sub_existing', itemId: 'si_existing' } });
   assert.equal(calls, 1);
+});
+
+function sourceFiles(directory: string): string[] {
+  return readdirSync(directory).flatMap((entry) => {
+    const path = join(directory, entry);
+    return statSync(path).isDirectory() ? sourceFiles(path) : [path];
+  });
+}
+
+test('chat application surfaces are removed while generic push infrastructure remains', () => {
+  assert.equal(existsSync('src/app/chat/page.tsx'), false);
+  assert.equal(existsSync('src/app/chat-embed/page.tsx'), false);
+  assert.equal(existsSync('src/app/api/chat-push/route.ts'), false);
+  assert.equal(existsSync('src/components/BotManager.tsx'), false);
+
+  const prohibited = /chat_messages|chat_commands|chat_uploads|chat-push|chat-embed|BotManager|GiphyFetch|emoji-picker-react/i;
+  for (const file of sourceFiles('src')) {
+    assert.equal(prohibited.test(readFileSync(file, 'utf8')), false, `Chat reference remains in ${file}`);
+  }
+
+  const header = readFileSync('src/components/Header.tsx', 'utf8');
+  assert.equal(header.includes('/chat'), false);
+  assert.match(readFileSync('src/utils/twitchEmbed.ts', 'utf8'), /export function buildTwitchChatSrc/);
+  const config = readFileSync('next.config.ts', 'utf8');
+  assert.match(config, /source: '\/chat'.*destination: '\/dashboard'.*permanent: true/);
+  assert.match(config, /source: '\/chat-embed'.*destination: '\/dashboard'.*permanent: true/);
+  const packageJson = readFileSync('package.json', 'utf8');
+  assert.equal(/@giphy\/js-fetch-api|@giphy\/react-components|emoji-picker-react/.test(packageJson), false);
+  assert.equal(existsSync('src/app/api/broadcast/route.ts'), true);
+  assert.equal(existsSync('src/app/api/show-live/route.ts'), true);
+  assert.equal(existsSync('src/app/api/push-subscriptions/route.ts'), true);
+  assert.equal(existsSync('src/utils/api/security.ts'), true);
 });

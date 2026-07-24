@@ -34,7 +34,7 @@ export default function CommunityGuidelines() {
                 Before we define the boundaries of our space, we must remember the fire that built it. <strong className="text-orange-400 font-cinzel tracking-wider">Embers of Light</strong> is the digital home and beating heart of the Rise Radio Network. More than just a broadcasting platform, it is a Sanctuary carefully constructed for healing, authentic expression, and high-frequency connection.
               </p>
               <p>
-                We provide a stage for those who are ready to step into their truth. Through our live radio broadcasts, real-time community chatrooms, and the exclusive depths of our tiered memberships, we create a secure environment where deep, transformative conversations—and powerful music—can thrive. 
+                We provide a stage for those who are ready to step into their truth. Through our live radio broadcasts and the exclusive depths of our tiered memberships, we create a secure environment where deep, transformative conversations—and powerful music—can thrive.
               </p>
               <p>
                 Our ultimate mission is simple but profound: to inspire creators, listeners, and seekers across the globe. We are here to help you kindle your own unique spark, rise together above the noise of the outside world, and find a community that will help keep your fire burning through the night.
@@ -46,7 +46,7 @@ export default function CommunityGuidelines() {
           {/* Intro to Guidelines */}
           <div className="space-y-6">
             <p className="text-xl text-gray-200">
-              To maintain the high frequency of this space and protect the mission of the Embers, we require all members, listeners, and hosts to honor a strict code of conduct. By entering the Sanctuary and participating in our chat rooms, shows, and groups, you agree to abide by the following decrees:
+              To maintain the high frequency of this space and protect the mission of the Embers, we require all members, listeners, and hosts to honor a strict code of conduct. By entering the Sanctuary, shows, and groups, you agree to abide by the following decrees:
             </p>
 
             {/* Rule 1 */}
@@ -65,7 +65,7 @@ export default function CommunityGuidelines() {
                 2. No Background Harassment
               </h3>
               <p>
-                The peace of our community extends beyond the public chat rooms. "Background harassment"—including sending malicious private messages, coordinating attacks behind the scenes, or bringing outside conflicts into the Sanctuary—is strictly forbidden. We protect our members' peace both on the stage and behind the curtain.
+                The peace of our community extends beyond public spaces. "Background harassment"—including sending malicious private messages, coordinating attacks behind the scenes, or bringing outside conflicts into the Sanctuary—is strictly forbidden. We protect our members' peace both on the stage and behind the curtain.
               </p>
             </div>
 
