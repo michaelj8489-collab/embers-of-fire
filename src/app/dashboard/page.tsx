@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import GlobalZenoPlayer from '@/components/GlobalZenoPlayer';
+import { SHOWS } from '@/utils/showRegistry';
 
 type CheckoutApiResponse = {
   sessionId?: string;
@@ -162,15 +163,12 @@ function DashboardContent() {
     triggerCheckout();
   }, [loading, isLoggedIn, router, searchParams, userEmail]);
 
-  const schedule = [
-    { name: "The Bloom", day: "Mondays", time: "11:00 AM EST", href: "/dashboard/the-bloom"},
-    { name: "Brindle's Vision", day: "Mondays", time: "6:00 PM EST", href: "/dashboard/brindles-vision" },
-    { name: "Phoenix Talks", day: "Wednesdays", time: "6:00 PM EST", href: "/dashboard/phoenix-talks" },
-    { name: "Honky Tonk Heaven", day: "Wednesdays", time: "9:00 PM EST", href: "/dashboard/honky-tonk-heaven" },
-    { name: "The CORE", day: "Thursdays", time: "11:00 AM EST", href: "/dashboard/the-core" },
-    { name: "Defining Your Character", day: "Thursdays", time: "5:00 PM EST", href: "/dashboard/defining-your-character"},
-    { name: "Mystic Mist", day: "Sundays", time: "Coming May 10", href: "/dashboard/mystic-mist" },
-  ];
+  const schedule = SHOWS.map((show) => ({
+    name: show.name,
+    day: show.schedule.day,
+    time: show.schedule.time,
+    href: show.href,
+  }));
 
   if (loading) {
     return <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 font-cinzel text-xl animate-pulse">Entering the Sanctuary...</div>;

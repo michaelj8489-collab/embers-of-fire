@@ -4,6 +4,7 @@ import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { SHOWS } from '@/utils/showRegistry';
 
 const DEFAULT_USER_TIER = 'seeker';
 
@@ -112,15 +113,7 @@ export default function Header() {
     router.push('/login');
   };
     
-  const shows = [
-    { name: "The Bloom", href: "/dashboard/the-bloom" },
-    { name: "Brindle's Vision", href: "/dashboard/brindles-vision" },
-    { name: "Phoenix Talks", href: "/dashboard/phoenix-talks" },
-    { name: "The CORE", href: "/dashboard/the-core" },
-    { name: "Honky Tonk Heaven", href: "/dashboard/honky-tonk-heaven" },
-    { name: "Defining Your Character", href: "/dashboard/defining-your-character" },
-    { name: "Mystic Mist", href: "/dashboard/mystic-mist" }
-  ];
+  const shows = SHOWS;
 
   const closeHearth = () => {
     setHearthOpen(false);

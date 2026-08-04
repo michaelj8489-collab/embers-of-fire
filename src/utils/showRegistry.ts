@@ -14,6 +14,10 @@ export type ShowDefinition = {
   slug: string;
   href: string;
   hosts: readonly string[];
+  schedule: {
+    day: string;
+    time: string;
+  };
   supportedLivePlatforms: readonly ShowLivePlatform[];
   twitchChannel?: string;
   zenoStations?: typeof GLOBAL_ZENO_STATIONS;
@@ -34,6 +38,7 @@ export const SHOWS = [
     slug: 'the-bloom',
     href: '/dashboard/the-bloom',
     hosts: ['Rev. Diane R. DeBiasi'],
+    schedule: { day: 'Mondays', time: '11:00 AM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'riseradionetworks',
     imagePath: '/images/main-images/Cover Art/bloom-bg.jpg',
@@ -50,6 +55,7 @@ export const SHOWS = [
     slug: 'brindles-vision',
     href: '/dashboard/brindles-vision',
     hosts: ['Brindle Wolf', 'Michka Grant'],
+    schedule: { day: 'Mondays', time: '6:00 PM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'riseradionetworks',
     imagePath: '/images/main-images/Cover Art/brindles-vision-bg.png',
@@ -66,6 +72,7 @@ export const SHOWS = [
     slug: 'phoenix-talks',
     href: '/dashboard/phoenix-talks',
     hosts: ['Brindlewolf', 'Diane'],
+    schedule: { day: 'Wednesdays', time: '6:00 PM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'riseradionetworks',
     imagePath: '/images/main-images/Cover Art/phoenix-talks-bg.jpg',
@@ -82,6 +89,7 @@ export const SHOWS = [
     slug: 'the-core',
     href: '/dashboard/the-core',
     hosts: ['Michka "BrindleWolf" Grant', 'Rev. Diane R. DeBiasi', 'Michael J. Cox'],
+    schedule: { day: 'Thursdays', time: '11:00 AM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'riseradionetworks',
     imagePath: '/images/jmc-edits-palettes/core-new-trio-bio.png',
@@ -98,6 +106,7 @@ export const SHOWS = [
     slug: 'honky-tonk-heaven',
     href: '/dashboard/honky-tonk-heaven',
     hosts: ['Will Iommi'],
+    schedule: { day: 'Wednesdays', time: '9:00 PM EST' },
     supportedLivePlatforms: ['manual', 'zeno'],
     zenoStations: GLOBAL_ZENO_STATIONS,
     imagePath: '/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg',
@@ -114,6 +123,7 @@ export const SHOWS = [
     slug: 'defining-your-character',
     href: '/dashboard/defining-your-character',
     hosts: ['Michael J Cox'],
+    schedule: { day: 'Thursdays', time: '5:00 PM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'michaelj8489',
     backgroundVideoPath: '/images/jmc-edits-palettes/defining-your-character-bg.mp4',
@@ -130,6 +140,7 @@ export const SHOWS = [
     slug: 'mystic-mist',
     href: '/dashboard/mystic-mist',
     hosts: ['Amanda', 'Papaduck78'],
+    schedule: { day: 'Sundays', time: 'Coming May 10' },
     supportedLivePlatforms: ['manual', 'zeno'],
     zenoStations: GLOBAL_ZENO_STATIONS,
     imagePath: '/images/main-images/Cover Art/mystic-mist-bg.jpg',
@@ -138,6 +149,23 @@ export const SHOWS = [
       body: 'Mystic Mist has started on Rise Radio.',
       iconPath: '/images/main-images/Cover Art/mystic-mist-bg.jpg',
       url: '/dashboard/mystic-mist',
+    },
+  },
+  {
+    id: 'time-capsule',
+    name: 'Time Capsule',
+    slug: 'time-capsule',
+    href: '/dashboard/time-capsule',
+    hosts: ['Amanda', 'Mark'],
+    schedule: { day: 'Every Other Sunday', time: '4:00 PM ET' },
+    supportedLivePlatforms: ['manual', 'zeno'],
+    zenoStations: GLOBAL_ZENO_STATIONS,
+    imagePath: '/images/main-images/Cover Art/time-capsule-cover.jpg',
+    notification: {
+      title: 'Time Capsule is live',
+      body: 'Time Capsule has started on Rise Radio.',
+      iconPath: '/images/main-images/Cover Art/time-capsule-cover.jpg',
+      url: '/dashboard/time-capsule',
     },
   },
 ] as const satisfies readonly ShowDefinition[];
