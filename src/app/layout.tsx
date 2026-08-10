@@ -3,6 +3,7 @@ import { Cinzel_Decorative, Cinzel, Cormorant } from "next/font/google";
 import "./globals.css";
 import Script from 'next/script'; 
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
+import SiteAnalyticsTracker from '@/components/SiteAnalyticsTracker';
 
 const cinzelDec = Cinzel_Decorative({
   weight: ['400', '700', '900'],
@@ -114,6 +115,7 @@ export default function RootLayout({
       </head>
       <body className={`${cinzelDec.variable} ${cinzel.variable} ${cormorant.variable} antialiased bg-black text-white`}>
         <ServiceWorkerRegistration />
+        <SiteAnalyticsTracker />
         {children}
         {/* Notice BottomNav is COMPLETELY gone from here! */}
       </body>
