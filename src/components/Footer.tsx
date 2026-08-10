@@ -1,96 +1,108 @@
+'use client';
 
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const supabase = useMemo(() => createClient(), []);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (active) setIsLoggedIn(Boolean(session?.user));
+    };
+
+    void loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setIsLoggedIn(Boolean(session?.user));
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   return (
-    <footer className="relative z-20 w-full bg-black/95 border-t border-orange-900/60 mt-auto shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
-      
-      {/* --- UPPER FOOTER: The Responsive Links Grid --- */}
-      <div className="w-full max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 text-center md:text-left font-cormorant text-gray-400">
-          
-          {/* Column 1: Brand Info */}
-          <div className="flex flex-col items-center md:items-start space-y-4">
-            <h3 className="text-2xl font-cinzel text-orange-500 tracking-widest">RISE RADIO</h3>
-            <p className="text-sm md:text-base italic">
-              Igniting the spark. Fueling the journey.
-            </p>
+    <footer className="relative z-20 mt-auto w-full border-t border-orange-900/60 bg-black/95 shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+      <div className="mx-auto w-full max-w-7xl px-6 py-10">
+        <div className={`grid gap-10 font-cormorant text-gray-400 ${isLoggedIn ? 'grid-cols-1 text-center md:grid-cols-4 md:text-left' : 'grid-cols-1 text-center'}`}>
+          <div className={`flex flex-col items-center space-y-4 ${isLoggedIn ? 'md:items-start' : ''}`}>
+            <h3 className="font-cinzel text-2xl tracking-widest text-orange-500">RISE RADIO</h3>
+            <p className="text-sm italic md:text-base">Igniting the spark. Fueling the journey.</p>
           </div>
 
-          {/* Column 2: Sanctuary Links */}
-          <div className="flex flex-col space-y-3">
-            <h4 className="font-cinzel text-white tracking-widest uppercase border-b border-orange-900/30 pb-2 mb-2 inline-block">
-              The Sanctuary
-            </h4>
-            <Link href="/" className="hover:text-orange-400 transition-colors duration-300">Home</Link>
-            {/* 🚀 UPDATED LINK: Now points directly to your Dashboard Show Calendar */}
-            <Link href="/dashboard" className="hover:text-orange-400 transition-colors duration-300">Show Calendar</Link>
-            <Link href="/login" className="hover:text-orange-400 transition-colors duration-300">Patron Login</Link>
-          </div>
+          {isLoggedIn ? (
+            <>
+              <div className="flex flex-col space-y-3">
+                <h4 className="mb-2 inline-block border-b border-orange-900/30 pb-2 font-cinzel uppercase tracking-widest text-white">
+                  The Sanctuary
+                </h4>
+                <Link href="/dashboard" className="transition-colors duration-300 hover:text-orange-400">Dashboard</Link>
+                <Link href="/dashboard#network-schedule" className="transition-colors duration-300 hover:text-orange-400">Show Calendar</Link>
+                <Link href="/dashboard/membership" className="transition-colors duration-300 hover:text-orange-400">Membership</Link>
+                <Link href="/community-standards" className="transition-colors duration-300 hover:text-orange-400">Community Standards</Link>
+              </div>
 
-          {/* Column 3: Social Media & Platforms */}
-          <div className="flex flex-col space-y-3">
-            <h4 className="font-cinzel text-white tracking-widest uppercase border-b border-orange-900/30 pb-2 mb-2 inline-block">
-              Connect
-            </h4>
-            <a href="https://www.facebook.com/profile.php?id=61578647787283" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Embers of Light Facebook</a>
-            <a href="https://www.facebook.com/groups/riseawakenings" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Rise Awakenings Facebook</a>
-            <a href="https://www.youtube.com/@EmbersOfLight1111" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">EOL YouTube</a>
-            <a href="https://lnk.bio/embers_of_light?fbclid=IwY2xjawRcZ4dleHRuA2FlbQIxMABicmlkETFQVlFJUDdvbXM5WGVseGJ5c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHryIDMNmBh5Xe3M9nTvf5aFx23XhIHK6G6pIqas6fl5C2vapWNLQynDE9-_B_aem_oakVqv4TJ7zaBn_3RM94bw" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">lnk.bio for podcasts</a>
-          </div>
+              <div className="flex flex-col space-y-3">
+                <h4 className="mb-2 inline-block border-b border-orange-900/30 pb-2 font-cinzel uppercase tracking-widest text-white">
+                  Connect
+                </h4>
+                <a href="https://www.facebook.com/profile.php?id=61578647787283" target="_blank" rel="noopener noreferrer" className="transition-colors duration-300 hover:text-orange-400">Embers of Light Facebook</a>
+                <a href="https://www.facebook.com/groups/riseawakenings" target="_blank" rel="noopener noreferrer" className="transition-colors duration-300 hover:text-orange-400">Rise Awakenings Facebook</a>
+                <a href="https://www.youtube.com/@EmbersOfLight1111" target="_blank" rel="noopener noreferrer" className="transition-colors duration-300 hover:text-orange-400">EOL YouTube</a>
+                <a href="https://lnk.bio/embers_of_light?fbclid=IwY2xjawRcZ4dleHRuA2FlbQIxMABicmlkETFQVlFJUDdvbXM5WGVseGJ5c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHryIDMNmBh5Xe3M9nTvf5aFx23XhIHK6G6pIqas6fl5C2vapWNLQynDE9-_B_aem_oakVqv4TJ7zaBn_3RM94bw" target="_blank" rel="noopener noreferrer" className="transition-colors duration-300 hover:text-orange-400">lnk.bio for podcasts</a>
+              </div>
 
-          {/* Column 4: Hosts & Affiliates */}
-          <div className="flex flex-col space-y-3">
-            <h4 className="font-cinzel text-white tracking-widest uppercase border-b border-orange-900/30 pb-2 mb-2 inline-block">
-              Host Websites
-            </h4>
-            <a href="https://www.lnk.bio/brindlewolf" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Brindle Wolf</a>
-            <a href="https://www.healingrose.org/" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors duration-300">Rev Diane R. Dibiasi</a>
-          </div>
-
+              <div className="flex flex-col space-y-3">
+                <h4 className="mb-2 inline-block border-b border-orange-900/30 pb-2 font-cinzel uppercase tracking-widest text-white">
+                  Host Websites
+                </h4>
+                <a href="https://www.lnk.bio/brindlewolf" target="_blank" rel="noopener noreferrer" className="transition-colors duration-300 hover:text-orange-400">Brindle Wolf</a>
+                <a href="https://www.healingrose.org/" target="_blank" rel="noopener noreferrer" className="transition-colors duration-300 hover:text-orange-400">Rev Diane R. Dibiasi</a>
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
 
-      {/* --- LOWER FOOTER: Your Exact Bottom Bar Code --- */}
       <div className="border-t border-orange-900/40 py-4 md:py-6">
-        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 md:px-12 flex flex-row justify-between items-center gap-2">
-          
-          {/* Network Info - Forced Left & Tiny */}
-          <div className="text-gray-400 font-cormorant text-left flex items-center shrink min-w-0">
-            <p className="text-[9px] sm:text-xs md:text-sm leading-tight truncate">
-              &copy; {currentYear} <span className="text-orange-500 font-cinzel font-bold tracking-tighter sm:tracking-wider">EMBERS OF LIGHT</span>. <span className="hidden sm:inline">All rights reserved.</span>
+        <div className="mx-auto flex w-full max-w-7xl flex-row items-center justify-between gap-2 px-3 sm:px-6 md:px-12">
+          <div className="flex min-w-0 shrink items-center text-left font-cormorant text-gray-400">
+            <p className="truncate text-[9px] leading-tight sm:text-xs md:text-sm">
+              &copy; {currentYear} <span className="font-cinzel font-bold tracking-tighter text-orange-500 sm:tracking-wider">EMBERS OF LIGHT</span>. <span className="hidden sm:inline">All rights reserved.</span>
             </p>
           </div>
 
-          {/* Designer Signature - Forced Right & Tiny */}
-          <div className="flex flex-row items-center gap-1 sm:gap-4 shrink-0">
-            <span className="text-gray-400 font-cormorant italic text-[9px] sm:text-xs md:text-sm hidden xxs:inline">
-              Designed by
-            </span>
-            
-            <div className="flex flex-row items-center gap-1 sm:gap-3 group cursor-default">
-              {/* Logo Image - Shrunk to 16px (w-4) on mobile */}
+          <div className="flex shrink-0 flex-row items-center gap-1 sm:gap-4">
+            <span className="hidden text-[9px] italic text-gray-400 xxs:inline sm:text-xs md:text-sm">Designed by</span>
+            <div className="group flex cursor-default flex-row items-center gap-1 sm:gap-3">
               <Image
                 src="/images/crimson-leo.png"
                 alt="Crimson Leo Designs Logo"
                 width={40}
                 height={40}
-                className="w-4 h-4 sm:w-8 sm:h-8 md:w-10 md:h-10 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]"
+                className="h-4 w-4 object-contain drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] transition-transform duration-300 group-hover:scale-110 sm:h-8 sm:w-8 md:h-10 md:w-10"
               />
-              {/* Designer Text - Forced to never wrap */}
-              <span className="font-cinzel font-bold text-[9px] sm:text-sm md:text-lg tracking-tighter sm:tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-indigo-500 drop-shadow-sm group-hover:from-red-500 group-hover:to-indigo-400 transition-colors whitespace-nowrap">
+              <span className="whitespace-nowrap bg-gradient-to-r from-red-600 to-indigo-500 bg-clip-text font-cinzel text-[9px] font-bold tracking-tighter text-transparent drop-shadow-sm transition-colors group-hover:from-red-500 group-hover:to-indigo-400 sm:text-sm sm:tracking-widest md:text-lg">
                 Crimson Leo Designs
               </span>
             </div>
           </div>
-
         </div>
       </div>
-      
     </footer>
   );
 }
