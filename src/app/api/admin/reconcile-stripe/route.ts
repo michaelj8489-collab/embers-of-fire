@@ -5,13 +5,14 @@ import {
   STRIPE_API_VERSION,
   createSupabaseServiceRoleClient,
   getRequiredEnv,
-  requireAdminUser,
 } from '@/utils/api/security';
+import { getBillingAuditAccessState } from '@/utils/billingAuditAuth';
 import { resolveSubscriptionMembership } from '@/utils/membership.server';
 
 type ProfileRow = {
   id: string;
   email: string | null;
+  role: string | null;
   subscription_tier: string | null;
   subscription_status: string | null;
 };
@@ -36,9 +37,39 @@ type Candidate = {
   source: 'subscription_metadata' | 'local_subscription' | 'customer_metadata' | 'customer_email';
 };
 
+type StripeAuditSummary = {
+  customerEmail: string | null;
+  customerName: string | null;
+  createdAt: string;
+  currentPeriodEnd: string | null;
+  items: Array<{
+    priceId: string;
+    priceNickname: string | null;
+    productId: string | null;
+    productName: string | null;
+    unitAmount: number | null;
+    currency: string;
+    interval: string | null;
+  }>;
+};
+
 export async function POST(req: Request) {
-  const admin = await requireAdminUser();
-  if (!admin.ok) return admin.response;
+  const access = await getBillingAuditAccessState();
+  if (access.status === 'unauthenticated') {
+    return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
+  }
+  if (access.status === 'forbidden') {
+    return NextResponse.json({ success: false, error: 'Not found.' }, { status: 404 });
+  }
+  if (access.status === 'error') {
+    return NextResponse.json({ success: false, error: access.message }, { status: 500 });
+  }
+  if (access.currentLevel !== 'aal2') {
+    return NextResponse.json(
+      { success: false, error: 'Authenticator verification is required for billing audit access.' },
+      { status: 428 }
+    );
+  }
 
   let mode: 'dry-run' | 'apply' = 'dry-run';
   try {
@@ -63,6 +94,7 @@ export async function POST(req: Request) {
     const subscriptions = await listAllStripeSubscriptions(stripe);
     const candidates: Candidate[] = [];
     const issues: Array<Record<string, unknown>> = [];
+    const stripeLinkedProfileIds = new Set<string>();
 
     for (const subscription of subscriptions) {
       if (subscription.status !== 'active' && subscription.status !== 'trialing') continue;
@@ -73,16 +105,22 @@ export async function POST(req: Request) {
           kind: 'unlinked_active_subscription',
           stripeSubscriptionId: subscription.id,
           stripeStatus: subscription.status,
+          ...(await describeStripeSubscription(stripe, subscription)),
         });
         continue;
       }
+
+      stripeLinkedProfileIds.add(linked.profile.id);
 
       const membership = resolveSubscriptionMembership(subscription, linked.profile.subscription_tier);
       if (membership.kind === 'configuration_error') {
         issues.push({
           kind: 'stripe_price_configuration_error',
           stripeSubscriptionId: subscription.id,
+          userId: linked.profile.id,
+          email: linked.profile.email,
           message: membership.error,
+          ...(await describeStripeSubscription(stripe, subscription)),
         });
         continue;
       }
@@ -92,6 +130,7 @@ export async function POST(req: Request) {
           stripeSubscriptionId: subscription.id,
           userId: linked.profile.id,
           email: linked.profile.email,
+          ...(await describeStripeSubscription(stripe, subscription)),
         });
         continue;
       }
@@ -102,6 +141,8 @@ export async function POST(req: Request) {
           kind: 'missing_stripe_customer',
           stripeSubscriptionId: subscription.id,
           userId: linked.profile.id,
+          email: linked.profile.email,
+          ...(await describeStripeSubscription(stripe, subscription)),
         });
         continue;
       }
@@ -182,21 +223,22 @@ export async function POST(req: Request) {
       }
     }
 
-    const linkedUserIds = new Set(candidates.map((candidate) => candidate.userId));
     const { data: activeProfiles, error: activeProfileError } = await supabase
       .from('profiles')
-      .select('id, email, subscription_tier, subscription_status')
+      .select('id, email, role, subscription_tier, subscription_status')
       .eq('subscription_status', 'active');
     if (activeProfileError) throw new Error(`Unable to audit active profiles: ${activeProfileError.message}`);
 
     const activeProfilesWithoutStripeMatch = ((activeProfiles ?? []) as ProfileRow[])
       .filter((profile) => profile.subscription_tier && profile.subscription_tier.toLowerCase() !== 'seeker')
-      .filter((profile) => !linkedUserIds.has(profile.id))
+      .filter((profile) => !stripeLinkedProfileIds.has(profile.id))
       .map((profile) => ({
         userId: profile.id,
         email: profile.email,
+        role: profile.role,
         tier: profile.subscription_tier,
         status: profile.subscription_status,
+        accessKind: profile.role === 'admin' ? 'manual_admin_or_staff' : 'unmatched_paid_profile',
       }));
 
     return NextResponse.json({
@@ -210,8 +252,8 @@ export async function POST(req: Request) {
       issues,
       note:
         mode === 'dry-run'
-          ? 'No data changed. Review proposed matches and issues before applying.'
-          : 'Matched active Stripe memberships were backfilled. Unmatched/conflicting records were left unchanged.',
+          ? 'No Stripe or Supabase billing data changed. Review proposed matches and issues before applying.'
+          : 'Matched active Stripe memberships were backfilled in Supabase only. Stripe billing schedules and charges were not modified.',
     });
   } catch (error: unknown) {
     console.error('stripe-reconcile: failed.', {
@@ -275,7 +317,7 @@ async function resolveProfileForSubscription(
     if (customer.email) {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, email, subscription_tier, subscription_status')
+        .select('id, email, role, subscription_tier, subscription_status')
         .eq('email', customer.email)
         .limit(1)
         .maybeSingle();
@@ -290,7 +332,7 @@ async function resolveProfileForSubscription(
 async function findProfileById(supabase: SupabaseClient, userId: string): Promise<ProfileRow | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, subscription_tier, subscription_status')
+    .select('id, email, role, subscription_tier, subscription_status')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw new Error(`Unable to map Supabase profile: ${error.message}`);
@@ -303,6 +345,52 @@ async function resolveCustomer(
 ) {
   if (typeof customer !== 'string') return customer;
   return stripe.customers.retrieve(customer);
+}
+
+async function describeStripeSubscription(
+  stripe: Stripe,
+  subscription: Stripe.Subscription
+): Promise<StripeAuditSummary> {
+  const customer = await resolveCustomer(stripe, subscription.customer);
+  const customerEmail = customer && !('deleted' in customer && customer.deleted) ? customer.email ?? null : null;
+  const customerName = customer && !('deleted' in customer && customer.deleted) ? customer.name ?? null : null;
+
+  const items = await Promise.all(
+    subscription.items.data.map(async (item) => {
+      const productValue = item.price.product;
+      const productId = stripeObjectId(productValue);
+      let productName: string | null = null;
+
+      if (productValue && typeof productValue === 'object' && 'name' in productValue) {
+        productName = typeof productValue.name === 'string' ? productValue.name : null;
+      } else if (productId) {
+        try {
+          const product = await stripe.products.retrieve(productId);
+          productName = 'deleted' in product && product.deleted ? null : product.name;
+        } catch {
+          productName = null;
+        }
+      }
+
+      return {
+        priceId: item.price.id,
+        priceNickname: item.price.nickname,
+        productId,
+        productName,
+        unitAmount: item.price.unit_amount,
+        currency: item.price.currency,
+        interval: item.price.recurring?.interval ?? null,
+      };
+    })
+  );
+
+  return {
+    customerEmail,
+    customerName,
+    createdAt: new Date(subscription.created * 1000).toISOString(),
+    currentPeriodEnd: getSubscriptionPeriodEnd(subscription),
+    items,
+  };
 }
 
 function stripeObjectId(value: string | { id: string } | null | undefined) {
