@@ -51,7 +51,7 @@ async function readCheckoutApiResponse(response: Response): Promise<CheckoutApiR
 
 function DashboardContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userTier, setUserTier] = useState<string>('seeker'); 
+  const [userTier, setUserTier] = useState<string>('seeker');
   const [userSubscriptionStatus, setUserSubscriptionStatus] = useState<string>('inactive');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
@@ -61,10 +61,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const autoCheckoutTierRef = useRef<string | null>(null);
   const userHasActivePaidMembership = isActivePaidMembership(userTier, userSubscriptionStatus);
-  
-  // Removed the unused userRole state to satisfy the linter
 
-  // 1. SESSION & DATA FETCHING
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -78,11 +75,10 @@ function DashboardContent() {
           .select('subscription_tier, subscription_status, role')
           .eq('id', session.user.id)
           .single();
-          
+
         if (profile) {
           setUserTier(normalizeDashboardTier(profile.subscription_tier));
           setUserSubscriptionStatus(profile.subscription_status || 'inactive');
-          // We removed setUserRole here since it was causing the unused variable error
         }
       }
       setLoading(false);
@@ -90,15 +86,13 @@ function DashboardContent() {
     checkSession();
   }, [supabase]);
 
-  // 2. THE AUTO-CHECKOUT LISTENER
   useEffect(() => {
     const triggerCheckout = async () => {
       const tierSlug = searchParams.get('trigger_checkout');
-      
-      if (!tierSlug || loading) return; 
 
+      if (!tierSlug || loading) return;
       if (autoCheckoutTierRef.current === tierSlug) return;
-      
+
       if (!isLoggedIn || !userEmail) {
         router.replace(`/login?trigger_checkout=${encodeURIComponent(tierSlug)}`);
         return;
@@ -119,7 +113,7 @@ function DashboardContent() {
       setCheckoutNotice(null);
 
       try {
-        console.log("🚀 Triggering Stripe for:", userEmail);
+        console.log('🚀 Triggering Stripe for:', userEmail);
         const response = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -155,7 +149,7 @@ function DashboardContent() {
 
         window.location.assign(resData.url);
       } catch (err) {
-        console.error("Auto-checkout failed:", err);
+        console.error('Auto-checkout failed:', err);
         setCheckoutNotice('Unable to start checkout. Please try again from the membership page.');
       }
     };
@@ -176,8 +170,6 @@ function DashboardContent() {
 
   return (
     <div className="relative min-h-screen w-full flex flex-col bg-black font-cormorant text-gray-200 overflow-x-hidden">
-
-      {/* FIXED PHOENIX BACKGROUND */}
       <div className="fixed inset-0 z-0">
         <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-30">
           <source src="/images/jmc-edits-palettes/phoenix-arriving.mp4" type="video/mp4" />
@@ -189,9 +181,7 @@ function DashboardContent() {
         <Header />
 
         <main className="flex-grow flex flex-col items-center pt-28 md:pt-40 pb-12 px-4 md:px-12 w-full">
-
-          {/* ALERTS BUTTON: Placed at the top level so it can float freely! */}
-        <PushNotificationButton />
+          <PushNotificationButton />
 
           {checkoutNotice && (
             <div className="w-full max-w-4xl mb-8 rounded-xl border border-red-500/50 bg-red-950/40 px-5 py-4 text-center font-cinzel text-sm uppercase tracking-widest text-red-200">
@@ -208,13 +198,9 @@ function DashboardContent() {
               <Link href="/dashboard/membership" className="inline-flex justify-center rounded-xl bg-gradient-to-r from-orange-700 to-red-700 px-5 py-3 font-cinzel text-sm uppercase tracking-wider text-white">Change Membership</Link>
             </section>
           )}
-          
-          {/* HERO SECTION - THE TRINITY */}
+
           <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 md:gap-12 justify-center mb-12">
-            
-            {/* THE SANCTUARY */}
-            <Link href={isLoggedIn ? `/sanctuary/${userTier.toLowerCase().replace(/ /g, '-')}` : '/login'} 
-              className="flex-1 group">
+            <Link href={isLoggedIn ? `/sanctuary/${userTier.toLowerCase().replace(/ /g, '-')}` : '/login'} className="flex-1 group">
               <div className="relative aspect-square rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-orange-500 group-hover:shadow-[0_0_50px_rgba(234,88,12,0.3)]">
                 <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
                   <source src="/images/jmc-edits-palettes/embers-new-logo.mp4" type="video/mp4" />
@@ -226,7 +212,6 @@ function DashboardContent() {
               </div>
             </Link>
 
-            {/* THE STATION */}
             <Link href="/dashboard/station" className="flex-1 group">
               <div className="relative aspect-square rounded-3xl overflow-hidden border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] bg-neutral-900 transition-all duration-500 group-hover:border-red-600 group-hover:shadow-[0_0_50px_rgba(220,38,38,0.3)]">
                 <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
@@ -240,16 +225,14 @@ function DashboardContent() {
             </Link>
           </div>
 
-
-
           <div className="w-full max-w-5xl flex flex-col gap-12 mb-24">
             <div className="bg-black/60 backdrop-blur-md border border-orange-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
-                <h3 className="font-cinzel text-orange-500 text-xl md:text-2xl mb-8 tracking-widest uppercase">The Spark</h3>
-                <p className="text-gray-200 mb-8 italic text-2xl md:text-4xl font-bold leading-tight max-w-4xl">
-                  &ldquo;RISE Radio isn&apos;t just a station. It&apos;s a community where singers come to be heard, feel something, and connect through music.&rdquo;
-                </p>
-                <p className="text-gray-400 text-lg md:text-xl font-cinzel tracking-widest uppercase">Fueling the fire of independent connection.</p>
+              <div className="absolute top-0 left-0 w-1 h-full bg-orange-600"></div>
+              <h3 className="font-cinzel text-orange-500 text-xl md:text-2xl mb-8 tracking-widest uppercase">The Spark</h3>
+              <p className="text-gray-200 mb-8 italic text-2xl md:text-4xl font-bold leading-tight max-w-4xl">
+                &ldquo;RISE Radio isn&apos;t just a station. It&apos;s a community where singers come to be heard, feel something, and connect through music.&rdquo;
+              </p>
+              <p className="text-gray-400 text-lg md:text-xl font-cinzel tracking-widest uppercase">Fueling the fire of independent connection.</p>
             </div>
 
             <div className="bg-black/60 backdrop-blur-md border border-red-900/30 p-10 md:p-16 rounded-[2.5rem] shadow-2xl">
@@ -260,15 +243,15 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="w-full max-w-7xl mx-auto mb-24 px-4">
+          <div id="network-schedule" className="w-full max-w-7xl mx-auto mb-24 px-4 scroll-mt-32">
             <h2 className="text-4xl md:text-6xl font-cinzel-decorative font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-16 drop-shadow-[0_0_15px_rgba(255,0,0,0.3)] uppercase tracking-tighter">
               Network Schedule
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {schedule.map((show, index) => (
-                <Link 
-                  key={index} 
-                  href={show.href} 
+                <Link
+                  key={index}
+                  href={show.href}
                   className="bg-black/40 border border-orange-900/30 p-6 md:p-10 rounded-3xl hover:border-orange-500/50 hover:bg-orange-900/10 transition-all duration-500 group"
                 >
                   <h3 className="font-cinzel font-bold text-orange-400 text-xl md:text-3xl mb-4 group-hover:text-orange-300 transition-colors uppercase tracking-wider">{show.name}</h3>
@@ -295,7 +278,6 @@ function DashboardContent() {
               {userHasActivePaidMembership ? 'Manage Membership' : 'Become a Subscriber'}
             </Link>
           </section>
-
         </main>
         <Footer />
       </div>
@@ -303,8 +285,6 @@ function DashboardContent() {
   );
 }
 
-
-// 3. FINAL SUSPENSE WRAPPER (Prevents Build Errors)
 export default function DashboardPage() {
   return (
     <Suspense fallback={<div className="bg-black min-h-screen" />}>
