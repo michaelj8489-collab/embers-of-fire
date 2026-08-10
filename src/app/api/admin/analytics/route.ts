@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServiceRoleClient, requireAdminUser } from '@/utils/api/security';
 
 type AnalyticsRow = {
@@ -77,10 +78,7 @@ export async function GET(req: Request) {
   }
 }
 
-async function readAnalyticsRows(
-  supabase: ReturnType<typeof createSupabaseServiceRoleClient> extends { ok: true; client: infer T } ? T : never,
-  since: string
-) {
+async function readAnalyticsRows(supabase: SupabaseClient, since: string) {
   const pageSize = 1000;
   const maxPages = 50;
   const rows: AnalyticsRow[] = [];
