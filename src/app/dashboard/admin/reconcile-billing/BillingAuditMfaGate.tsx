@@ -24,15 +24,10 @@ export default function BillingAuditMfaGate({ mode }: { mode: 'enroll' | 'challe
       const { data: existingFactors, error: listError } = await supabase.auth.mfa.listFactors();
       if (listError) throw listError;
 
-      const verifiedTotp = existingFactors.totp.find((factor) => factor.status === 'verified');
+      const verifiedTotp = existingFactors.totp[0];
       if (verifiedTotp) {
         setError('An authenticator is already enrolled. Refresh this page and enter its code.');
         return;
-      }
-
-      for (const factor of existingFactors.totp.filter((item) => item.status === 'unverified')) {
-        const { error: cleanupError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
-        if (cleanupError) throw cleanupError;
       }
 
       const { data, error: enrollError } = await supabase.auth.mfa.enroll({
@@ -79,7 +74,7 @@ export default function BillingAuditMfaGate({ mode }: { mode: 'enroll' | 'challe
       const { data: factors, error: listError } = await supabase.auth.mfa.listFactors();
       if (listError) throw listError;
 
-      const factor = factors.totp.find((item) => item.status === 'verified');
+      const factor = factors.totp[0];
       if (!factor) {
         throw new Error('No verified authenticator factor was found. Refresh to set one up.');
       }
