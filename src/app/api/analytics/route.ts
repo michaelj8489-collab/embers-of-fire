@@ -48,13 +48,20 @@ export async function POST(req: Request) {
     return new NextResponse(null, { status: 204 });
   }
 
-  const serviceRole = createSupabaseServiceRoleClient();
-  if (!serviceRole.ok) return serviceRole.response;
-
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // The landing page is the only intentionally public product page.
+  // Every other tracked page must belong to a verified signed-in account,
+  // so fabricated/anonymous requests cannot pollute internal engagement data.
+  if (path !== '/' && !user) {
+    return new NextResponse(null, { status: 204 });
+  }
+
+  const serviceRole = createSupabaseServiceRoleClient();
+  if (!serviceRole.ok) return serviceRole.response;
 
   const metadata = sanitizeMetadata(input.metadata);
   const { error } = await serviceRole.client.from('site_analytics_events').insert({
