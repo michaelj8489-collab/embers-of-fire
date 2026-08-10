@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   STRIPE_API_VERSION,
   createSupabaseServiceRoleClient,
@@ -146,7 +147,7 @@ export async function POST(req: Request) {
 
       if (localError) throw new Error(`Unable to read local subscription for ${userId}: ${localError.message}`);
 
-      proposed.push({ candidate, localState: (localRow as ExistingSubscriptionRow | null) });
+      proposed.push({ ...candidate, localState: localRow as ExistingSubscriptionRow | null });
 
       if (mode === 'apply') {
         const now = new Date().toISOString();
@@ -243,7 +244,7 @@ async function listAllStripeSubscriptions(stripe: Stripe) {
 
 async function resolveProfileForSubscription(
   stripe: Stripe,
-  supabase: ReturnType<Exclude<ReturnType<typeof createSupabaseServiceRoleClient>, { ok: false }>['client']['from']> extends never ? never : any,
+  supabase: SupabaseClient,
   subscription: Stripe.Subscription
 ): Promise<{ profile: ProfileRow | null; source: Candidate['source'] }> {
   const metadataUserId = subscription.metadata?.supabase_user_id?.trim();
@@ -252,11 +253,12 @@ async function resolveProfileForSubscription(
     if (profile) return { profile, source: 'subscription_metadata' };
   }
 
-  const { data: local } = await supabase
+  const { data: local, error: localError } = await supabase
     .from('subscriptions')
     .select('user_id')
     .eq('stripe_subscription_id', subscription.id)
     .maybeSingle();
+  if (localError) throw new Error(`Unable to inspect local Stripe mapping: ${localError.message}`);
   if (local?.user_id) {
     const profile = await findProfileById(supabase, local.user_id);
     if (profile) return { profile, source: 'local_subscription' };
@@ -271,12 +273,13 @@ async function resolveProfileForSubscription(
     }
 
     if (customer.email) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id, email, subscription_tier, subscription_status')
         .eq('email', customer.email)
         .limit(1)
         .maybeSingle();
+      if (profileError) throw new Error(`Unable to map Stripe customer email: ${profileError.message}`);
       if (profile) return { profile: profile as ProfileRow, source: 'customer_email' };
     }
   }
@@ -284,16 +287,20 @@ async function resolveProfileForSubscription(
   return { profile: null, source: 'customer_email' };
 }
 
-async function findProfileById(supabase: any, userId: string): Promise<ProfileRow | null> {
-  const { data } = await supabase
+async function findProfileById(supabase: SupabaseClient, userId: string): Promise<ProfileRow | null> {
+  const { data, error } = await supabase
     .from('profiles')
     .select('id, email, subscription_tier, subscription_status')
     .eq('id', userId)
     .maybeSingle();
+  if (error) throw new Error(`Unable to map Supabase profile: ${error.message}`);
   return (data as ProfileRow | null) ?? null;
 }
 
-async function resolveCustomer(stripe: Stripe, customer: string | Stripe.Customer | Stripe.DeletedCustomer) {
+async function resolveCustomer(
+  stripe: Stripe,
+  customer: string | Stripe.Customer | Stripe.DeletedCustomer
+) {
   if (typeof customer !== 'string') return customer;
   return stripe.customers.retrieve(customer);
 }
