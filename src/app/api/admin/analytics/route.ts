@@ -27,20 +27,32 @@ export async function GET(req: Request) {
   try {
     const { rows, truncated } = await readAnalyticsRows(serviceRole.client, since);
     const pageViews = rows.filter((row) => row.event_name === 'page_view');
+    const landingViews = pageViews.filter((row) => row.path === '/');
+    const authenticatedPageViews = pageViews.filter((row) => Boolean(row.user_id) && row.path !== '/');
 
-    const visitors = new Set(pageViews.map((row) => row.visitor_id));
-    const sessions = new Set(pageViews.map((row) => row.session_id));
-    const authenticatedUsers = new Set(pageViews.map((row) => row.user_id).filter(Boolean));
+    const landingBrowsers = new Set(landingViews.map((row) => row.visitor_id));
+    const landingSessions = new Set(landingViews.map((row) => row.session_id));
+    const activeUsers = new Set(authenticatedPageViews.map((row) => row.user_id).filter(Boolean) as string[]);
+    const authenticatedSessions = new Set(authenticatedPageViews.map((row) => row.session_id));
 
-    const sessionsByVisitor = new Map<string, Set<string>>();
-    for (const row of pageViews) {
-      const current = sessionsByVisitor.get(row.visitor_id) ?? new Set<string>();
+    const landingSessionsByBrowser = new Map<string, Set<string>>();
+    for (const row of landingViews) {
+      const current = landingSessionsByBrowser.get(row.visitor_id) ?? new Set<string>();
       current.add(row.session_id);
-      sessionsByVisitor.set(row.visitor_id, current);
+      landingSessionsByBrowser.set(row.visitor_id, current);
     }
-    const returningVisitors = [...sessionsByVisitor.values()].filter((set) => set.size > 1).length;
+    const returningLandingBrowsers = [...landingSessionsByBrowser.values()].filter((set) => set.size > 1).length;
 
-    const topPages = countBy(pageViews, (row) => row.path)
+    const sessionsByUser = new Map<string, Set<string>>();
+    for (const row of authenticatedPageViews) {
+      if (!row.user_id) continue;
+      const current = sessionsByUser.get(row.user_id) ?? new Set<string>();
+      current.add(row.session_id);
+      sessionsByUser.set(row.user_id, current);
+    }
+    const returningUsers = [...sessionsByUser.values()].filter((set) => set.size > 1).length;
+
+    const topAuthenticatedPages = countBy(authenticatedPageViews, (row) => row.path)
       .slice(0, 12)
       .map(([path, count]) => ({ path, count }));
 
@@ -48,7 +60,7 @@ export async function GET(req: Request) {
       .map(([eventName, count]) => ({ eventName, count }));
 
     const outboundPlatforms = countBy(
-      rows.filter((row) => row.event_name === 'external_link_click'),
+      rows.filter((row) => row.event_name === 'external_link_click' && Boolean(row.user_id)),
       (row) => typeof row.metadata?.platform === 'string' ? row.metadata.platform : 'other'
     ).map(([platform, count]) => ({ platform, count }));
 
@@ -59,13 +71,16 @@ export async function GET(req: Request) {
       days,
       truncated,
       totals: {
-        pageViews: pageViews.length,
-        uniqueVisitors: visitors.size,
-        sessions: sessions.size,
-        returningVisitors,
-        authenticatedUsers: authenticatedUsers.size,
+        landingPageViews: landingViews.length,
+        landingUniqueBrowsers: landingBrowsers.size,
+        landingSessions: landingSessions.size,
+        returningLandingBrowsers,
+        authenticatedPageViews: authenticatedPageViews.length,
+        activeUsers: activeUsers.size,
+        authenticatedSessions: authenticatedSessions.size,
+        returningUsers,
       },
-      topPages,
+      topAuthenticatedPages,
       eventCounts,
       outboundPlatforms,
       daily,
@@ -115,7 +130,13 @@ function countBy<T>(rows: T[], keyFor: (row: T) => string) {
 }
 
 function buildDaily(rows: AnalyticsRow[], days: number) {
-  const output: Array<{ date: string; pageViews: number; uniqueVisitors: number }> = [];
+  const output: Array<{
+    date: string;
+    landingViews: number;
+    landingUniqueBrowsers: number;
+    authenticatedPageViews: number;
+    activeUsers: number;
+  }> = [];
   const today = new Date();
 
   for (let offset = days - 1; offset >= 0; offset -= 1) {
@@ -123,10 +144,15 @@ function buildDaily(rows: AnalyticsRow[], days: number) {
     date.setUTCDate(today.getUTCDate() - offset);
     const key = date.toISOString().slice(0, 10);
     const dayRows = rows.filter((row) => row.created_at.slice(0, 10) === key);
+    const landingRows = dayRows.filter((row) => row.path === '/');
+    const authenticatedRows = dayRows.filter((row) => Boolean(row.user_id) && row.path !== '/');
+
     output.push({
       date: key,
-      pageViews: dayRows.length,
-      uniqueVisitors: new Set(dayRows.map((row) => row.visitor_id)).size,
+      landingViews: landingRows.length,
+      landingUniqueBrowsers: new Set(landingRows.map((row) => row.visitor_id)).size,
+      authenticatedPageViews: authenticatedRows.length,
+      activeUsers: new Set(authenticatedRows.map((row) => row.user_id).filter(Boolean)).size,
     });
   }
 
