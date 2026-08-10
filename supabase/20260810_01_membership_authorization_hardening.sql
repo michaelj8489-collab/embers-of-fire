@@ -41,6 +41,15 @@ alter table public.tier_definitions
 create unique index if not exists tier_definitions_tier_slug_key
   on public.tier_definitions(tier_slug);
 
+-- Tier definitions are non-sensitive lookup data used by RLS decisions.
+grant select on table public.tier_definitions to authenticated;
+drop policy if exists "Tier definitions are readable" on public.tier_definitions;
+create policy "Tier definitions are readable"
+on public.tier_definitions
+for select
+to authenticated
+using (true);
+
 -- Normalize known legacy broadcast values before adding referential integrity.
 update public.broadcasts
 set target_tier = 'keepers-of-the-embers'
@@ -69,6 +78,8 @@ alter table public.profiles enable row level security;
 -- Replace broad legacy policies with explicit authenticated self-service policies.
 drop policy if exists "Users can view own profile" on public.profiles;
 drop policy if exists "Users can update own profile" on public.profiles;
+drop policy if exists "Authenticated users can view own profile" on public.profiles;
+drop policy if exists "Authenticated users can update own profile" on public.profiles;
 
 create policy "Authenticated users can view own profile"
 on public.profiles
