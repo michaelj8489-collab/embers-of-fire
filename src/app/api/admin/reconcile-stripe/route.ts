@@ -352,8 +352,8 @@ async function describeStripeSubscription(
   subscription: Stripe.Subscription
 ): Promise<StripeAuditSummary> {
   const customer = await resolveCustomer(stripe, subscription.customer);
-  const customerEmail = customer && !('deleted' in customer && customer.deleted) ? customer.email : null;
-  const customerName = customer && !('deleted' in customer && customer.deleted) ? customer.name : null;
+  const customerEmail = customer && !('deleted' in customer && customer.deleted) ? customer.email ?? null : null;
+  const customerName = customer && !('deleted' in customer && customer.deleted) ? customer.name ?? null : null;
 
   const items = await Promise.all(
     subscription.items.data.map(async (item) => {
