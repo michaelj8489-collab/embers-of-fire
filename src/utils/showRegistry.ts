@@ -123,7 +123,7 @@ export const SHOWS = [
     slug: 'defining-your-character',
     href: '/dashboard/defining-your-character',
     hosts: ['Michael J Cox'],
-    schedule: { day: 'Thursdays', time: '5:00 PM EST' },
+    schedule: { day: 'Fridays', time: '5:00 PM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'michaelj8489',
     backgroundVideoPath: '/images/jmc-edits-palettes/defining-your-character-bg.mp4',
