@@ -122,7 +122,7 @@ export default function DefiningYourCharacterPage() {
                 Defining Your Character
               </h1>
               <p className="font-cinzel italic text-xl md:text-2xl text-orange-300/90 tracking-widest uppercase">
-                Returning to RISE Radio — April 18, 2026
+                Fridays at 5 PM EST
               </p>
             </div>
 
@@ -227,7 +227,7 @@ export default function DefiningYourCharacterPage() {
                 )}
               </div>
               <p className="text-center font-cormorant italic text-gray-500 mt-4">
-                {activeView === 'live' ? "You are watching Defining Your Character Live! Saturday's at 6 PM EST" : 'Viewing Defining Your Character Archives.'}
+                {activeView === 'live' ? "You are watching Defining Your Character Live! Fridays at 5 PM EST" : 'Viewing Defining Your Character Archives.'}
               </p>
             </div>
 
