@@ -125,7 +125,7 @@ export const SHOWS = [
     hosts: ['Michael J Cox'],
     schedule: { day: 'Fridays', time: '5:00 PM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
-    twitchChannel: 'michaelj8489',
+    twitchChannel: 'michaelj2025',
     backgroundVideoPath: '/images/jmc-edits-palettes/defining-your-character-bg.mp4',
     notification: {
       title: 'Defining Your Character is live',
