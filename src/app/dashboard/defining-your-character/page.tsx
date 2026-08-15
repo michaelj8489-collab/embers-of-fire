@@ -152,7 +152,7 @@ export default function DefiningYourCharacterPage() {
                     <div className="w-full aspect-video md:aspect-auto md:flex-grow md:h-full bg-black">
                       {parentDomain && (
                         <iframe
-                          src={buildTwitchPlayerSrc('michaelj8489', parentDomain, { muted: false, autoplay: true })}
+                          src={buildTwitchPlayerSrc('michaelj2025', parentDomain, { muted: false, autoplay: true })}
                           title="Defining Your Character Twitch player"
                           className="w-full h-full" 
                           frameBorder="0"
@@ -166,7 +166,7 @@ export default function DefiningYourCharacterPage() {
                     <div className="w-full h-[350px] md:w-[350px] md:h-full border-t md:border-t-0 md:border-l border-orange-900/30">
                       {parentDomain && (
                         <iframe
-                          src={buildTwitchChatSrc('michaelj8489', parentDomain)}
+                          src={buildTwitchChatSrc('michaelj2025', parentDomain)}
                           title="Defining Your Character Twitch chat"
                           className="w-full h-full"
                           frameBorder="0"
