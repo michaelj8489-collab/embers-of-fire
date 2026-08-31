@@ -94,7 +94,7 @@ export default function HonkyTonkPage() {
           <div className="relative min-h-screen w-full flex flex-col overflow-hidden font-cormorant text-gray-200">
           <div className="fixed inset-0 z-0">
           <Image
-           // 1. Fixed path (removed 'public', replaced \ with /, ensure folder name matches)
+           // 1. Fixed path (removed 'public', replaced \\ with /, ensure folder name matches)
             src="/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg"
             alt="Honky Tonk Background"
             fill
@@ -126,7 +126,7 @@ export default function HonkyTonkPage() {
                 Honky Tonk Heaven
               </h1>
               <p className="font-cinzel text-2xl text-[#FFF8DC]/90 italic tracking-wide">
-                "Wednesdays, 9:00 PM EST"
+                "Tuesdays, 9:00 PM EST"
               </p>
             </div>
 
