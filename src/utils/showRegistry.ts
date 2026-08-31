@@ -106,7 +106,7 @@ export const SHOWS = [
     slug: 'honky-tonk-heaven',
     href: '/dashboard/honky-tonk-heaven',
     hosts: ['Will Iommi'],
-    schedule: { day: 'Wednesdays', time: '9:00 PM EST' },
+    schedule: { day: 'Tuesdays', time: '9:00 PM EST' },
     supportedLivePlatforms: ['manual', 'zeno'],
     zenoStations: GLOBAL_ZENO_STATIONS,
     imagePath: '/images/main-images/Cover Art/honkey-tonk-heaven-main.jpg',
