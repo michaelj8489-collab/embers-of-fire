@@ -87,18 +87,18 @@ export default function Footer() {
           </div>
 
           <div className="flex shrink-0 flex-row items-center gap-1 sm:gap-4">
-            <span className="hidden text-[9px] italic text-gray-400 xxs:inline sm:text-xs md:text-sm">Designed by</span>
-            <div className="group flex cursor-default flex-row items-center gap-1 sm:gap-3">
+            <span className="hidden text-[9px] italic text-gray-400 xxs:inline sm:text-xs md:text-sm">
+               Designed by
+            </span>
+
+          <div className="group flex cursor-default items-center">
               <Image
                 src="/images/crimson-leo.png"
-                alt="Crimson Leo Designs Logo"
-                width={40}
-                height={40}
-                className="h-4 w-4 object-contain drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] transition-transform duration-300 group-hover:scale-110 sm:h-8 sm:w-8 md:h-10 md:w-10"
+                alt="Crimson Leo Designs"
+                width={180}
+                height={134}
+                className="h-auto w-27.5 object-contain drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] transition-transform duration-300 group-hover:scale-105 sm:w-35 md:w-42.5"
               />
-              <span className="whitespace-nowrap bg-gradient-to-r from-red-600 to-indigo-500 bg-clip-text font-cinzel text-[9px] font-bold tracking-tighter text-transparent drop-shadow-sm transition-colors group-hover:from-red-500 group-hover:to-indigo-400 sm:text-sm sm:tracking-widest md:text-lg">
-                Crimson Leo Designs
-              </span>
             </div>
           </div>
         </div>
