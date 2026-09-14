@@ -1,15 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { getPaidTierSlug } from '@/utils/membership';
 
 export const dynamic = 'force-dynamic';
 
 function getSafePostLoginPath() {
-  const fallbackPath = `/dashboard${window.location.search}`;
   const searchParams = new URLSearchParams(window.location.search);
+  if (!getPaidTierSlug(searchParams.get('trigger_checkout'))) {
+    searchParams.delete('trigger_checkout');
+  }
+  const query = searchParams.toString();
+  const fallbackPath = `/dashboard${query ? `?${query}` : ''}`;
   const returnTo = searchParams.get('returnTo');
 
   if (!returnTo) {
@@ -29,7 +34,9 @@ function getSafePostLoginPath() {
   }
 }
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const paidTier = getPaidTierSlug(searchParams.get('trigger_checkout'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -121,7 +128,7 @@ export default function LoginPage() {
 
         <div className="mt-8 flex flex-col items-center gap-2">
           <Link
-            href="/signup"
+            href={paidTier ? `/signup?tier=${paidTier}` : '/signup'}
             className="text-gray-400 hover:text-orange-400 text-sm transition-colors duration-300 font-cinzel tracking-widest uppercase border-b border-transparent hover:border-orange-400 pb-1"
           >
             First time? Join the Frequency
@@ -130,5 +137,13 @@ export default function LoginPage() {
       </div>
 
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="pt-40 text-center text-orange-500">Loading login...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

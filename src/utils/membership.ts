@@ -64,6 +64,11 @@ const TIER_SLUGS: Record<string, TierName> = Object.fromEntries(
   MEMBERSHIP_TIERS.map((tier) => [tier.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'), tier.name])
 ) as Record<string, TierName>;
 
+// Query-string checkout requests must match a canonical paid slug exactly.
+export function getPaidTierSlug(value: unknown): string | null {
+  return typeof value === 'string' && Object.hasOwn(TIER_SLUGS, value) ? value : null;
+}
+
 export function validateTierName(value: unknown): Result<TierName> {
   if (typeof value !== 'string') return { ok: false, error: 'targetTier must be a string.' };
   const trimmed = value.trim();

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image'; // <-- 1. The new Import!
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { createClient } from '@/utils/supabase/client';
+import { getPaidTierSlug } from '@/utils/membership';
 
 const subscriptionTiers = [
   {
@@ -66,9 +68,15 @@ const subscriptionTiers = [
 export default function HomePage() {
   const router = useRouter();
 
-  const handleSubscription = (tierName: string) => {
-    const tierSlug = tierName.toLowerCase().replace(/ /g, '-');
-    router.push(`/signup?tier=${tierSlug}`);
+  const handleSubscription = async (tierName: string) => {
+    const tierSlug = getPaidTierSlug(tierName.toLowerCase().replace(/ /g, '-'));
+    const { data: { session } } = await createClient().auth.getSession();
+
+    if (tierSlug) {
+      router.push(`${session ? '/dashboard' : '/login'}?trigger_checkout=${tierSlug}`);
+    } else if (tierName === 'Seeker') {
+      router.push(session ? '/dashboard' : '/signup?tier=seeker');
+    }
   };
 
   return (
