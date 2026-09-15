@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createRecoveryClient } from '@/utils/supabase/recovery-client';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -9,7 +9,7 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
+  const supabase = createRecoveryClient();
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +18,10 @@ export default function ForgotPasswordPage() {
     setMessage(null);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      // This is where they go AFTER clicking the link in their email
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+      // Password recovery intentionally uses an isolated client-side implicit flow.
+      // This keeps the recovery link usable if it is requested on one device
+      // (for example by support) and opened by the account owner on another.
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     if (error) {
