@@ -82,9 +82,17 @@ export function getConfiguredStripePrices(): Result<Record<TierName, string>> {
   return { ok: true, value: resolved };
 }
 
+/** Resolve only the requested tier for Checkout/change flows. Unrelated tiers must not block a valid purchase. */
 export function resolveStripePriceId(tierName: TierName): Result<string> {
-  const configured = getConfiguredStripePrices();
-  return configured.ok ? { ok: true, value: configured.value[tierName] } : configured;
+  const tier = MEMBERSHIP_TIERS.find((candidate) => candidate.name === tierName);
+  if (!tier) return { ok: false, error: 'Invalid membership tier.' };
+
+  const priceId = process.env[tier.priceEnvName]?.trim();
+  if (!priceId) {
+    return { ok: false, error: `Missing Stripe Price configuration: ${tier.priceEnvName}.` };
+  }
+
+  return { ok: true, value: priceId };
 }
 
 /** Retrieves and validates a target Price before Checkout or a subscription update can use it. */
