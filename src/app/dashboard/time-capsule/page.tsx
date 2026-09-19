@@ -157,7 +157,7 @@ export default function TimeCapsulePage() {
                 <article className="overflow-hidden rounded-3xl border border-fuchsia-400/30 bg-black/80 text-center shadow-2xl backdrop-blur-lg">
                   <div className="relative aspect-[4/3] w-full bg-zinc-950">
                     <Image
-                      src="/images/misc/mark-time-capsule.png"
+                      src="/images/misc/mark-time-capsule.webp"
                       alt="Mark, co-host of Time Capsule"
                       fill
                       sizes="(max-width: 1024px) 92vw, 44vw"

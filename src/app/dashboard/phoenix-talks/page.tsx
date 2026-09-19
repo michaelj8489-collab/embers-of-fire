@@ -176,7 +176,7 @@ export default function PhoenixTalksPage() {
               <div className="flex flex-col md:flex-row items-center gap-12">
                 <div className="w-full md:w-1/2 relative aspect-video md:aspect-[4/3] rounded-2xl border border-orange-900/30 overflow-hidden shadow-[0_0_30px_rgba(234,88,12,0.15)]">
                   <Image
-                  src="/images/jmc-edits-palettes/phoenix-talks-bio.png"
+                  src="/images/jmc-edits-palettes/phoenix-talks-bio.webp"
                   alt="The History of Phoenix Talks"
                    className="w-full h-full object-contain" 
                   />

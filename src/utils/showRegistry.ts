@@ -109,11 +109,11 @@ export const SHOWS = [
     schedule: { day: 'Thursdays', time: '11:00 AM EST' },
     supportedLivePlatforms: ['manual', 'twitch'],
     twitchChannel: 'riseradionetworks',
-    imagePath: '/images/jmc-edits-palettes/core-new-trio-bio.png',
+    imagePath: '/images/jmc-edits-palettes/core-new-trio-bio.webp',
     notification: {
       title: 'The CORE is live',
       body: 'The CORE has started on Rise Radio.',
-      iconPath: '/images/jmc-edits-palettes/core-new-trio-bio.png',
+      iconPath: '/images/jmc-edits-palettes/core-new-trio-bio.webp',
       url: '/dashboard/the-core',
     },
   },

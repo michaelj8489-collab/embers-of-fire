@@ -25,7 +25,7 @@ const subscriptionTiers = [
     description: "This tier is pure support. Your commitment is the spark that keeps the signal blazing across radio and streaming platforms.",
     perks: ["Everything in Seeker", "Access to community posts feed", "Digital supporter recognition", "Ember Keeper identity badge"],
     color: "from-orange-500 to-orange-700",
-    image: "/images/jmc-edits-palettes/keepers-of-the-embers.png"
+    image: "/images/jmc-edits-palettes/keepers-of-the-embers.webp"
   },
   {
     name: "Flame Bearers",
@@ -43,7 +43,7 @@ const subscriptionTiers = [
     description: "Where awareness meets true impact. This is for our most dedicated inner community with direct interaction.",
     perks: ["Everything above", "Monthly 'Fireside' livestream", "Monthly on-air shout-out", "Zoom workshops access"],
     color: "from-yellow-400 to-orange-500",
-    image: "/images/jmc-edits-palettes/phoenix-circle.png"
+    image: "/images/jmc-edits-palettes/phoenix-circle.webp"
   },
   {
     name: "Wings of the Phoenix",
@@ -52,7 +52,7 @@ const subscriptionTiers = [
     description: "Legacy building. Support the funding of technology, physical studios, and expansion onto new platforms.",
     perks: ["Everything above", "Quarterly Executive Council Calls", "Phoenix Vision Insight Letters", "Highest priority for submissions"],
     color: "from-red-500 to-orange-600",
-    image: "/images/jmc-edits-palettes/wings-of-the-phoenix.png"
+    image: "/images/jmc-edits-palettes/wings-of-the-phoenix.webp"
   },
   {
     name: "Phoenix Ascending",
@@ -61,7 +61,7 @@ const subscriptionTiers = [
     description: "The absolute highest commitment. Patrons of the arts ensuring long-term stability and full potential.",
     perks: ["Everything above", "Annual 1-on-1 virtual call", "Private annual virtual gathering", "Executive-level recognition"],
     color: "from-yellow-200 via-orange-400 to-red-700",
-    image: "/images/jmc-edits-palettes/phoenix-ascending.png"
+    image: "/images/jmc-edits-palettes/phoenix-ascending.webp"
   }
 ];
 

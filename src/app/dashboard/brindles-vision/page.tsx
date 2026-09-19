@@ -199,7 +199,7 @@ export default function BrindlesVisionPage() {
                 <div className="flex flex-col items-center">
                   <div className="relative w-[280px] h-[350px] rounded-lg border border-orange-900/40 overflow-hidden shadow-[0_0_20px_rgba(234,88,12,0.1)]">
                     <Image
-                      src="/images/jmc-edits-palettes/brindle-bio-pic.png"
+                      src="/images/jmc-edits-palettes/brindle-bio-pic.webp"
                       alt="Michka Grant"
                       fill
                       sizes="280px"

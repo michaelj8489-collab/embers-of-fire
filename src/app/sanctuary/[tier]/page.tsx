@@ -19,7 +19,7 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
     title: "THE KEEPERS SANCTUARY",
     subtitle: "Fueling the eternal flame.",
     color: "from-orange-500 to-orange-700",
-    image: "/images/jmc-edits-palettes/keepers-of-the-embers.png",
+    image: "/images/jmc-edits-palettes/keepers-of-the-embers.webp",
     perks: ["Digital Supporter Recognition", "Ember Keeper Identity Badge", "Community Posts Feed"]
   },
   "flame-bearers": { 
@@ -33,21 +33,21 @@ const TIER_DECORATIONS: Record<string, { title: string, subtitle: string, color:
     title: "THE PHOENIX CIRCLE",
     subtitle: "Direct impact. Deep awareness.",
     color: "from-yellow-400 to-orange-500",
-    image: "/images/jmc-edits-palettes/phoenix-circle.png",
+    image: "/images/jmc-edits-palettes/phoenix-circle.webp",
     perks: ["Monthly 'Fireside' Livestream", "Monthly On-Air Shout-out", "Zoom Workshop Access"]
   },
   "wings-of-the-phoenix": { 
     title: "THE WINGS SANCTUARY",
     subtitle: "Building the legacy infrastructure.",
     color: "from-red-500 to-orange-600",
-    image: "/images/jmc-edits-palettes/wings-of-the-phoenix.png",
+    image: "/images/jmc-edits-palettes/wings-of-the-phoenix.webp",
     perks: ["Quarterly Executive Council Calls", "Phoenix Vision Insight Letters", "Submission Priority"]
   },
   "phoenix-ascending": { 
     title: "THE ASCENDING SANCTUARY",
     subtitle: "The highest vision realized.",
     color: "from-yellow-200 via-orange-400 to-red-700",
-    image: "/images/jmc-edits-palettes/phoenix-ascending.png",
+    image: "/images/jmc-edits-palettes/phoenix-ascending.webp",
     perks: ["Annual 1-on-1 Virtual Call", "Private Annual Virtual Gathering", "Executive-Level Recognition"]
   }
 };

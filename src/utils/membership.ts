@@ -7,7 +7,7 @@ export const MEMBERSHIP_TIERS = [
     intro: 'Believe in independent voices. Help fuel the RISE journey.',
     description: 'This tier is pure support. Your commitment is the spark that keeps the signal blazing.',
     benefits: ['Access to community posts feed', 'Digital supporter recognition', 'Ember Keeper identity badge'],
-    image: '/images/jmc-edits-palettes/keepers-of-the-embers.png',
+    image: '/images/jmc-edits-palettes/keepers-of-the-embers.webp',
     color: 'from-orange-500 to-orange-700',
   },
   {
@@ -29,7 +29,7 @@ export const MEMBERSHIP_TIERS = [
     intro: 'Exclusive access. Direct broadcast impact.',
     description: 'Where awareness meets true impact for our dedicated inner community.',
     benefits: ['Monthly Fireside livestream', 'Monthly on-air shout-out', 'Zoom workshops access'],
-    image: '/images/jmc-edits-palettes/phoenix-circle.png',
+    image: '/images/jmc-edits-palettes/phoenix-circle.webp',
     color: 'from-yellow-400 to-orange-500',
   },
   {
@@ -40,7 +40,7 @@ export const MEMBERSHIP_TIERS = [
     intro: 'The Infrastructure Force.',
     description: 'Legacy building that supports technology, studios, and expansion.',
     benefits: ['Quarterly Executive Council Calls', 'Phoenix Vision Insight Letters', 'Highest priority for submissions'],
-    image: '/images/jmc-edits-palettes/wings-of-the-phoenix.png',
+    image: '/images/jmc-edits-palettes/wings-of-the-phoenix.webp',
     color: 'from-red-500 to-orange-600',
   },
   {
@@ -51,7 +51,7 @@ export const MEMBERSHIP_TIERS = [
     intro: 'The Vanguard. Supporting the highest vision.',
     description: 'The highest commitment, sustaining long-term stability and potential.',
     benefits: ['Annual 1-on-1 virtual call', 'Private annual virtual gathering', 'Executive-level recognition'],
-    image: '/images/jmc-edits-palettes/phoenix-ascending.png',
+    image: '/images/jmc-edits-palettes/phoenix-ascending.webp',
     color: 'from-yellow-200 via-orange-400 to-red-700',
   },
 ] as const;
