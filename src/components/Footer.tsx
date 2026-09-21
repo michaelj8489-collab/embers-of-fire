@@ -91,7 +91,7 @@ export default function Footer() {
                Designed by
             </span>
 
-          <div className="group flex cursor-default items-center">
+          <a href="https://crimson-leo.pages.dev" target="_blank" rel="noopener noreferrer" aria-label="Visit Crimson Leo Designs" className="group flex items-center">
               <Image
                 src="/images/crimson-leo.png"
                 alt="Crimson Leo Designs"
@@ -99,7 +99,7 @@ export default function Footer() {
                 height={134}
                 className="h-auto w-27.5 object-contain drop-shadow-[0_0_8px_rgba(255,0,0,0.6)] transition-transform duration-300 group-hover:scale-105 sm:w-35 md:w-42.5"
               />
-            </div>
+            </a>
           </div>
         </div>
       </div>
