@@ -210,16 +210,16 @@ export default function HonkyTonkPage() {
                  <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-orange-500 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                    <Image
                      src="/images/jmc-edits-palettes/will-bio-pic.png" 
-                     alt="Will Iommi - Host of Honky Tonk Heaven" 
+                     alt="Will Iomi - Host of Honky Tonk Heaven" 
                      className="w-full h-full object-contain" 
                      width={128}
                      height={128}
                    />
                  </div>
                  <h4 className="font-cinzel text-orange-400 mb-2 uppercase tracking-widest font-bold text-xl">Meet the Host</h4>
-                 <h5 className="font-cinzel text-gray-200 mb-4 text-lg tracking-wider">Will Iommi</h5>
+                 <h5 className="font-cinzel text-gray-200 mb-4 text-lg tracking-wider">Will Iomi</h5>
                  <p className="font-cormorant text-lg text-gray-400 leading-relaxed italic">
-                   With a deep-rooted love for classic country and southern soul, Will Iommi brings the authentic sounds of Honky Tonk Heaven to the RISE Radio Network. Will is dedicated to highlighting independent artists and sharing the powerful storytelling that defines the country genre. Whether he's spinning timeless classics or uncovering new voices, his passion for the music and the RISE community shines through every broadcast.
+                   With a deep-rooted love for classic country and southern soul, Will Iomi brings the authentic sounds of Honky Tonk Heaven to the RISE Radio Network. Will is dedicated to highlighting independent artists and sharing the powerful storytelling that defines the country genre. Whether he's spinning timeless classics or uncovering new voices, his passion for the music and the RISE community shines through every broadcast.
                  </p>
               </div>
 
