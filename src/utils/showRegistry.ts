@@ -71,7 +71,8 @@ export const SHOWS = [
     name: 'Honky Tonk Heaven',
     slug: 'honky-tonk-heaven',
     href: '/dashboard/honky-tonk-heaven',
-    hosts: ['Will Iommi'],
+    // On-air pronunciation for promos: Will eye-OH-mee (as in 'I owe me').
+    hosts: ['Will Iomi'],
     schedule: { day: 'Tuesdays', time: '9:00 PM EST' },
     supportedLivePlatforms: ['manual', 'zeno'],
     zenoStations: GLOBAL_ZENO_STATIONS,
